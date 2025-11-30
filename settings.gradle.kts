@@ -20,4 +20,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "DDDAtendanceAndroid"
+
 include(":app")
+include(":data")
+include(":data:api")
+include(":domain")
+include(":feature:home")
