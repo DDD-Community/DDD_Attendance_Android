@@ -1,6 +1,6 @@
 [versions]
 projectVersionName = "1.0.0"
-projectMinSdk = "23"
+projectMinSdk = "26"
 projectTargetSdk = "36"
 projectCompileSdk = "36"
 projectVersionCode = "1"
@@ -25,8 +25,11 @@ navigationCompose = "2.9.6"
 androidTools = "31.13.1"
 ksp = "2.2.10-2.0.2"
 hilt = "2.57.2"
+androidxTracing = "1.3.0"
+kotlinxSerializationJson = "1.9.0"
 
 [libraries]
+androidx-tracing-ktx = { group = "androidx.tracing", name = "tracing-ktx", version.ref = "androidxTracing" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -56,7 +59,9 @@ coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-
 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "androidxHilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHilt" }
+
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 #convention setting
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
@@ -65,15 +70,6 @@ kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ve
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
 inject = "javax.inject:javax.inject:1"
-
-[plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
 compose = [
@@ -91,3 +87,21 @@ hilt = [
     "hilt-android",
     "hilt-navigation-compose",
 ]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+attendance-android-application = { id = "attendance.android.application", version = "unspecified" } # AndroidApplicationConventionPlugin
+attendance-android-hilt = { id = "attendance.android.hilt", version = "unspecified" } # AndroidHiltConventionPlugin
+attendance-android-library = { id = "attendance.android.library", version = "unspecified" } # AndroidLibraryConventionPlugin
+attendance-android-compose = { id = "attendance.android.compose", version = "unspecified" } # AndroidComposeConventionPlugin
+attendance-jvm-library = { id = "attendance.jvm.library", version = "unspecified" } #JvmLibraryConventionPlugin
+attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.library.parcelize.serialization", version = "unspecified" } # KotlinLibraryParcelizeSerializationConventionPlugin

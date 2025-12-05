@@ -18,10 +18,43 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    //compileOnly(libs.compose.gradle.plugin)
+    compileOnly(libs.compose.gradle.plugin)
     compileOnly(libs.android.tools.common)
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
+}
 
+gradlePlugin {
+    plugins {
+        register("androidApplication") {
+            id = "attendance.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+
+        register("androidHilt") {
+            id = "attendance.android.hilt"
+            implementationClass = "AndroidHiltConventionPlugin"
+        }
+
+        register("androidLibrary") {
+            id = "attendance.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
+
+        register("androidCompose") {
+            id = "attendance.android.compose"
+            implementationClass = "AndroidComposeConventionPlugin"
+        }
+
+        register("jvmLibrary") {
+            id = "attendance.jvm.library"
+            implementationClass = "JvmLibraryConventionPlugin"
+        }
+
+        register("kotlinLibraryParcelizeSerialization") {
+            id = "attendance.kotlin.library.parcelize.serialization"
+            implementationClass = "KotlinLibraryParcelizeSerializationConventionPlugin"
+        }
+    }
 }
