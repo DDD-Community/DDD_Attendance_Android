@@ -20,6 +20,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     applicationId = findVersion("projectApplicationId")
                     versionCode = findVersion("projectVersionCode").toInt()
                     versionName = findVersion("projectVersionName")
+                    targetSdk = findVersion("projectTargetSdk").toInt()
                 }
 
                 configureKotlinAndroid()
