@@ -7,3 +7,8 @@ plugins {
 }
 
 setNamespace("app")
+
+dependencies {
+    implementation(projects.feature.onboarding)
+    implementation(projects.feature.home)
+}
