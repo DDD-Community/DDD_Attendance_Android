@@ -28,6 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.ddd.attendance.feature.onboarding.invite.InviteScreen
+import com.ddd.attendance.feature.onboarding.name.NameScreen
+import com.ddd.attendance.feature.onboarding.role.RoleScreen
+import com.ddd.attendance.feature.onboarding.team.TeamScreen
+import com.ddd.attendance.feature.onboarding.work.WorkScreen
 
 
 @Composable
@@ -68,6 +73,8 @@ internal fun OnBoardingScreenContent(
         Spacer(modifier = Modifier.weight(1f))
 
         OnBoardingBody(
+            type = uiState.type,
+            step = uiState.step,
             onNextClick = onNextClick,
             isNextEnabled = true
         )
@@ -134,28 +141,49 @@ internal fun OnBoardingHeader(
 
 @Composable
 internal fun OnBoardingBody(
+    type: OnBoardingType,
+    step: Int,
     isNextEnabled: Boolean,
     onNextClick:() -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, bottom = 20.dp)
-            .height(48.dp)
-            .background(
-                color = if (isNextEnabled) Color.Blue else Color.Yellow,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clickable(enabled = isNextEnabled) {
-                onNextClick()
-            },
-        contentAlignment = Alignment.Center
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "다음",
-            color = if (isNextEnabled) Color.White else Color.Black,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        when (step) {
+            0 -> InviteScreen()
+            1 -> NameScreen()
+            2 -> RoleScreen()
+            3 -> {
+                when(type) {
+                    OnBoardingType.Admin -> WorkScreen()
+                    OnBoardingType.Member -> TeamScreen()
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 다음 버튼
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(
+                    color = if (isNextEnabled) Color.Blue else Color.Gray,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .clickable(enabled = isNextEnabled) { onNextClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "다음",
+                color = if (isNextEnabled) Color.White else Color.DarkGray,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
 

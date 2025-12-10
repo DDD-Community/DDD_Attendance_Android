@@ -1,17 +1,18 @@
-package com.ddd.attendance.feature.onboarding.invite
+package com.ddd.attendance.feature.onboarding.name
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 @Composable
-internal fun InviteScreen() {
+internal fun NameScreen() {
     Content()
 }
 
 @Composable
 internal fun Content() {
     Text(
-        text = "초대 코드 입력 화면",
-        color = Color.White)
+        text = "사용자 이름 입력 화면",
+        color = Color.White
+    )
 }
