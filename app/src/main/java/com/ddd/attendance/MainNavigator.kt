@@ -14,7 +14,7 @@ internal class MainNavigator(
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
-    val startDestination = ScreenName.HOME.name
+    val startDestination = ScreenName.LOGIN.name
 }
 
 @Composable

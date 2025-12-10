@@ -10,4 +10,5 @@ setNamespace("app")
 
 dependencies {
     implementation(projects.feature.home)
+    implementation(projects.feature.login)
 }
