@@ -56,5 +56,10 @@ gradlePlugin {
             id = "attendance.kotlin.library.parcelize.serialization"
             implementationClass = "KotlinLibraryParcelizeSerializationConventionPlugin"
         }
+
+        register("androidCoil") {
+            id = "attendance.android.coil"
+            implementationClass = "AndroidCoilConventionPlugin"
+        }
     }
 }

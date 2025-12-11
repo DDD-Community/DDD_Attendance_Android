@@ -27,6 +27,7 @@ ksp = "2.2.10-2.0.2"
 hilt = "2.57.2"
 androidxTracing = "1.3.0"
 kotlinxSerializationJson = "1.9.0"
+coil = "3.2.0"
 
 [libraries]
 androidx-tracing-ktx = { group = "androidx.tracing", name = "tracing-ktx", version.ref = "androidxTracing" }
@@ -62,6 +63,9 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.r
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHilt" }
 
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-gif = { group = "io.coil-kt.coil3", name = "coil-gif", version.ref = "coil" }
 
 #convention setting
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
@@ -103,5 +107,7 @@ attendance-android-application = { id = "attendance.android.application", versio
 attendance-android-hilt = { id = "attendance.android.hilt", version = "unspecified" } # AndroidHiltConventionPlugin
 attendance-android-library = { id = "attendance.android.library", version = "unspecified" } # AndroidLibraryConventionPlugin
 attendance-android-compose = { id = "attendance.android.compose", version = "unspecified" } # AndroidComposeConventionPlugin
+attendance-android-coil = { id = "attendance.android.coil", version = "unspecified" } # AndroidCoilConventionPlugin
+attendance-android-splashscreen = { id = "attendance.android.splashscreen", version = "unspecified" } # AndroidSplashScreenConventionPlugin
 attendance-jvm-library = { id = "attendance.jvm.library", version = "unspecified" } #JvmLibraryConventionPlugin
 attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.library.parcelize.serialization", version = "unspecified" } # KotlinLibraryParcelizeSerializationConventionPlugin
