@@ -1,5 +1,6 @@
 package com.ddd.attendance
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ddd.attendance.feature.home.HomeScreen
 import com.ddd.attendance.feature.onboarding.OnBoardingScreen
+import com.ddd.attendance.ui.theme.DDDBackgroundLight
 
 @Composable
 internal fun MainNavHost(
@@ -21,6 +23,7 @@ internal fun MainNavHost(
     Box(
         modifier = modifier
             .padding(padding)
+            .background(DDDBackgroundLight)
             .fillMaxSize()
     ) {
         NavHost(

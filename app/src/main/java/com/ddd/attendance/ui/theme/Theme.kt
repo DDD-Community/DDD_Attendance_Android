@@ -14,16 +14,16 @@ private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80,
-    background = DDDBackGround,
-    surface = DDDBackGround,
+    background = DDDBackgroundDark,
+    surface = DDDBackgroundDark,
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40,
-    background = DDDBackGround,
-    surface = DDDBackGround
+    background = DDDBackgroundLight,
+    surface = DDDBackgroundLight
 )
 
     /* Other default colors to override
@@ -47,13 +47,13 @@ fun DDDAtendanceAndroidTheme(
             val context = LocalContext.current
             if (darkTheme)
                 dynamicDarkColorScheme(context).copy(
-                    background = DDDBackGround,
-                    surface = DDDBackGround
+                    background = DDDBackgroundDark,
+                    surface = DDDBackgroundDark
                 )
             else
                 dynamicLightColorScheme(context).copy(
-                    background = DDDBackGround,
-                    surface = DDDBackGround
+                    background = DDDBackgroundLight,
+                    surface = DDDBackgroundLight
                 )
         } else {
             if (darkTheme) DarkColorScheme else LightColorScheme

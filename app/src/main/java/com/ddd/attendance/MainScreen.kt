@@ -9,7 +9,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import com.ddd.attendance.app.R
-import com.ddd.attendance.ui.theme.DDDBackGround
+import com.ddd.attendance.ui.theme.DDDBackgroundLight
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 
@@ -50,7 +50,6 @@ private fun MainScreenContent(
 ) {
     Scaffold(
         modifier = modifier,
-        contentColor = DDDBackGround,
         content = { padding ->
             MainNavHost(
                 navigator = navigator,

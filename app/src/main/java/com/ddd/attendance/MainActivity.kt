@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DDDAtendanceAndroidTheme {
+            DDDAtendanceAndroidTheme(darkTheme = false) {
                 MainScreen()
             }
         }

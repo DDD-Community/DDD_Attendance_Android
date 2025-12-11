@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.ddd.attendance.feature.designsystem.component.DDDButton
+import com.ddd.attendance.feature.designsystem.component.DDDText
+import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.onboarding.invite.InviteScreen
 import com.ddd.attendance.feature.onboarding.name.NameScreen
 import com.ddd.attendance.feature.onboarding.role.RoleScreen
@@ -65,7 +70,7 @@ internal fun OnBoardingScreenContent(
 ) {
     Column(Modifier.fillMaxSize()) {
         OnBoardingHeader(
-            whiteCount = uiState.whiteBlockCount,
+            grayCount = uiState.grayBlockCount,
             blackCount = uiState.blackBlockCount,
             onBackClick = onBackClick
         )
@@ -83,7 +88,7 @@ internal fun OnBoardingScreenContent(
 
 @Composable
 internal fun OnBoardingHeader(
-    whiteCount: Int,
+    grayCount: Int,
     blackCount: Int,
     onBackClick: () -> Unit
 ) {
@@ -98,18 +103,20 @@ internal fun OnBoardingHeader(
                 .fillMaxHeight()
                 .padding(start = 16.dp, end = 12.dp)
                 .size(28.dp)
-                .clickable { onBackClick() },
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onBackClick() },
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.left_arrow_white),
+                painter = painterResource(id = R.drawable.left_arrow_black),
                 contentDescription = "뒤로가기",
                 modifier = Modifier.fillMaxSize()
             )
         }
 
-        // step != 0일 때만 표시
-        if (whiteCount > 0 || blackCount < 3) {
+        if (blackCount > 0 || grayCount < 3) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -117,21 +124,21 @@ internal fun OnBoardingHeader(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                repeat(whiteCount) { index ->
-                    // 마지막 흰색 블록이면서, 뒤에 검정 블록이 없으면 Spacer(간격) 생기지 않도록 설정
-                    val isLastWhiteBlockWithoutBlack = index == whiteCount - 1 && blackCount == 0
-                    BlockImage(
-                        resId = R.drawable.step_block_white,
-                        isLast = isLastWhiteBlockWithoutBlack
-                    )
-                }
-
+                // 검정 블록 먼저
                 repeat(blackCount) { index ->
-                    // 마지막 검정 블록이면 Spacer(간격) 생기지 않도록 설정
                     val isLastBlackBlock = index == blackCount - 1
                     BlockImage(
                         resId = R.drawable.step_block_black,
                         isLast = isLastBlackBlock
+                    )
+                }
+
+                // 그 뒤에 회색 블록
+                repeat(grayCount) { index ->
+                    val isLastGrayBlockWithoutBlack = index == grayCount - 1
+                    BlockImage(
+                        resId = R.drawable.step_block_gray,
+                        isLast = isLastGrayBlockWithoutBlack
                     )
                 }
             }
@@ -146,42 +153,36 @@ internal fun OnBoardingBody(
     isNextEnabled: Boolean,
     onNextClick:() -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        when (step) {
-            0 -> InviteScreen()
-            1 -> NameScreen()
-            2 -> RoleScreen()
-            3 -> {
-                when(type) {
-                    OnBoardingType.Admin -> WorkScreen()
-                    OnBoardingType.Member -> TeamScreen()
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            when (step) {
+                0 -> InviteScreen()
+                1 -> NameScreen()
+                2 -> RoleScreen()
+                3 -> {
+                    when(type) {
+                        OnBoardingType.Admin -> WorkScreen()
+                        OnBoardingType.Member -> TeamScreen()
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 다음 버튼
         Box(
             modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(48.dp)
-                .background(
-                    color = if (isNextEnabled) Color.Blue else Color.Gray,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .clickable(enabled = isNextEnabled) { onNextClick() },
-            contentAlignment = Alignment.Center
+                .padding(start = 24.dp, bottom = 20.dp, end = 24.dp)
         ) {
-            Text(
+            DDDButton(
                 text = "다음",
-                color = if (isNextEnabled) Color.White else Color.DarkGray,
-                style = MaterialTheme.typography.bodyLarge
+                isEnabled = isNextEnabled,
+                onClick = onNextClick
             )
         }
     }

@@ -35,8 +35,8 @@ class OnBoardingViewModel @Inject constructor(
 
         return state.copy(
             step = stepBlock,
-            whiteBlockCount = stepBlock,
-            blackBlockCount = 3 - stepBlock
+            grayBlockCount = 3 - stepBlock,
+            blackBlockCount = stepBlock
         )
     }
 }

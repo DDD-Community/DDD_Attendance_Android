@@ -14,6 +14,6 @@ import androidx.compose.runtime.Stable
 data class OnBoardingUiState(
     val type: OnBoardingType = OnBoardingType.Member,
     val step: Int = 0,
-    val whiteBlockCount: Int = 0,
+    val grayBlockCount: Int = 0,
     val blackBlockCount: Int = 0,
 )
