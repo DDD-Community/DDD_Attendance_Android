@@ -108,6 +108,5 @@ attendance-android-hilt = { id = "attendance.android.hilt", version = "unspecifi
 attendance-android-library = { id = "attendance.android.library", version = "unspecified" } # AndroidLibraryConventionPlugin
 attendance-android-compose = { id = "attendance.android.compose", version = "unspecified" } # AndroidComposeConventionPlugin
 attendance-android-coil = { id = "attendance.android.coil", version = "unspecified" } # AndroidCoilConventionPlugin
-attendance-android-splashscreen = { id = "attendance.android.splashscreen", version = "unspecified" } # AndroidSplashScreenConventionPlugin
 attendance-jvm-library = { id = "attendance.jvm.library", version = "unspecified" } #JvmLibraryConventionPlugin
 attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.library.parcelize.serialization", version = "unspecified" } # KotlinLibraryParcelizeSerializationConventionPlugin
