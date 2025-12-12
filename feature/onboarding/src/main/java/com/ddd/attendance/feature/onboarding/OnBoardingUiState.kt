@@ -1,6 +1,7 @@
 package com.ddd.attendance.feature.onboarding
 
 import androidx.compose.runtime.Stable
+import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 
 /**
  * OnBoarding 진행 단계 정의
@@ -13,7 +14,10 @@ import androidx.compose.runtime.Stable
 @Stable
 data class OnBoardingUiState(
     val type: OnBoardingType = OnBoardingType.Member,
-    val step: Int = 0,
+    val step: OnBoardingStep = OnBoardingStep.Invite,
+    val index: Int = 0,
     val grayBlockCount: Int = 0,
     val blackBlockCount: Int = 0,
+    val invitePinCode: String = "",
+    val pinCodeStatus: PinCodeStatus = PinCodeStatus.Idle
 )

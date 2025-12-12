@@ -5,10 +5,6 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.support.delegates.DependencyHandlerDelegate
-import kotlin.apply
-import kotlin.text.toInt
 
 /**
  * Android 모듈의 Kotlin/Android 기본 설정

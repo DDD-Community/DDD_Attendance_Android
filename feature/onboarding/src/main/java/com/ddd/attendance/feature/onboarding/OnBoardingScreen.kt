@@ -2,7 +2,6 @@ package com.ddd.attendance.feature.onboarding
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,24 +15,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.feature.designsystem.component.DDDButton
-import com.ddd.attendance.feature.designsystem.component.DDDText
-import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.onboarding.invite.InviteScreen
+import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.name.NameScreen
 import com.ddd.attendance.feature.onboarding.role.RoleScreen
 import com.ddd.attendance.feature.onboarding.team.TeamScreen
@@ -49,8 +44,9 @@ fun OnBoardingScreen(
 
     OnBoardingScreenContent(
         uiState = uiState,
+        pinCodeStatus = uiState.pinCodeStatus,
         onBackClick = {
-            if (uiState.step == 0) {
+            if (uiState.step == OnBoardingStep.Invite) {
                 navController.popBackStack()
             } else {
                 viewModel.onIntent(OnBoardingIntent.BackStepBlock)
@@ -58,6 +54,10 @@ fun OnBoardingScreen(
         },
         onNextClick = {
             viewModel.onIntent(OnBoardingIntent.NextStepBlock)
+        },
+        pinCode = uiState.invitePinCode,
+        onInvitePinCodeChanged = {
+            viewModel.onIntent(OnBoardingIntent.InvitePinCodeChanged(it))
         }
     )
 }
@@ -66,7 +66,10 @@ fun OnBoardingScreen(
 internal fun OnBoardingScreenContent(
     uiState: OnBoardingUiState,
     onBackClick:() -> Unit,
-    onNextClick:() -> Unit
+    onNextClick:() -> Unit,
+    pinCodeStatus: PinCodeStatus,
+    pinCode: String,
+    onInvitePinCodeChanged: (pinCode: String) -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
         OnBoardingHeader(
@@ -78,10 +81,12 @@ internal fun OnBoardingScreenContent(
         Spacer(modifier = Modifier.weight(1f))
 
         OnBoardingBody(
-            type = uiState.type,
             step = uiState.step,
             onNextClick = onNextClick,
-            isNextEnabled = true
+            isNextEnabled = pinCodeStatus in listOf(PinCodeStatus.Ready, PinCodeStatus.Success), //다른 bool도 추가될 예정
+            pinCode = pinCode,
+            pinCodeStatus = pinCodeStatus,
+            onInvitePinCodeChanged = onInvitePinCodeChanged
         )
     }
 }
@@ -148,28 +153,32 @@ internal fun OnBoardingHeader(
 
 @Composable
 internal fun OnBoardingBody(
-    type: OnBoardingType,
-    step: Int,
+    step: OnBoardingStep,
     isNextEnabled: Boolean,
-    onNextClick:() -> Unit
+    onNextClick:() -> Unit,
+    pinCodeStatus: PinCodeStatus,
+    pinCode: String,
+    onInvitePinCodeChanged: (pinCode: String) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (step) {
-                0 -> InviteScreen()
-                1 -> NameScreen()
-                2 -> RoleScreen()
-                3 -> {
-                    when(type) {
-                        OnBoardingType.Admin -> WorkScreen()
-                        OnBoardingType.Member -> TeamScreen()
-                    }
+                OnBoardingStep.Invite -> {
+                    InviteScreen(
+                        pinCodeStatus = pinCodeStatus,
+                        pinCode = pinCode,
+                        { onInvitePinCodeChanged(it) }
+                    )
                 }
+                OnBoardingStep.Name -> NameScreen()
+                OnBoardingStep.Role -> RoleScreen()
+                OnBoardingStep.Team -> TeamScreen()
+                OnBoardingStep.Work -> WorkScreen()
             }
         }
 
@@ -180,7 +189,7 @@ internal fun OnBoardingBody(
                 .padding(start = 24.dp, bottom = 20.dp, end = 24.dp)
         ) {
             DDDButton(
-                text = "다음",
+                text = stringResource(R.string.next),
                 isEnabled = isNextEnabled,
                 onClick = onNextClick
             )

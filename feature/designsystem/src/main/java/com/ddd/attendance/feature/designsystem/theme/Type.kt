@@ -60,6 +60,11 @@ val Typography: DDDTypography = DDDTypography(
         fontWeight = FontWeight.Black,
         letterSpacing = (-0.2).sp,
     ),
+    headlineSmallB = SansSerifStyle.copy(
+        fontSize = 32.sp,
+        lineHeight = 44.sp,
+        fontWeight = FontWeight.Bold,
+    ),
     headlineSmallM = SansSerifStyle.copy(
         fontSize = 24.sp,
         lineHeight = 32.sp,
@@ -75,8 +80,8 @@ val Typography: DDDTypography = DDDTypography(
         fontWeight = FontWeight.Black,
     ),
     titleLargeB = SansSerifStyle.copy(
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
         fontWeight = FontWeight.Bold,
     ),
     titleLargeM = SansSerifStyle.copy(
@@ -149,14 +154,15 @@ val Typography: DDDTypography = DDDTypography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp,
     ),
-    bodyMediumR = SansSerifStyle.copy(
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp,
+    bodyMediumM = SansSerifStyle.copy(
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        fontWeight = FontWeight.Medium
     ),
-    bodySmallR = SansSerifStyle.copy(
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
+    bodySmallM = SansSerifStyle.copy(
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
+        fontWeight = FontWeight.Medium
     ),
 )
 
@@ -173,11 +179,12 @@ data class DDDTypography(
     val headlineMediumM: TextStyle,
     val headlineMediumR: TextStyle,
     val headlineSmallBL: TextStyle,
+    val headlineSmallB: TextStyle, // add
     val headlineSmallM: TextStyle,
     val headlineSmallR: TextStyle,
 
     val titleLargeBL: TextStyle,
-    val titleLargeB: TextStyle,
+    val titleLargeB: TextStyle, // add
     val titleLargeM: TextStyle,
     val titleLargeR: TextStyle,
     val titleMediumBL: TextStyle,
@@ -194,8 +201,8 @@ data class DDDTypography(
     val labelSmallM: TextStyle,
 
     val bodyLargeR: TextStyle,
-    val bodyMediumR: TextStyle,
-    val bodySmallR: TextStyle,
+    val bodyMediumM: TextStyle, // add
+    val bodySmallM: TextStyle, // add
 )
 
 val LocalTypography = staticCompositionLocalOf {
@@ -211,6 +218,7 @@ val LocalTypography = staticCompositionLocalOf {
         headlineMediumM = SansSerifStyle,
         headlineMediumR = SansSerifStyle,
         headlineSmallBL = SansSerifStyle,
+        headlineSmallB = SansSerifStyle,
         headlineSmallM = SansSerifStyle,
         headlineSmallR = SansSerifStyle,
         titleLargeBL = SansSerifStyle,
@@ -228,7 +236,7 @@ val LocalTypography = staticCompositionLocalOf {
         labelLargeM = SansSerifStyle,
         labelMediumR = SansSerifStyle,
         bodyLargeR = SansSerifStyle,
-        bodyMediumR = SansSerifStyle,
-        bodySmallR = SansSerifStyle,
+        bodyMediumM = SansSerifStyle,
+        bodySmallM = SansSerifStyle,
     )
 }

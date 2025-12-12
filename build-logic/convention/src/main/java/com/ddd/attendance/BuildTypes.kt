@@ -8,10 +8,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import java.io.File
 import java.util.Properties
-import kotlin.collections.forEach
-import kotlin.io.inputStream
-import kotlin.io.use
-import kotlin.run
 
 /**
  * 모듈 타입(Application/Library)에 맞춰 debug·release 빌드 타입을 설정하는 함수
