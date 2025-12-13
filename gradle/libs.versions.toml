@@ -28,6 +28,9 @@ hilt = "2.57.2"
 androidxTracing = "1.3.0"
 kotlinxSerializationJson = "1.9.0"
 coil = "3.2.0"
+retrofit = "2.11.0"
+retrofitKotlinxSerializationConverter = "1.0.0"
+okhttp = "4.12.0"
 
 [libraries]
 androidx-tracing-ktx = { group = "androidx.tracing", name = "tracing-ktx", version.ref = "androidxTracing" }
@@ -66,6 +69,11 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-gif = { group = "io.coil-kt.coil3", name = "coil-gif", version.ref = "coil" }
+
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializationConverter" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 #convention setting
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
@@ -108,5 +116,6 @@ attendance-android-hilt = { id = "attendance.android.hilt", version = "unspecifi
 attendance-android-library = { id = "attendance.android.library", version = "unspecified" } # AndroidLibraryConventionPlugin
 attendance-android-compose = { id = "attendance.android.compose", version = "unspecified" } # AndroidComposeConventionPlugin
 attendance-android-coil = { id = "attendance.android.coil", version = "unspecified" } # AndroidCoilConventionPlugin
+attendance-android-retrofit = { id = "attendance.android.retrofit", version = "unspecified" } # AndroidRetrofitConventionPlugin
 attendance-jvm-library = { id = "attendance.jvm.library", version = "unspecified" } #JvmLibraryConventionPlugin
 attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.library.parcelize.serialization", version = "unspecified" } # KotlinLibraryParcelizeSerializationConventionPlugin

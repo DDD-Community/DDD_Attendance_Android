@@ -34,7 +34,7 @@ fun LoginScreen(
         )
         
         Button(
-            onClick = viewModel::login,
+            onClick = { viewModel.login(com.ddd.attendance.domain.model.LoginType.GOOGLE) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(24.dp)

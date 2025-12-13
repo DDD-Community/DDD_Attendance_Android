@@ -61,5 +61,10 @@ gradlePlugin {
             id = "attendance.android.coil"
             implementationClass = "AndroidCoilConventionPlugin"
         }
+
+        register("androidRetrofit") {
+            id = "attendance.android.retrofit"
+            implementationClass = "AndroidRetrofitConventionPlugin"
+        }
     }
 }

@@ -7,3 +7,7 @@ plugins {
 }
 
 setNamespace("feature.login")
+
+dependencies {
+    implementation(projects.domain)
+}
