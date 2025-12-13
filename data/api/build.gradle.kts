@@ -11,3 +11,7 @@ plugins {
 }
 
 setNamespace("data.api")
+
+dependencies {
+    implementation(projects.data)
+}

@@ -27,6 +27,7 @@ rootProject.name = "DDDAtendanceAndroid"
 include(":app")
 include(":data")
 include(":data:api")
+include(":data:google")
 include(":domain")
 include(":feature:home")
 include(":feature:login")

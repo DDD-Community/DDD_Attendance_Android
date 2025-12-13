@@ -66,5 +66,10 @@ gradlePlugin {
             id = "attendance.android.retrofit"
             implementationClass = "AndroidRetrofitConventionPlugin"
         }
+
+        register("androidGoogleLogin") {
+            id = "attendance.android.googlelogin"
+            implementationClass = "AndroidGoogleLoginConventionPlugin"
+        }
     }
 }

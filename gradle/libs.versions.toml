@@ -31,6 +31,9 @@ coil = "3.2.0"
 retrofit = "2.11.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 okhttp = "4.12.0"
+credentialsPlayServicesAuth = "1.3.0"
+googleCredentials = "1.3.0"
+googleId = "1.1.1"
 
 [libraries]
 androidx-tracing-ktx = { group = "androidx.tracing", name = "tracing-ktx", version.ref = "androidxTracing" }
@@ -74,6 +77,10 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-converter-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializationConverter" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+google-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "googleCredentials" }
+google-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
+google-identity-googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleId" }
 
 #convention setting
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
@@ -119,3 +126,4 @@ attendance-android-coil = { id = "attendance.android.coil", version = "unspecifi
 attendance-android-retrofit = { id = "attendance.android.retrofit", version = "unspecified" } # AndroidRetrofitConventionPlugin
 attendance-jvm-library = { id = "attendance.jvm.library", version = "unspecified" } #JvmLibraryConventionPlugin
 attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.library.parcelize.serialization", version = "unspecified" } # KotlinLibraryParcelizeSerializationConventionPlugin
+attendance-android-googlelogin = { id = "attendance.android.googlelogin", version = "unspecified" } # AndroidGoogleLoginConventionPlugin

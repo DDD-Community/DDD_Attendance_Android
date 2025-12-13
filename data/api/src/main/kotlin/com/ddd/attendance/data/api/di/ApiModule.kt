@@ -1,6 +1,8 @@
 package com.ddd.attendance.data.api.di
 
 import com.ddd.attendance.data.api.UserApi
+import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
+import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -54,4 +56,8 @@ object ApiModule {
     fun provideUserApiService(retrofit: Retrofit): UserApi {
         return retrofit.create(UserApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
 }

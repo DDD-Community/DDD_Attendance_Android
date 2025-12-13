@@ -10,5 +10,4 @@ setNamespace("data")
 
 dependencies {
     implementation(projects.domain)
-    implementation(projects.data.api)
 }

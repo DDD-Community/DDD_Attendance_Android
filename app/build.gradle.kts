@@ -11,6 +11,7 @@ setNamespace("app")
 dependencies {
     implementation(projects.data)
     implementation(projects.data.api)
+    implementation(projects.data.google)
     implementation(projects.domain)
     implementation(projects.feature.home)
     implementation(projects.feature.login)
