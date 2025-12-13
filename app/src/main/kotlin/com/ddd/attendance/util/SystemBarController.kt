@@ -25,10 +25,10 @@ private fun getSystemBarColors(screenName: ScreenName): SystemBarColors {
             isLightNavigationBars = false
         )
         ScreenName.LOGIN -> SystemBarColors(
-            statusBarColor = Color.White,
-            navigationBarColor = Color.White,
-            isLightStatusBars = true,
-            isLightNavigationBars = true
+            statusBarColor = Color.Black,
+            navigationBarColor = Color.Black,
+            isLightStatusBars = false,
+            isLightNavigationBars = false
         )
         ScreenName.HOME -> SystemBarColors(
             statusBarColor = Color.White,
