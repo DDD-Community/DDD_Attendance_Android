@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.ddd.attendance.domain.model.LoginType
 
 @Composable
 fun LoginScreen(
@@ -34,7 +35,7 @@ fun LoginScreen(
         )
         
         Button(
-            onClick = { viewModel.login(com.ddd.attendance.domain.model.LoginType.GOOGLE) },
+            onClick = { viewModel.login(LoginType.GOOGLE) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(24.dp)
