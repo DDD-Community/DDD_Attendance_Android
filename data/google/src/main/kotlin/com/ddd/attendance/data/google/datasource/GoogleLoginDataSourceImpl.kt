@@ -72,7 +72,6 @@ class GoogleLoginDataSourceImpl @Inject constructor(
     }
     
     companion object {
-        // TODO: 실제 서버 클라이언트 ID로 변경 필요
-        private const val SERVER_CLIENT_ID = "your_server_client_id.googleusercontent.com"
+        private const val SERVER_CLIENT_ID = "369957721624-834shassrfsjt9j97oe2801clnngqtls.apps.googleusercontent.com"
     }
 }
