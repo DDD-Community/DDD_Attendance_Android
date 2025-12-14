@@ -9,6 +9,5 @@ plugins {
 setNamespace("data.google")
 
 dependencies {
-    implementation(projects.domain)
     implementation(projects.data)
 }

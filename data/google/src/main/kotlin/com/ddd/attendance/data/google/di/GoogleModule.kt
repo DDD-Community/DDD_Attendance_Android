@@ -1,20 +1,18 @@
 package com.ddd.attendance.data.google.di
 
-import com.ddd.attendance.data.datasource.LoginDataSource
+import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.ddd.attendance.data.google.datasource.GoogleLoginDataSourceImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object GoogleModule {
+abstract class GoogleModule {
     
-    @Provides
-    @Singleton
-    fun provideGoogleLoginDataSource(
+    @Binds
+    abstract fun bindGoogleLoginDataSource(
         impl: GoogleLoginDataSourceImpl
-    ): LoginDataSource = impl
+    ): GoogleLoginDataSource
 }

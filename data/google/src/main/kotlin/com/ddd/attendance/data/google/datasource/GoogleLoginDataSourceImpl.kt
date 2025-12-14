@@ -5,8 +5,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
-import com.ddd.attendance.data.datasource.LoginDataSource
-import com.ddd.attendance.domain.model.LoginType
+import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,16 +15,10 @@ import javax.inject.Singleton
 @Singleton
 class GoogleLoginDataSourceImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) : LoginDataSource {
+) : GoogleLoginDataSource {
     private val credentialManager = CredentialManager.create(context)
     
-    override suspend fun login(loginType: LoginType): Result<String> {
-        return when (loginType) {
-            LoginType.GOOGLE -> signInWithGoogle()
-        }
-    }
-    
-    private suspend fun signInWithGoogle(): Result<String> {
+    override suspend fun login(): Result<String> {
         return try {
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
@@ -60,7 +53,7 @@ class GoogleLoginDataSourceImpl @Inject constructor(
         }
     }
     
-    suspend fun signOut(): Result<Unit> {
+    private suspend fun signOut(): Result<Unit> {
         return try {
             credentialManager.clearCredentialState(
                 androidx.credentials.ClearCredentialStateRequest()
