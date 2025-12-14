@@ -71,5 +71,10 @@ gradlePlugin {
             id = "attendance.android.googlelogin"
             implementationClass = "AndroidGoogleLoginConventionPlugin"
         }
+
+        register("coroutine") {
+            id = "attendance.coroutine"
+            implementationClass = "CoroutineConventionPlugin"
+        }
     }
 }

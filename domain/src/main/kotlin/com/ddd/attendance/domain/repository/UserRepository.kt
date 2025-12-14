@@ -1,7 +1,8 @@
 package com.ddd.attendance.domain.repository
 
 import com.ddd.attendance.domain.model.LoginType
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    suspend fun login(loginType: LoginType): Result<Unit>
+    fun login(loginType: LoginType): Flow<Boolean>
 }

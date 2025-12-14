@@ -127,3 +127,4 @@ attendance-android-retrofit = { id = "attendance.android.retrofit", version = "u
 attendance-jvm-library = { id = "attendance.jvm.library", version = "unspecified" } #JvmLibraryConventionPlugin
 attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.library.parcelize.serialization", version = "unspecified" } # KotlinLibraryParcelizeSerializationConventionPlugin
 attendance-android-googlelogin = { id = "attendance.android.googlelogin", version = "unspecified" } # AndroidGoogleLoginConventionPlugin
+attendance-coroutine = { id = "attendance.coroutine", version = "unspecified" } # CoroutineConventionPlugin
