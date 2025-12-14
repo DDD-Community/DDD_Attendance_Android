@@ -4,5 +4,5 @@ import com.ddd.attendance.domain.model.LoginType
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    fun login(loginType: LoginType): Flow<Boolean>
+    fun login(loginType: LoginType): Flow<Unit>
 }

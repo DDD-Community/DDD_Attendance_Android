@@ -13,27 +13,22 @@ class UserRepositoryImpl @Inject constructor(
     private val apiLoginDataSource: ApiLoginDataSource
 ) : UserRepository {
     
-    override fun login(loginType: LoginType): Flow<Boolean> = flow {
-        try {
-            when (loginType) {
-                LoginType.GOOGLE -> {
-                    val socialLoginResult = googleLoginDataSource.login()
-                    if (socialLoginResult.isSuccess) {
-                        val idToken = socialLoginResult.getOrThrow()
-                        
-                        val apiResult = apiLoginDataSource.login(idToken)
-                        if (apiResult.isSuccess) {
-                            emit(true)
-                        } else {
-                            emit(false)
-                        }
-                    } else {
-                        emit(false)
-                    }
+    override fun login(loginType: LoginType): Flow<Unit> = flow {
+        when (loginType) {
+            LoginType.GOOGLE -> {
+                val socialLoginResult = googleLoginDataSource.login()
+                if (socialLoginResult.isFailure) {
+                    throw IllegalStateException("Google login failed")
                 }
+                
+                val idToken = socialLoginResult.getOrThrow()
+                val apiResult = apiLoginDataSource.login(idToken)
+                if (apiResult.isFailure) {
+                    throw IllegalStateException("API login failed")
+                }
+                
+                emit(Unit)
             }
-        } catch (e: Exception) {
-            emit(false)
         }
     }
 }

@@ -25,7 +25,7 @@ class LoginViewModel @Inject constructor(
         userRepository
             .login(loginType)
             .onEach { _navigateToNext.emit(Unit) }
-            .catch { /** TODO: 에러 처리 */ }
+            .catch { /** TODO: 에러 처리 - exception을 사용해서 에러 상태 관리 */ }
             .launchIn(viewModelScope)
     }
 }
