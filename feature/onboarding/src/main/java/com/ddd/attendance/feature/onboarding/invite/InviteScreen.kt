@@ -18,23 +18,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DDDText
 import com.ddd.attendance.feature.designsystem.theme.DDDColor
@@ -86,7 +83,8 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.invite_code_description),
             style = Typography.bodySmallM,
-            color = DDDColor.TextSecondary
+            color = DDDColor.TextSecondary,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -165,9 +163,9 @@ internal fun InputPin(
                 val borderColor = when(pinCodeStatus) {
                     PinCodeStatus.Fail -> DDDColor.Fail
                     else -> if (index <= value.length - 1) {
-                        DDDColor.ButtonEnabled
+                        DDDColor.BorderEnabled
                     } else {
-                        DDDColor.ButtonDisabled
+                        DDDColor.BorderDisabled
                     }
                 }
 
@@ -184,7 +182,7 @@ internal fun InputPin(
                     modifier = Modifier
                         .size(64.dp)
                         .border(
-                            width = 1.dp,
+                            width = 2.dp,
                             color = borderColor,
                             shape = RoundedCornerShape(16.dp),
                         )
@@ -204,7 +202,7 @@ internal fun InputPin(
                     DDDText(
                         text = char,
                         style = Typography.headlineSmallB,
-                        color = DDDColor.TextSecondary
+                        color = DDDColor.Black
                     )
                 }
             }

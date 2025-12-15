@@ -29,25 +29,11 @@ class OnBoardingViewModel @Inject constructor(
             is OnBoardingIntent.NextStepBlock -> {
                 val current = _uiState.value
 
-                // PIN 코드 검증이 필요한 상황
                 if (current.step == OnBoardingStep.Invite && current.pinCodeStatus == PinCodeStatus.Ready) {
+                    verifyPinCode(current)
+                } else _uiState.update { reduce(it, intent) }
 
-                    viewModelScope.launch {
-                        delay(1000L)
-                        // 여기서 성공/실패를 보내는 것으로 분리
-                        // 테스트할 때는 이 부분만 Mock
-                        val result = if (current.invitePinCode == "1234") {
-                            PinCodeStatus.Success
-                        } else PinCodeStatus.Fail
-
-                        onIntent(OnBoardingIntent.VerifyPinCodeResult(result))
-                    }
-                } else {
-                    _uiState.update { reduce(it, intent) }
-                }
-            }
-
-            else -> _uiState.update { reduce(it, intent) }
+            } else -> _uiState.update { reduce(it, intent) }
         }
     }
 
@@ -57,59 +43,36 @@ class OnBoardingViewModel @Inject constructor(
     ): OnBoardingUiState {
 
         return when (intent) {
-
             is OnBoardingIntent.BackStepBlock -> {
-                val next = (state.index - 1).coerceAtLeast(0)
-                state.copy(
-                    step = resolveStep(dummyType, next),
-                    index = next,
-                    grayBlockCount = 3 - next,
-                    blackBlockCount = next
-                )
+                val prev = (state.index - 1).coerceAtLeast(0)
+                moveToStep(state, prev)
             }
 
             is OnBoardingIntent.NextStepBlock -> {
-                // 일반 NEXT 처리
-                val next = (state.index + 1).coerceAtMost(3)
-                state.copy(
-                    step = resolveStep(dummyType, next),
-                    index = next,
-                    grayBlockCount = 3 - next,
-                    blackBlockCount = next
-                )
+                val next = (state.index + 1).coerceAtMost(MAX_STEP_INDEX)
+                moveToStep(state, next)
             }
 
             is OnBoardingIntent.VerifyPinCodeResult -> {
-                when (intent.result) {
-                    PinCodeStatus.Success -> {
-                        // 성공 시 다음 단계로 이동
-                        val next = (state.index + 1).coerceAtMost(3)
-                        state.copy(
-                            pinCodeStatus = PinCodeStatus.Success,
-                            step = resolveStep(dummyType, next),
-                            index = next,
-                            grayBlockCount = 3 - next,
-                            blackBlockCount = next
-                        )
-                    }
-
-                    PinCodeStatus.Fail -> {
-                        state.copy(pinCodeStatus = PinCodeStatus.Fail)
-                    }
-
-                    else -> state
-                }
+                if (intent.result == PinCodeStatus.Success) {
+                    moveToStep(
+                        state.copy(pinCodeStatus = PinCodeStatus.Success),
+                        state.index + 1
+                    )
+                } else state.copy(pinCodeStatus = PinCodeStatus.Fail)
             }
 
             is OnBoardingIntent.InvitePinCodeChanged -> {
-                val newStatus =
-                    if (intent.pinCode.length == 4) PinCodeStatus.Ready else PinCodeStatus.Idle
-
                 state.copy(
                     invitePinCode = intent.pinCode,
-                    pinCodeStatus = newStatus
+                    pinCodeStatus =
+                        if (intent.pinCode.length == PIN_CODE_LENGTH) {
+                            PinCodeStatus.Ready
+                        } else PinCodeStatus.Idle
                 )
             }
+
+            is OnBoardingIntent.NameChanged -> state.copy(name = intent.name)
         }
     }
 
@@ -129,5 +92,35 @@ class OnBoardingViewModel @Inject constructor(
             )
         }
         return steps[index.coerceIn(0, steps.lastIndex)]
+    }
+
+    private fun verifyPinCode(state: OnBoardingUiState) {
+        viewModelScope.launch {
+            delay(1000L)
+            val result =
+                if (state.invitePinCode == "1234") {
+                    PinCodeStatus.Success
+                } else {
+                    PinCodeStatus.Fail
+                }
+
+            onIntent(OnBoardingIntent.VerifyPinCodeResult(result))
+        }
+    }
+
+    private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
+        val gray = nextIndex
+        val black = MAX_STEP_INDEX - nextIndex
+        return state.copy(
+            step = resolveStep(dummyType, nextIndex),
+            index = nextIndex,
+            grayBlockCount = gray,
+            blackBlockCount = black
+        )
+    }
+
+    private companion object {
+        const val MAX_STEP_INDEX = 3
+        const val PIN_CODE_LENGTH = 4
     }
 }

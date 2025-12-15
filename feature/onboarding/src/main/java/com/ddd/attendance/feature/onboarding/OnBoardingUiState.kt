@@ -19,5 +19,17 @@ data class OnBoardingUiState(
     val grayBlockCount: Int = 0,
     val blackBlockCount: Int = 0,
     val invitePinCode: String = "",
-    val pinCodeStatus: PinCodeStatus = PinCodeStatus.Idle
-)
+    val pinCodeStatus: PinCodeStatus = PinCodeStatus.Idle,
+    val name: String = "",
+) {
+    val canGoNext: Boolean
+        get() = when (step) {
+            OnBoardingStep.Invite ->
+                pinCodeStatus in listOf(
+                    PinCodeStatus.Ready,
+                    PinCodeStatus.Success
+                )
+            OnBoardingStep.Name -> name.length in 1..5
+            else -> true
+        }
+}

@@ -11,7 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ddd.attendance.feature.home.HomeScreen
 import com.ddd.attendance.feature.onboarding.OnBoardingScreen
-import com.ddd.attendance.ui.theme.DDDBackgroundLight
+import com.ddd.attendance.ui.theme.DDDBackgroundDark
 
 @Composable
 internal fun MainNavHost(
@@ -23,7 +23,7 @@ internal fun MainNavHost(
     Box(
         modifier = modifier
             .padding(padding)
-            .background(DDDBackgroundLight)
+            .background(DDDBackgroundDark)
             .fillMaxSize()
     ) {
         NavHost(
