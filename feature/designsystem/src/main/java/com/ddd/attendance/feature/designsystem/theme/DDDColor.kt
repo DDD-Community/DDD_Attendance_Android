@@ -12,13 +12,13 @@ object DDDColor {
     val Black = Color(0xFF000000)
 
     @Stable
-    val TextPrimary = Color(0xFF202325)
+    val TextPrimary = White
 
     @Stable
-    val TextSecondary = Color(0xFF525252)
+    val TextSecondary = Color(0xFFEAEAEA)
 
     @Stable
-    val BorderDisabled = Color(0xFFE1EAFF)
+    val BorderDisabled = Color(0xFFC6C6C6)
 
     @Stable
     val BorderEnabled = Color(0xFF0D82F9)
@@ -36,7 +36,7 @@ object DDDColor {
     val Transparent = Color(0x00000000)
 
     @Stable
-    val ButtonDisabled = Color(0xFFE1EAFF)
+    val ButtonDisabled = Color(0xFFC1D3FF)
 
     @Stable
     val ButtonEnabled = Color(0xFF0D82F9)

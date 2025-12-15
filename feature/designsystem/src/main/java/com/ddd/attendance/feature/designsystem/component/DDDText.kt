@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.ddd.attendance.feature.designsystem.theme.DDDColor
 import com.ddd.attendance.feature.designsystem.theme.Typography
@@ -13,10 +14,11 @@ import com.ddd.attendance.feature.designsystem.theme.Typography
 fun DDDText(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = DDDColor.Black,
+    color: Color = DDDColor.White,
     style: TextStyle = Typography.bodySmallM,
     maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Clip
+    overflow: TextOverflow = TextOverflow.Clip,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         text = text,
@@ -24,6 +26,7 @@ fun DDDText(
         style = style,
         modifier = modifier,
         maxLines = maxLines,
-        overflow = overflow
+        overflow = overflow,
+        textAlign = textAlign
     )
 }

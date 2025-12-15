@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 초대 코드 -->
     <string name="enter_invite_code">초대 코드를 입력해주세요</string>
     <string name="invite_code_description">가입을 위해 신규 기수 초대 코드가 필요합니다.\n받으신 4자리 초대 코드를 입력해 주세요.</string>
     <string name="next">다음</string>
     <string name="code_invalid">코드가 유효하지 않습니다.</string>
+
+    <!-- 이름 입력 -->
+    <string name="enter_name">이름이 어떻게 되시나요?</string>
+    <string name="name_description">가입하실 때 사용할 실명을 입력해 주세요</string>
+    <string name="name_hint">5자 이내의 본명을 입력해주세요</string>
+
+    <!-- 직무 선택 -->
+    <string name="select_role">직무를 선택해주세요</string>
+    <string name="select_role_description">프로젝트에 참여하시는 직무를 선택해 주세요.</string>
+
+    <!-- 팀 선택 -->
+    <string name="select_team">팀을 선택해주세요</string>
+    <string name="select_team_description">프로젝트에 참여하시는 팀을 선택해 주세요.</string>
+
+    <!-- 담당 업무 선택 -->
+    <string name="select_work">담당 업무를 선택해주세요</string>
+    <string name="select_work_description">프로젝트에 참여하시는 담당 업무를 선택해 주세요.</string>
 </resources>
