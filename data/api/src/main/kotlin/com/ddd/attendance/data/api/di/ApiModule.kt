@@ -1,5 +1,6 @@
 package com.ddd.attendance.data.api.di
 
+import com.ddd.attendance.data.api.BuildConfig
 import com.ddd.attendance.data.api.UserApi
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
@@ -29,13 +30,15 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-            .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                }
-            )
-            .build()
+        return OkHttpClient.Builder().apply {
+            if (BuildConfig.DEBUG) {
+                addInterceptor(
+                    HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    }
+                )
+            }
+        }.build()
     }
 
     @Provides
