@@ -21,9 +21,6 @@ class OnBoardingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(OnBoardingUiState())
     val uiState: StateFlow<OnBoardingUiState> = _uiState.asStateFlow()
 
-    //dummy data
-    val dummyType = OnBoardingType.Member
-
     fun onIntent(intent: OnBoardingIntent) {
         when (intent) {
             is OnBoardingIntent.NextStepBlock -> {
@@ -112,7 +109,7 @@ class OnBoardingViewModel @Inject constructor(
         val gray = nextIndex
         val black = MAX_STEP_INDEX - nextIndex
         return state.copy(
-            step = resolveStep(dummyType, nextIndex),
+            step = resolveStep(state.dummyType, nextIndex),
             index = nextIndex,
             grayBlockCount = gray,
             blackBlockCount = black
