@@ -7,3 +7,7 @@ plugins {
 }
 
 setNamespace("data")
+
+dependencies {
+    implementation(projects.domain)
+}

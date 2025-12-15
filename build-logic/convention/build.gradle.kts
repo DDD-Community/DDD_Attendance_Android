@@ -56,5 +56,25 @@ gradlePlugin {
             id = "attendance.kotlin.library.parcelize.serialization"
             implementationClass = "KotlinLibraryParcelizeSerializationConventionPlugin"
         }
+
+        register("androidCoil") {
+            id = "attendance.android.coil"
+            implementationClass = "AndroidCoilConventionPlugin"
+        }
+
+        register("androidRetrofit") {
+            id = "attendance.android.retrofit"
+            implementationClass = "AndroidRetrofitConventionPlugin"
+        }
+
+        register("androidGoogleLogin") {
+            id = "attendance.android.googlelogin"
+            implementationClass = "AndroidGoogleLoginConventionPlugin"
+        }
+
+        register("coroutine") {
+            id = "attendance.coroutine"
+            implementationClass = "CoroutineConventionPlugin"
+        }
     }
 }

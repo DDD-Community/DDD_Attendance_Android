@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ddd.attendance.feature.home.HomeScreen
+import com.ddd.attendance.feature.login.LoginScreen
+import com.ddd.attendance.feature.splash.SplashScreen
 
 @Composable
 internal fun MainNavHost(
@@ -29,12 +31,20 @@ internal fun MainNavHost(
             navController = navigator.navController,
             startDestination = navigator.startDestination,
         ) {
+            composable(route = ScreenName.SPLASH.name) {
+                SplashScreen(navController = navigator.navController)
+            }
+
             composable(route = ScreenName.ON_BOARDING.name) {
 
             }
 
             composable(route = ScreenName.HOME.name) {
                 HomeScreen(navController = navigator.navController)
+            }
+
+            composable(route = ScreenName.LOGIN.name) {
+                LoginScreen(navController = navigator.navController)
             }
         }
     }
