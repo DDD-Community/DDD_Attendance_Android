@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DDDText
 import com.ddd.attendance.feature.designsystem.theme.DDDColor
 import com.ddd.attendance.feature.designsystem.theme.Typography
+import com.ddd.attendance.feature.onboarding.OnBoardingStep
 import com.ddd.attendance.feature.onboarding.R
 
 @Composable

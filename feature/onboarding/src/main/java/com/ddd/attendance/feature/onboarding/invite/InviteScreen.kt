@@ -1,41 +1,55 @@
 package com.ddd.attendance.feature.onboarding.invite
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DDDText
 import com.ddd.attendance.feature.designsystem.theme.DDDColor
 import com.ddd.attendance.feature.designsystem.theme.Typography
+import com.ddd.attendance.feature.onboarding.OnBoardingStep
 import com.ddd.attendance.feature.onboarding.R
 
 @Composable
@@ -64,24 +78,21 @@ internal fun Content(
     keyboardController: SoftwareKeyboardController?,
     onInvitePinCodeChanged: (pinCode: String) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(40.dp))
 
         DDDText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.enter_invite_code),
+            text = stringResource(R.string.enter_invite_code),
             style = Typography.titleLargeB,
-            color = DDDColor.TextPrimary,
-
+            color = DDDColor.TextPrimary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         DDDText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.invite_code_description),
+            text = stringResource(R.string.invite_code_description),
             style = Typography.bodySmallM,
             color = DDDColor.TextSecondary,
             textAlign = TextAlign.Center
@@ -90,33 +101,103 @@ internal fun Content(
         Spacer(modifier = Modifier.height(40.dp))
 
         InputPin(
-            pinCodeStatus = pinCodeStatus,
             value = pinCode,
-            onValueChange = {
-                onInvitePinCodeChanged(it)
-            },
+            pinCodeStatus = pinCodeStatus,
             focusRequester = focusRequester,
-            keyboardController = keyboardController
+            keyboardController = keyboardController,
+            onValueChange = onInvitePinCodeChanged
         )
 
         if (pinCodeStatus == PinCodeStatus.Fail) {
             Spacer(modifier = Modifier.height(12.dp))
+            PinError()
+        }
+    }
+}
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+@Composable
+private fun InputPin(
+    value: String,
+    pinCodeStatus: PinCodeStatus,
+    focusRequester: FocusRequester,
+    keyboardController: SoftwareKeyboardController?,
+    onValueChange: (String) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+
+        BasicTextField(
+            value = value,
+            onValueChange = { newValue ->
+                if (newValue.length <= 4 && newValue.all(Char::isDigit)) {
+                    onValueChange(newValue)
+                }
+            },
+            modifier = Modifier
+                .size(1.dp)
+                .focusRequester(focusRequester),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus() }
+            )
+        )
+
+        PinBoxes(
+            pin = value,
+            pinCodeStatus = pinCodeStatus,
+            onPinClear = { onValueChange("") },
+            onRequestFocus = {
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        )
+    }
+}
+
+@Composable
+private fun PinBoxes(
+    pin: String,
+    pinCodeStatus: PinCodeStatus,
+    onPinClear: () -> Unit,
+    onRequestFocus: () -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        repeat(4) { index ->
+            val char = pin.getOrNull(index)?.toString().orEmpty()
+
+            val isFilled = index < pin.length
+
+            val borderColor = when {
+                pinCodeStatus == PinCodeStatus.Fail -> DDDColor.Fail
+                isFilled -> DDDColor.BorderEnabled
+                else -> DDDColor.BorderDisabled
+            }
+
+            val backgroundColor = when {
+                pinCodeStatus == PinCodeStatus.Fail -> DDDColor.BorderFailBackground
+                isFilled -> DDDColor.BorderEnableBackground
+                else -> DDDColor.Transparent
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .border(2.dp, borderColor, RoundedCornerShape(16.dp))
+                    .background(backgroundColor, RoundedCornerShape(16.dp))
+                    .clickable {
+                        onRequestFocus()
+                        onPinClear()
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    modifier = Modifier.wrapContentSize(),
-                    painter = painterResource(id = R.drawable.error),
-                    contentDescription = "오류 발생",
-                )
-
                 DDDText(
-                    text = stringResource(R.string.code_invalid),
-                    style = Typography.bodyMediumM,
-                    color = DDDColor.Fail
+                    text = char,
+                    style = Typography.headlineSmallB,
+                    color = DDDColor.Black
                 )
             }
         }
@@ -124,88 +205,20 @@ internal fun Content(
 }
 
 @Composable
-internal fun InputPin(
-    pinCodeStatus: PinCodeStatus,
-    value: String,
-    onValueChange: (String) -> Unit,
-    focusRequester: FocusRequester,
-    keyboardController: SoftwareKeyboardController?
-) {
-    Box(
+private fun PinError() {
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        BasicTextField(
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .size(1.dp)
-                .alpha(0f)
-                .onFocusChanged { state ->
-                    if (state.isFocused) {
-                        keyboardController?.show()
-                    }
-                },
-            value = value,
-            onValueChange = {
-                if (it.length <= 4) {
-                    onValueChange(it)
-                }
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        Image(
+            painter = painterResource(R.drawable.error),
+            contentDescription = null
         )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            repeat(4) { index ->
-                val char = value.getOrNull(index)?.toString()?: ""
-
-                val borderColor = when(pinCodeStatus) {
-                    PinCodeStatus.Fail -> DDDColor.Fail
-                    else -> if (index <= value.length - 1) {
-                        DDDColor.BorderEnabled
-                    } else {
-                        DDDColor.BorderDisabled
-                    }
-                }
-
-                val backgroundColor = when(pinCodeStatus) {
-                    PinCodeStatus.Fail -> DDDColor.BorderFailBackground
-                    else -> if (index <= value.length - 1) {
-                        DDDColor.BorderEnableBackground
-                    } else {
-                        DDDColor.Transparent
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .border(
-                            width = 2.dp,
-                            color = borderColor,
-                            shape = RoundedCornerShape(16.dp),
-                        )
-                        .background(
-                            color = backgroundColor,
-                            shape = RoundedCornerShape(16.dp),
-                        )
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                // 포커스 요청 + 키보드 강제 표시
-                                focusRequester.requestFocus()
-                                keyboardController?.show()
-                            }
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    DDDText(
-                        text = char,
-                        style = Typography.headlineSmallB,
-                        color = DDDColor.Black
-                    )
-                }
-            }
-        }
+        DDDText(
+            text = stringResource(R.string.code_invalid),
+            style = Typography.bodyMediumM,
+            color = DDDColor.Fail
+        )
     }
 }

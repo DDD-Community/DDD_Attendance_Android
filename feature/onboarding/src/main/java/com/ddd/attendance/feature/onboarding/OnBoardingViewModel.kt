@@ -1,10 +1,12 @@
 package com.ddd.attendance.feature.onboarding
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,7 +40,6 @@ class OnBoardingViewModel @Inject constructor(
         state: OnBoardingUiState,
         intent: OnBoardingIntent
     ): OnBoardingUiState {
-
         return when (intent) {
             is OnBoardingIntent.BackStepBlock -> {
                 val prev = (state.index - 1).coerceAtLeast(0)
@@ -61,7 +62,7 @@ class OnBoardingViewModel @Inject constructor(
 
             is OnBoardingIntent.InvitePinCodeChanged -> {
                 state.copy(
-                    invitePinCode = intent.pinCode,
+                    inputInvitePinCode = intent.pinCode,
                     pinCodeStatus =
                         if (intent.pinCode.length == PIN_CODE_LENGTH) {
                             PinCodeStatus.Ready
@@ -70,6 +71,23 @@ class OnBoardingViewModel @Inject constructor(
             }
 
             is OnBoardingIntent.NameChanged -> state.copy(name = intent.name)
+
+            is OnBoardingIntent.SelectListItem -> {
+                val updatedMap =
+                    state.dummyList.mapValues { (step, items) ->
+                        if (step == state.step) {
+                            items
+                                .mapIndexed { index, item ->
+                                    item.copy(isSelected = index == intent.position)
+                                }
+                                .toPersistentList()
+                        } else {
+                            items
+                        }
+                    }
+
+                state.copy(dummyList = updatedMap)
+            }
         }
     }
 
@@ -95,7 +113,7 @@ class OnBoardingViewModel @Inject constructor(
         viewModelScope.launch {
             delay(1000L)
             val result =
-                if (state.invitePinCode == "1234") {
+                if (state.inputInvitePinCode == "1234") {
                     PinCodeStatus.Success
                 } else {
                     PinCodeStatus.Fail
@@ -108,6 +126,7 @@ class OnBoardingViewModel @Inject constructor(
     private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
         val gray = nextIndex
         val black = MAX_STEP_INDEX - nextIndex
+
         return state.copy(
             step = resolveStep(state.dummyType, nextIndex),
             index = nextIndex,

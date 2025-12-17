@@ -40,4 +40,7 @@ object DDDColor {
 
     @Stable
     val ButtonEnabled = Color(0xFF0D82F9)
+
+    @Stable
+    val SelectBoxBackground = Color(0xFF202325)
 }

@@ -17,13 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -32,13 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.ddd.attendance.feature.designsystem.component.DDDButton
+import com.ddd.attendance.feature.designsystem.component.DDDNextButton
 import com.ddd.attendance.feature.onboarding.invite.InviteScreen
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.name.NameScreen
-import com.ddd.attendance.feature.onboarding.role.RoleScreen
-import com.ddd.attendance.feature.onboarding.team.TeamScreen
-import com.ddd.attendance.feature.onboarding.work.WorkScreen
+import com.ddd.attendance.feature.onboarding.select.SelectItemUiModel
+import com.ddd.attendance.feature.onboarding.select.SelectionScreen
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
 
 @Composable
@@ -50,10 +47,15 @@ fun OnBoardingScreen(
 
     OnBoardingScreenContent(
         step = uiState.step,
-        canGoNext = uiState.canGoNext,
         grayBlockCount = uiState.grayBlockCount,
         blackBlockCount = uiState.blackBlockCount,
-        pinCodeStatus = uiState.pinCodeStatus,
+
+        selectList = uiState.currentSelectItems,
+        onItemClick = { position ->
+            viewModel.onIntent(OnBoardingIntent.SelectListItem(position))
+        },
+
+        canGoNext = uiState.canGoNext,
         onBackClick = {
             if (uiState.step == OnBoardingStep.Invite) {
                 navController.popBackStack()
@@ -61,13 +63,14 @@ fun OnBoardingScreen(
                 viewModel.onIntent(OnBoardingIntent.BackStepBlock)
             }
         },
-        onNextClick = {
-            viewModel.onIntent(OnBoardingIntent.NextStepBlock)
-        },
-        pinCode = uiState.invitePinCode,
+        onNextClick = { viewModel.onIntent(OnBoardingIntent.NextStepBlock) },
+
+        pinCodeStatus = uiState.pinCodeStatus,
+        pinCode = uiState.inputInvitePinCode,
         onInvitePinCodeChanged = {
             viewModel.onIntent(OnBoardingIntent.InvitePinCodeChanged(it))
         },
+
         name = uiState.name,
         onNameChanged = {
             viewModel.onIntent(OnBoardingIntent.NameChanged(it))
@@ -78,6 +81,8 @@ fun OnBoardingScreen(
 @Composable
 internal fun OnBoardingScreenContent(
     step: OnBoardingStep = OnBoardingStep.Invite,
+    selectList: ImmutableList<SelectItemUiModel>,
+    onItemClick:(position: Int) -> Unit,
     grayBlockCount: Int,
     blackBlockCount: Int,
     canGoNext: Boolean,
@@ -100,6 +105,8 @@ internal fun OnBoardingScreenContent(
 
         OnBoardingBody(
             step = step,
+            selectList = selectList,
+            onItemClick = onItemClick,
             onNextClick = onNextClick,
             isNextEnabled = canGoNext,
             pinCode = pinCode,
@@ -141,7 +148,6 @@ internal fun OnBoardingHeader(
             )
         }
 
-        Log.d("블럭체크", "$grayBlockCount, $blackBlockCount")
         StepBlocks(grayBlockCount = grayBlockCount, blackBlockCount = blackBlockCount)
     }
 }
@@ -149,6 +155,8 @@ internal fun OnBoardingHeader(
 @Composable
 internal fun OnBoardingBody(
     step: OnBoardingStep,
+    selectList: ImmutableList<SelectItemUiModel>,
+    onItemClick:(position: Int) -> Unit,
     isNextEnabled: Boolean,
     pinCodeStatus: PinCodeStatus,
     pinCode: String,
@@ -165,22 +173,38 @@ internal fun OnBoardingBody(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (step) {
-                OnBoardingStep.Invite -> InviteScreen(pinCodeStatus, pinCode, onInvitePinCodeChanged)
-                OnBoardingStep.Name -> NameScreen(name, onNameChanged)
-                OnBoardingStep.Role -> RoleScreen()
-                OnBoardingStep.Team -> TeamScreen()
-                OnBoardingStep.Work -> WorkScreen()
+                OnBoardingStep.Invite -> {
+                    InviteScreen(
+                        pinCodeStatus = pinCodeStatus,
+                        pinCode = pinCode,
+                        onInvitePinCodeChanged = onInvitePinCodeChanged
+                    )
+                }
+                OnBoardingStep.Name -> {
+                    NameScreen(
+                        name = name,
+                        onNameChanged = onNameChanged
+                    )
+                }
+                OnBoardingStep.Role, OnBoardingStep.Team, OnBoardingStep.Work -> {
+                    SelectionScreen(
+                        step = step,
+                        items = selectList.toPersistentList(),
+                        onClick = {
+                            onItemClick(it)
+                        }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f)) // 남은 공간을 밀어서 버튼이 아래로
         }
 
-        DDDButton(
+        DDDNextButton(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = 24.dp, end = 24.dp, bottom = 20.dp),
