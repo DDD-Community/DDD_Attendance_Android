@@ -9,6 +9,12 @@ plugins {
 setNamespace("app")
 
 dependencies {
-    implementation(projects.feature.onboarding)
+    implementation(projects.data)
+    implementation(projects.data.api)
+    implementation(projects.data.google)
+    implementation(projects.domain)
     implementation(projects.feature.home)
+    implementation(projects.feature.login)
+    implementation(projects.feature.splash)
+    implementation(projects.feature.onboarding)
 }

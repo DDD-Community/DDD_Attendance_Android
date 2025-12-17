@@ -14,7 +14,7 @@ internal class MainNavigator(
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
-    val startDestination = ScreenName.ON_BOARDING.name
+    val startDestination = ScreenName.SPLASH.name
 }
 
 @Composable
