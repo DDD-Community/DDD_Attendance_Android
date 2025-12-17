@@ -1,6 +1,5 @@
 package com.ddd.attendance.feature.onboarding
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.ddd.attendance.feature.designsystem.component.DDDNextButton
+import com.ddd.attendance.feature.designsystem.component.DddNextButton
 import com.ddd.attendance.feature.onboarding.invite.InviteScreen
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.name.NameScreen
@@ -201,10 +200,10 @@ internal fun OnBoardingBody(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f)) // 남은 공간을 밀어서 버튼이 아래로
+            Spacer(modifier = Modifier.weight(1f))
         }
 
-        DDDNextButton(
+        DddNextButton(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = 24.dp, end = 24.dp, bottom = 20.dp),

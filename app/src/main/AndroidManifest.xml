@@ -12,12 +12,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DDDAtendanceAndroid">
+        android:theme="@style/Theme.DddAttendanceAndroid">
         <activity
             android:name="com.ddd.attendance.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.DDDAtendanceAndroid">
+            android:theme="@style/Theme.DddAttendanceAndroid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
