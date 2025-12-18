@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ddd.attendance.feature.home.HomeScreen
 import com.ddd.attendance.feature.login.LoginScreen
+import com.ddd.attendance.feature.onboarding.OnBoardingScreen
 import com.ddd.attendance.feature.splash.SplashScreen
+import com.ddd.attendance.ui.theme.DddBackgroundDark
 
 @Composable
 internal fun MainNavHost(
@@ -24,8 +25,8 @@ internal fun MainNavHost(
     Box(
         modifier = modifier
             .padding(padding)
+            .background(DddBackgroundDark)
             .fillMaxSize()
-            .background(Color.White)
     ) {
         NavHost(
             navController = navigator.navController,
@@ -36,7 +37,7 @@ internal fun MainNavHost(
             }
 
             composable(route = ScreenName.ON_BOARDING.name) {
-
+                OnBoardingScreen(navController = navigator.navController)
             }
 
             composable(route = ScreenName.HOME.name) {

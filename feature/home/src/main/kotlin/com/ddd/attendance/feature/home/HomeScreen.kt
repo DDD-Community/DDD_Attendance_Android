@@ -8,5 +8,5 @@ import androidx.navigation.NavController
 fun HomeScreen(
     navController: NavController
 ) {
-    Text("네비게이션 구현")
+    Text("홈 화면")
 }

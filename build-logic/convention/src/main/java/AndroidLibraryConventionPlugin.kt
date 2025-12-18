@@ -9,7 +9,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
-import org.gradle.kotlin.dsl.support.delegates.DependencyHandlerDelegate
 
 class AndroidLibraryConventionPlugin: Plugin<Project> {
     override fun apply(target: Project) {
@@ -41,6 +40,9 @@ class AndroidLibraryConventionPlugin: Plugin<Project> {
 
                 //앱 내부 동작을 Trace로 기록해 성능 병목을 분석하기 쉽게 만들어주는 KTX 라이브러리
                 add("implementation", findLibrary("androidx.tracing.ktx"))
+
+                // UI 상태 리스트 불변성을 위해 ImmutableList 라이브러리 사용
+                add("implementation", findLibrary("kotlinx.immutable"))
             }
         }
     }

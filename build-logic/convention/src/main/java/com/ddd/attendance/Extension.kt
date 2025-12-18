@@ -11,10 +11,6 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
-import kotlin.getOrThrow
-import kotlin.onFailure
-import kotlin.recoverCatching
-import kotlin.runCatching
 
 /**
  * Application 모듈의 Android Gradle Extension(ApplicationExtension)을 가져오는 확장 프로퍼티

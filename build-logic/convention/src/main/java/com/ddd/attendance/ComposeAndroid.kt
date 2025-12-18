@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
-import kotlin.apply
 
 /**
  * BOM으로 버전 통일 후 실제 Compose 라이브러리 묶음(bundle)을 추가하는 구성

@@ -7,11 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import com.ddd.attendance.app.R
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
-import androidx.compose.ui.platform.LocalResources
 
 @Composable
 internal fun MainScreen(
