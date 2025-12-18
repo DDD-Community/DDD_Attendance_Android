@@ -1,6 +1,5 @@
 package com.ddd.attendance.feature.onboarding
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,8 +7,10 @@ import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,16 +24,31 @@ class OnBoardingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(OnBoardingUiState())
     val uiState: StateFlow<OnBoardingUiState> = _uiState.asStateFlow()
 
+    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
+
     fun onIntent(intent: OnBoardingIntent) {
         when (intent) {
-            is OnBoardingIntent.NextStepBlock -> {
+            is OnBoardingIntent.GoToNextStep -> {
                 val current = _uiState.value
 
                 if (current.step == OnBoardingStep.Invite && current.pinCodeStatus == PinCodeStatus.Ready) {
                     verifyPinCode(current)
+                } else if (current.index == MAX_STEP_INDEX) {
+                    goToHome()
+                } else _uiState.update { reduce(it, intent) }
+            }
+
+            is OnBoardingIntent.GoToPreviousStep -> {
+                val current = _uiState.value
+
+                if (current.step == OnBoardingStep.Invite) {
+                    popBackStack()
                 } else _uiState.update { reduce(it, intent) }
 
-            } else -> _uiState.update { reduce(it, intent) }
+            }
+
+            else -> _uiState.update { reduce(it, intent) }
         }
     }
 
@@ -41,12 +57,12 @@ class OnBoardingViewModel @Inject constructor(
         intent: OnBoardingIntent
     ): OnBoardingUiState {
         return when (intent) {
-            is OnBoardingIntent.BackStepBlock -> {
+            is OnBoardingIntent.GoToPreviousStep -> {
                 val prev = (state.index - 1).coerceAtLeast(0)
                 moveToStep(state, prev)
             }
 
-            is OnBoardingIntent.NextStepBlock -> {
+            is OnBoardingIntent.GoToNextStep -> {
                 val next = (state.index + 1).coerceAtMost(MAX_STEP_INDEX)
                 moveToStep(state, next)
             }
@@ -123,15 +139,20 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
-    private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
-        val gray = nextIndex
-        val black = MAX_STEP_INDEX - nextIndex
+    private fun popBackStack() {
+        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
+    }
 
+    private fun goToHome() {
+        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToHome) }
+    }
+
+    private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
         return state.copy(
             step = resolveStep(state.dummyType, nextIndex),
             index = nextIndex,
-            grayBlockCount = gray,
-            blackBlockCount = black
+            grayBlockCount = nextIndex,
+            blackBlockCount = MAX_STEP_INDEX - nextIndex
         )
     }
 

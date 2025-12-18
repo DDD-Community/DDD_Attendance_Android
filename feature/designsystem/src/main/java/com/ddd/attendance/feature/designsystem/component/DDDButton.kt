@@ -18,20 +18,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ddd.attendance.feature.designsystem.theme.DDDColor
+import com.ddd.attendance.feature.designsystem.theme.ButtonDisabled
+import com.ddd.attendance.feature.designsystem.theme.ButtonEnabled
 import com.ddd.attendance.feature.designsystem.theme.Typography
+import com.ddd.attendance.feature.designsystem.theme.White
 
 @Composable
-fun DddNextButton(
+fun DddLargeSizeButton(
     modifier: Modifier = Modifier,
     text: String = "다음",
     isEnabled: Boolean = true,
     onClick: () -> Unit,
     height: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(percent = 50),
-    enabledColor: Color = DDDColor.ButtonEnabled,
-    disabledColor: Color = DDDColor.ButtonDisabled,
-    textColor: Color = DDDColor.White,
+    enabledColor: Color = ButtonEnabled,
+    disabledColor: Color = ButtonDisabled,
+    textColor: Color = White,
     textStyle: TextStyle = Typography.bodyMediumM,
     debounceMillis: Long = 500L
 ) {

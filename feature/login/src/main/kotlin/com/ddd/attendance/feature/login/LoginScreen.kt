@@ -3,9 +3,20 @@ package com.ddd.attendance.feature.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -29,8 +40,12 @@ fun LoginScreen(
     
     LaunchedEffect(navigateToNext.value) {
         navigateToNext.value?.let {
-            navController.navigate("HOME") {
+            //Home까지 이동을 위해 주석
+            /*navController.navigate("HOME") {
                 popUpTo("LOGIN") { inclusive = true }
+            }*/
+            navController.navigate("ON_BOARDING") {
+                popUpTo("LOGIN") { inclusive = false }
             }
         }
     }

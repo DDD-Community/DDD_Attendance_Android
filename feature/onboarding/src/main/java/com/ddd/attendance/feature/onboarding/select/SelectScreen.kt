@@ -24,7 +24,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DDDIconButton
 import com.ddd.attendance.feature.designsystem.component.DDDText
-import com.ddd.attendance.feature.designsystem.theme.DDDColor
+import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
+import com.ddd.attendance.feature.designsystem.theme.SelectBoxBackground
+import com.ddd.attendance.feature.designsystem.theme.TextPrimary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondary
+import com.ddd.attendance.feature.designsystem.theme.Transparent
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.onboarding.OnBoardingStep
 import com.ddd.attendance.feature.onboarding.R
@@ -60,7 +64,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = step.titleRes),
             style = Typography.titleLargeB,
-            color = DDDColor.TextPrimary
+            color = TextPrimary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -69,7 +73,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = step.subTitleRes),
             style = Typography.bodySmallM,
-            color = DDDColor.TextSecondary,
+            color = TextSecondary,
             textAlign = TextAlign.Center
         )
 
@@ -104,11 +108,11 @@ internal fun SelectBox(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(DDDColor.SelectBoxBackground)
+            .background(SelectBoxBackground)
             .border(
                 width = 2.dp,
                 shape = RoundedCornerShape(16.dp),
-                color = if (isSelected) DDDColor.BorderEnabled else DDDColor.Transparent
+                color = if (isSelected) BorderEnabled else Transparent
             )
             .clickable { onClick() }
             .fillMaxWidth()

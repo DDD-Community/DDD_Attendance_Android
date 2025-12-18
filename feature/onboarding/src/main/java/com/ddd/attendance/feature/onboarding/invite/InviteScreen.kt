@@ -1,42 +1,28 @@
 package com.ddd.attendance.feature.onboarding.invite
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -47,13 +33,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DDDText
-import com.ddd.attendance.feature.designsystem.theme.DDDColor
+import com.ddd.attendance.feature.designsystem.theme.Black
+import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
+import com.ddd.attendance.feature.designsystem.theme.BorderEnableBackground
+import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
+import com.ddd.attendance.feature.designsystem.theme.BorderFailBackground
+import com.ddd.attendance.feature.designsystem.theme.Fail
+import com.ddd.attendance.feature.designsystem.theme.TextPrimary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondary
+import com.ddd.attendance.feature.designsystem.theme.Transparent
 import com.ddd.attendance.feature.designsystem.theme.Typography
-import com.ddd.attendance.feature.onboarding.OnBoardingStep
 import com.ddd.attendance.feature.onboarding.R
 
 @Composable
 internal fun InviteScreen(
+    modifier: Modifier = Modifier,
     pinCodeStatus: PinCodeStatus,
     pinCode: String,
     onInvitePinCodeChanged: (pinCode: String) -> Unit
@@ -72,20 +66,21 @@ internal fun InviteScreen(
 
 @Composable
 internal fun Content(
+    modifier: Modifier = Modifier,
     pinCodeStatus: PinCodeStatus,
     pinCode: String,
     focusRequester: FocusRequester,
     keyboardController: SoftwareKeyboardController?,
     onInvitePinCodeChanged: (pinCode: String) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(40.dp))
 
         DDDText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(R.string.enter_invite_code),
             style = Typography.titleLargeB,
-            color = DDDColor.TextPrimary
+            color = TextPrimary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -94,7 +89,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(R.string.invite_code_description),
             style = Typography.bodySmallM,
-            color = DDDColor.TextSecondary,
+            color = TextSecondary,
             textAlign = TextAlign.Center
         )
 
@@ -117,6 +112,7 @@ internal fun Content(
 
 @Composable
 private fun InputPin(
+    modifier: Modifier = Modifier,
     value: String,
     pinCodeStatus: PinCodeStatus,
     focusRequester: FocusRequester,
@@ -125,7 +121,7 @@ private fun InputPin(
 ) {
     val focusManager = LocalFocusManager.current
 
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
 
         BasicTextField(
             value = value,
@@ -160,27 +156,31 @@ private fun InputPin(
 
 @Composable
 private fun PinBoxes(
+    modifier: Modifier = Modifier,
     pin: String,
     pinCodeStatus: PinCodeStatus,
     onPinClear: () -> Unit,
     onRequestFocus: () -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         repeat(4) { index ->
             val char = pin.getOrNull(index)?.toString().orEmpty()
 
             val isFilled = index < pin.length
 
             val borderColor = when {
-                pinCodeStatus == PinCodeStatus.Fail -> DDDColor.Fail
-                isFilled -> DDDColor.BorderEnabled
-                else -> DDDColor.BorderDisabled
+                pinCodeStatus == PinCodeStatus.Fail -> Fail
+                isFilled -> BorderEnabled
+                else -> BorderDisabled
             }
 
             val backgroundColor = when {
-                pinCodeStatus == PinCodeStatus.Fail -> DDDColor.BorderFailBackground
-                isFilled -> DDDColor.BorderEnableBackground
-                else -> DDDColor.Transparent
+                pinCodeStatus == PinCodeStatus.Fail -> BorderFailBackground
+                isFilled -> BorderEnableBackground
+                else -> Transparent
             }
 
             Box(
@@ -197,7 +197,7 @@ private fun PinBoxes(
                 DDDText(
                     text = char,
                     style = Typography.headlineSmallB,
-                    color = DDDColor.Black
+                    color = Black
                 )
             }
         }
@@ -205,9 +205,11 @@ private fun PinBoxes(
 }
 
 @Composable
-private fun PinError() {
+private fun PinError(
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -218,7 +220,7 @@ private fun PinError() {
         DDDText(
             text = stringResource(R.string.code_invalid),
             style = Typography.bodyMediumM,
-            color = DDDColor.Fail
+            color = Fail
         )
     }
 }

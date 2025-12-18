@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.ddd.attendance.feature.designsystem.component.DddNextButton
+import com.ddd.attendance.feature.designsystem.component.DddLargeSizeButton
 import com.ddd.attendance.feature.onboarding.invite.InviteScreen
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.name.NameScreen
@@ -39,10 +40,24 @@ import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun OnBoardingScreen(
+    modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: OnBoardingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                NavigationEvent.PopBackStack -> {
+                    navController.popBackStack()
+                }
+                NavigationEvent.GoToHome -> {
+                    navController.navigate("HOME")
+                }
+            }
+        }
+    }
 
     OnBoardingScreenContent(
         step = uiState.step,
@@ -55,14 +70,8 @@ fun OnBoardingScreen(
         },
 
         canGoNext = uiState.canGoNext,
-        onBackClick = {
-            if (uiState.step == OnBoardingStep.Invite) {
-                navController.popBackStack()
-            } else {
-                viewModel.onIntent(OnBoardingIntent.BackStepBlock)
-            }
-        },
-        onNextClick = { viewModel.onIntent(OnBoardingIntent.NextStepBlock) },
+        onBackClick = { viewModel.onIntent(OnBoardingIntent.GoToPreviousStep) },
+        onNextClick = { viewModel.onIntent(OnBoardingIntent.GoToNextStep) },
 
         pinCodeStatus = uiState.pinCodeStatus,
         pinCode = uiState.inputInvitePinCode,
@@ -79,6 +88,7 @@ fun OnBoardingScreen(
 
 @Composable
 internal fun OnBoardingScreenContent(
+    modifier: Modifier = Modifier,
     step: OnBoardingStep = OnBoardingStep.Invite,
     selectList: ImmutableList<SelectItemUiModel>,
     onItemClick:(position: Int) -> Unit,
@@ -93,7 +103,7 @@ internal fun OnBoardingScreenContent(
     onBackClick: () -> Unit,
     onNextClick: () -> Unit,
 ) {
-    Column(Modifier.fillMaxSize()) {
+    Column(modifier.fillMaxSize()) {
         OnBoardingHeader(
             grayBlockCount = grayBlockCount,
             blackBlockCount = blackBlockCount,
@@ -119,12 +129,13 @@ internal fun OnBoardingScreenContent(
 
 @Composable
 internal fun OnBoardingHeader(
+    modifier: Modifier = Modifier,
     grayBlockCount: Int,
     blackBlockCount: Int,
     onBackClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(52.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -153,6 +164,7 @@ internal fun OnBoardingHeader(
 
 @Composable
 internal fun OnBoardingBody(
+    modifier: Modifier = Modifier,
     step: OnBoardingStep,
     selectList: ImmutableList<SelectItemUiModel>,
     onItemClick:(position: Int) -> Unit,
@@ -165,7 +177,7 @@ internal fun OnBoardingBody(
     onNextClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .imePadding()
     ) {
@@ -203,7 +215,7 @@ internal fun OnBoardingBody(
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        DddNextButton(
+        DddLargeSizeButton(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = 24.dp, end = 24.dp, bottom = 20.dp),
@@ -218,12 +230,13 @@ internal fun OnBoardingBody(
 
 @Composable
 fun StepBlocks(
+    modifier: Modifier = Modifier,
     grayBlockCount: Int,
     blackBlockCount: Int
 ) {
     if (grayBlockCount + blackBlockCount > 0 && blackBlockCount != 3) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(end = 56.dp),
             horizontalArrangement = Arrangement.Center,
@@ -248,14 +261,15 @@ fun StepBlocks(
 
 @Composable
 private fun BlockImage(
+    modifier: Modifier = Modifier,
     @DrawableRes resId: Int,
     isLast: Boolean = false
 ) {
     Image(
-        painter = painterResource(resId),
-        contentDescription = null,
-        modifier = Modifier
+        modifier = modifier
             .height(4.dp)
-            .padding(end = if (isLast) 0.dp else 2.dp)
+            .padding(end = if (isLast) 0.dp else 2.dp),
+        painter = painterResource(resId),
+        contentDescription = null
     )
 }

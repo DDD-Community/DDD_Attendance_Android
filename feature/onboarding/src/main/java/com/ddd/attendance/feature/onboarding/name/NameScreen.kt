@@ -26,13 +26,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DDDText
-import com.ddd.attendance.feature.designsystem.theme.DDDColor
+import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
+import com.ddd.attendance.feature.designsystem.theme.Fail
+import com.ddd.attendance.feature.designsystem.theme.TextPrimary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondary
 import com.ddd.attendance.feature.designsystem.theme.Typography
-import com.ddd.attendance.feature.onboarding.OnBoardingStep
 import com.ddd.attendance.feature.onboarding.R
 
 @Composable
 internal fun NameScreen(
+    modifier: Modifier = Modifier,
     name: String,
     onNameChanged: (String) -> Unit,
 ) {
@@ -44,11 +47,12 @@ internal fun NameScreen(
 
 @Composable
 internal fun Content(
+    modifier: Modifier = Modifier,
     name: String,
     onNameChanged: (String) -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -56,7 +60,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.enter_name),
             style = Typography.titleLargeB,
-            color = DDDColor.TextPrimary
+            color = TextPrimary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -65,7 +69,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.name_description),
             style = Typography.bodySmallM,
-            color = DDDColor.TextSecondary,
+            color = TextSecondary,
             textAlign = TextAlign.Center
         )
 
@@ -87,11 +91,11 @@ internal fun NameField(
     val isValid = value.length <= 5
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = if (isValid) DDDColor.BorderDisabled else DDDColor.Fail,
+                color = if (isValid) BorderDisabled else Fail,
                 shape = RoundedCornerShape(16.dp)
             ),
         verticalAlignment = Alignment.CenterVertically,
@@ -110,7 +114,7 @@ internal fun NameField(
                 .weight(1F)
                 .height(56.dp),
             textStyle = TextStyle(
-                color = DDDColor.TextPrimary,
+                color = TextPrimary,
                 fontSize = Typography.bodyMediumM.fontSize
             ),
             singleLine = true,
