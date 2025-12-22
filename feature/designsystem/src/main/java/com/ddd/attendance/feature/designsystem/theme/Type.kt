@@ -23,6 +23,11 @@ val Typography: DDDTypography = DDDTypography(
         lineHeight = 36.sp,
         fontWeight = FontWeight.Bold,
     ),
+    titleMediumB = SansSerifStyle.copy(
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        fontWeight = FontWeight.Bold,
+    ),
     bodyLargeM = SansSerifStyle.copy(
         fontSize = 18.sp,
         lineHeight = 26.sp,
@@ -44,6 +49,7 @@ val Typography: DDDTypography = DDDTypography(
 data class DDDTypography(
     val headlineSmallB: TextStyle,
     val titleLargeB: TextStyle,
+    val titleMediumB: TextStyle,
     val bodyLargeM: TextStyle,
     val bodyMediumM: TextStyle,
     val bodySmallM: TextStyle,
@@ -53,6 +59,7 @@ val LocalTypography = staticCompositionLocalOf {
     DDDTypography(
         headlineSmallB = SansSerifStyle,
         titleLargeB = SansSerifStyle,
+        titleMediumB = SansSerifStyle,
         bodyLargeM = SansSerifStyle,
         bodyMediumM = SansSerifStyle,
         bodySmallM = SansSerifStyle,

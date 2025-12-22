@@ -7,3 +7,7 @@ plugins {
 }
 
 setNamespace("feature.admin")
+
+dependencies {
+    implementation(projects.feature.designsystem)
+}

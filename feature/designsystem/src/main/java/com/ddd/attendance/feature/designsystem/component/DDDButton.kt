@@ -68,7 +68,7 @@ fun DddLargeSizeButton(
 @Composable
 fun DDDIconButton(
     modifier: Modifier = Modifier,
-    isSelected: Boolean,
+    isSelected: Boolean = false,
     enabledIconRes: Int,
     disabledIconRes: Int,
 ) {
