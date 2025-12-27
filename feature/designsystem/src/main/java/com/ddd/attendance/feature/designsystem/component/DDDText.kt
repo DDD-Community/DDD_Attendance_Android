@@ -11,7 +11,7 @@ import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.designsystem.theme.White
 
 @Composable
-fun DDDText(
+fun DddText(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = White,
