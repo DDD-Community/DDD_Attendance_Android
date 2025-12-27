@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
-import com.ddd.attendance.feature.designsystem.theme.Fail
+import com.ddd.attendance.feature.designsystem.theme.FailError
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondary
 import com.ddd.attendance.feature.designsystem.theme.Typography
@@ -95,7 +95,7 @@ internal fun NameField(
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = if (isValid) BorderDisabled else Fail,
+                color = if (isValid) BorderDisabled else FailError,
                 shape = RoundedCornerShape(16.dp)
             ),
         verticalAlignment = Alignment.CenterVertically,

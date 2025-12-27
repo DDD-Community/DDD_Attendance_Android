@@ -38,7 +38,7 @@ import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.BorderEnableBackground
 import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
 import com.ddd.attendance.feature.designsystem.theme.BorderFailBackground
-import com.ddd.attendance.feature.designsystem.theme.Fail
+import com.ddd.attendance.feature.designsystem.theme.FailError
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondary
 import com.ddd.attendance.feature.designsystem.theme.Transparent
@@ -172,7 +172,7 @@ private fun PinBoxes(
             val isFilled = index < pin.length
 
             val borderColor = when {
-                pinCodeStatus == PinCodeStatus.Fail -> Fail
+                pinCodeStatus == PinCodeStatus.Fail -> FailError
                 isFilled -> BorderEnabled
                 else -> BorderDisabled
             }
@@ -220,7 +220,7 @@ private fun PinError(
         DddText(
             text = stringResource(R.string.code_invalid),
             style = Typography.bodyMediumM,
-            color = Fail
+            color = FailError
         )
     }
 }

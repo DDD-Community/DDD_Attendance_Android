@@ -16,7 +16,9 @@ import androidx.navigation.NavController
 import com.ddd.attendance.feature.admin.attendance.AttendanceScreen
 import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
 import com.ddd.attendance.feature.core.header.UserHeader
+import com.ddd.attendance.feature.core.model.AttendanceUiModel
 import com.ddd.attendance.feature.core.model.UserType
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun AdminScreen(
@@ -28,7 +30,8 @@ fun AdminScreen(
 
     Content(
         uiType = uiState.uiType,
-        nextScheduleDate = uiState.nextScheduleDate
+        nextScheduleDate = uiState.nextScheduleDate,
+        attendanceList = uiState.attendanceList
     )
 }
 
@@ -37,6 +40,7 @@ internal fun Content(
     modifier: Modifier = Modifier,
     uiType: AdminType,
     nextScheduleDate: String,
+    attendanceList: ImmutableList<AttendanceUiModel>
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -57,7 +61,8 @@ internal fun Content(
             when (uiType) {
                 AdminType.Attendance -> {
                     AttendanceScreen(
-                        nextScheduleDate = nextScheduleDate
+                        nextScheduleDate = nextScheduleDate,
+                        attendanceList = attendanceList
                     )
                 }
                 AdminType.Schedule -> {

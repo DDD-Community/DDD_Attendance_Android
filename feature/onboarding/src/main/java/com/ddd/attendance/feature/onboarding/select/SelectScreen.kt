@@ -24,8 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DddIconButton
 import com.ddd.attendance.feature.designsystem.component.DddText
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
 import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
-import com.ddd.attendance.feature.designsystem.theme.SelectBoxBackground
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondary
 import com.ddd.attendance.feature.designsystem.theme.Transparent
@@ -108,7 +108,7 @@ internal fun SelectBox(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(SelectBoxBackground)
+            .background(BackgroundSecondary)
             .border(
                 width = 2.dp,
                 shape = RoundedCornerShape(16.dp),

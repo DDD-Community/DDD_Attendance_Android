@@ -12,17 +12,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ddd.attendance.feature.core.board.AttendanceStatusBoard
+import com.ddd.attendance.feature.core.model.AttendanceUiModel
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.Typography
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun AttendanceScreen(
     modifier: Modifier = Modifier,
     nextScheduleDate: String,
+    attendanceList: ImmutableList<AttendanceUiModel>
 ) {
     Content(
         nextScheduleDate = nextScheduleDate,
+        attendanceList = attendanceList
     )
 }
 
@@ -30,12 +35,13 @@ internal fun AttendanceScreen(
 internal fun Content(
     modifier: Modifier = Modifier,
     nextScheduleDate: String,
+    attendanceList: ImmutableList<AttendanceUiModel>
 ) {
     Column(
        modifier = modifier.fillMaxSize()
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .height(46.dp)
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth(),
@@ -56,5 +62,13 @@ internal fun Content(
         }
 
         Spacer(modifier = Modifier.height(6.dp))
+
+        AttendanceStatusBoard(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            items = attendanceList,
+            onInfoClick = {
+
+            }
+        )
     }
 }
