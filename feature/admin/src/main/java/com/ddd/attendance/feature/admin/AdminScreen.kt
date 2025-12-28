@@ -14,9 +14,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.feature.admin.attendance.AttendanceScreen
+import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
 import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
 import com.ddd.attendance.feature.core.header.UserHeader
-import com.ddd.attendance.feature.core.model.AttendanceUiModel
 import com.ddd.attendance.feature.core.model.UserType
 import kotlinx.collections.immutable.ImmutableList
 
@@ -31,7 +31,11 @@ fun AdminScreen(
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
-        attendanceList = uiState.attendanceStatusList,
+        attendance = uiState.dummyAttendanceStatus.attendance,
+        late = uiState.dummyAttendanceStatus.late,
+        absent = uiState.dummyAttendanceStatus.absent,
+        memberAttendanceInfos = uiState.dummyMemberAttendanceInfos,
+        teamList = uiState.dummyTeamList,
         selectedTeamIndex = uiState.selectedTeamIndex,
         onTabClick = {
             viewModel.onIntent(AdminIntent.TabChanged(it))
@@ -44,7 +48,11 @@ internal fun Content(
     modifier: Modifier = Modifier,
     uiType: AdminType,
     nextScheduleDate: String,
-    attendanceList: ImmutableList<AttendanceUiModel>,
+    attendance: Int,
+    late: Int,
+    absent: Int,
+    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
+    teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
     onTabClick:(Int) -> Unit
 ) {
@@ -68,7 +76,11 @@ internal fun Content(
                 AdminType.Attendance -> {
                     AttendanceScreen(
                         nextScheduleDate = nextScheduleDate,
-                        attendanceList = attendanceList,
+                        attendance = attendance,
+                        late = late,
+                        absent = absent,
+                        memberAttendanceInfos = memberAttendanceInfos,
+                        teamList = teamList,
                         selectedTeamIndex = selectedTeamIndex,
                         onTabClick = { onTabClick(it) }
                     )

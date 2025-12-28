@@ -3,6 +3,8 @@ package com.ddd.attendance.feature.admin.attendance
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,11 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ddd.attendance.feature.admin.MemberAttendanceType
-import com.ddd.attendance.feature.core.R
+import com.ddd.attendance.feature.admin.R
+import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
+import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceType
 import com.ddd.attendance.feature.core.board.AttendanceStatusBoard
-import com.ddd.attendance.feature.core.model.AttendanceUiModel
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
 import com.ddd.attendance.feature.designsystem.theme.ButtonDisabled
@@ -46,13 +49,21 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun AttendanceScreen(
     modifier: Modifier = Modifier,
     nextScheduleDate: String,
-    attendanceList: ImmutableList<AttendanceUiModel>,
+    attendance: Int,
+    late: Int,
+    absent: Int,
+    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
+    teamList: ImmutableList<String>,
     selectedTeamIndex: Int = 0,
     onTabClick: (Int) -> Unit,
 ) {
     Content(
         nextScheduleDate = nextScheduleDate,
-        attendanceList = attendanceList,
+        attendance = attendance,
+        late = late,
+        absent = absent,
+        memberAttendanceInfos = memberAttendanceInfos,
+        teamList = teamList,
         selectedTeamIndex = selectedTeamIndex,
         onTabClick = { onTabClick(it) }
     )
@@ -62,7 +73,11 @@ internal fun AttendanceScreen(
 internal fun Content(
     modifier: Modifier = Modifier,
     nextScheduleDate: String,
-    attendanceList: ImmutableList<AttendanceUiModel>,
+    attendance: Int,
+    late: Int,
+    absent: Int,
+    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
+    teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
     onTabClick: (Int) -> Unit
 ) {
@@ -94,7 +109,9 @@ internal fun Content(
 
         AttendanceStatusBoard(
             modifier = Modifier.padding(horizontal = 24.dp),
-            items = attendanceList,
+            attendance = attendance,
+            late = late,
+            absent = absent,
             onInfoClick = {
 
             }
@@ -103,18 +120,25 @@ internal fun Content(
         Spacer(modifier = Modifier.height(28.dp))
 
         TeamTabBar(
-            tabs = listOf("web 1팀", "web 2팀", "Android 1팀", "Android 2팀", "iOS 1팀", "iOS 2팀"),
+            tabs = teamList,
             selectedIndex = selectedTeamIndex,
             onTabClick = { onTabClick(it) }
         )
 
-        TeamCardList()
+        Spacer(modifier = Modifier.height(20.dp))
+
+        TeamCardList(
+            memberAttendanceInfos = memberAttendanceInfos,
+            selectedTeamName = teamList[selectedTeamIndex]
+        ) {
+
+        }
     }
 }
 
 @Composable
 fun TeamTabBar(
-    tabs: List<String>,
+    tabs: ImmutableList<String>,
     selectedIndex: Int,
     onTabClick: (Int) -> Unit
 ) {
@@ -178,9 +202,24 @@ fun TabItem(
 }
 
 @Composable
-fun TeamCardList() {
-    LazyColumn() {
-
+fun TeamCardList(
+    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
+    selectedTeamName: String,
+    onEditClick:() -> Unit
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        itemsIndexed(memberAttendanceInfos) { index, item ->
+            CardItem(
+                name = item.name,
+                team = selectedTeamName,
+                role = item.role,
+                memberAttendanceType = item.attendanceType
+            ) {
+                onEditClick()
+            }
+        }
     }
 }
 
@@ -190,7 +229,8 @@ fun CardItem(
     name: String,
     team: String,
     role: String,
-    memberAttendanceType: MemberAttendanceType
+    memberAttendanceType: MemberAttendanceType,
+    onEditClick:() -> Unit
 ) {
     Box(
         modifier = modifier
@@ -220,9 +260,10 @@ fun CardItem(
                     )
 
                     Spacer(modifier = Modifier.width(4.dp))
+
                     DddText(
                         text = "/ $role",
-                        style = Typography.titleSmallB,
+                        style = Typography.bodyMediumM,
                         color = TextDisabled
                     )
                 }
@@ -230,32 +271,53 @@ fun CardItem(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            Row() {
-                when(memberAttendanceType) {
-                    MemberAttendanceType.NONE -> {
-
-                    }
-                    else -> {
-                        //text, image, image
-                        DddText(
-                            text = "/ $role",
-                            style = Typography.titleSmallB,
-                            color = TextDisabled
-                        )
-
-                        Image(
-                            modifier = Modifier.size(24.dp),
-                            painter = painterResource(id = R.drawable.logo_ddd),
-                            contentDescription = "출석 이미지",
-                        )
-
-                        Image(
-                            modifier = Modifier.size(18.dp),
-                            painter = painterResource(id = R.drawable.logo_ddd),
-                            contentDescription = "수정 아이콘",
-                        )
-                    }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val text = when(memberAttendanceType) {
+                    MemberAttendanceType.NONE -> ""
+                    MemberAttendanceType.ATTENDANCE -> stringResource(R.string.attendance)
+                    MemberAttendanceType.LATE -> stringResource(R.string.late)
+                    MemberAttendanceType.ABSENT -> stringResource(R.string.absent)
                 }
+
+                val iconRes = when (memberAttendanceType) {
+                    MemberAttendanceType.NONE -> null
+                    MemberAttendanceType.ATTENDANCE -> R.drawable.attendance
+                    MemberAttendanceType.LATE -> R.drawable.late
+                    MemberAttendanceType.ABSENT -> R.drawable.absent
+                }
+
+                if (text.isNotBlank()) {
+                    DddText(
+                        text = text,
+                        style = Typography.bodyMediumM,
+                        color = TextDisabled
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+
+                iconRes?.let {
+                    Image(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(it),
+                        contentDescription = "출석 상태 아이콘"
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+
+                Image(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            onEditClick()
+                        },
+                    painter = painterResource(id = R.drawable.edit_pencil),
+                    contentDescription = "수정 아이콘",
+                )
             }
         }
     }

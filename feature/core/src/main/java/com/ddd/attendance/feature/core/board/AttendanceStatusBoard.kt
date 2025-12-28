@@ -23,21 +23,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.core.R
-import com.ddd.attendance.feature.core.model.AttendanceUiModel
 import com.ddd.attendance.feature.core.model.AttendanceStatus
+import com.ddd.attendance.feature.core.model.AttendanceStatusUiModel
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.Typography
-import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun AttendanceStatusBoard(
     modifier: Modifier = Modifier,
-    items: ImmutableList<AttendanceUiModel>,
+    attendance: Int,
+    late: Int,
+    absent: Int,
     onInfoClick: () -> Unit = {}
 ) {
+    val items = listOf(
+        AttendanceStatusUiModel(AttendanceStatus.ATTENDANCE, attendance),
+        AttendanceStatusUiModel(AttendanceStatus.LATE, late),
+        AttendanceStatusUiModel(AttendanceStatus.ABSENT, absent)
+    )
+
     Box(
         modifier = modifier
             .fillMaxWidth()
