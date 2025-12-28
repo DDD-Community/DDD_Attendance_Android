@@ -2,6 +2,8 @@ package com.ddd.attendance.feature.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.domain.model.NavigationDestination
+import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -11,10 +13,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SplashViewModel @Inject constructor() : ViewModel() {
+class SplashViewModel @Inject constructor(
+    private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase
+) : ViewModel() {
     
-    private val _navigateToLogin = MutableSharedFlow<Unit>()
-    val navigateToLogin: SharedFlow<Unit> = _navigateToLogin.asSharedFlow()
+    private val _navigationDestination = MutableSharedFlow<NavigationDestination>()
+    val navigationDestination: SharedFlow<NavigationDestination> = _navigationDestination.asSharedFlow()
     
     init {
         startSplash()
@@ -22,8 +26,9 @@ class SplashViewModel @Inject constructor() : ViewModel() {
     
     private fun startSplash() {
         viewModelScope.launch {
-            delay(2000) // 2초 후 로그인 화면으로 이동
-            _navigateToLogin.emit(Unit)
+            delay(2000) // 2초 후 적절한 화면으로 이동
+            val destination = getUserNavigationDestinationUseCase()
+            _navigationDestination.emit(destination)
         }
     }
 }

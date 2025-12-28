@@ -1,4 +1,4 @@
-package com.ddd.attendance.feature.member
+package com.ddd.attendance.feature.member.main
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

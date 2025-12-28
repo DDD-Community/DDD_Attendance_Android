@@ -14,18 +14,39 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.ddd.attendance.domain.model.NavigationDestination
 
 @Composable
 fun SplashScreen(
     navController: NavController,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
-    val navigateToLogin = viewModel.navigateToLogin.collectAsStateWithLifecycle(null)
+    val navigationDestination = viewModel.navigationDestination.collectAsStateWithLifecycle(null)
     
-    LaunchedEffect(navigateToLogin.value) {
-        navigateToLogin.value?.let {
-            navController.navigate("LOGIN") {
-                popUpTo("SPLASH") { inclusive = true }
+    LaunchedEffect(navigationDestination.value) {
+        navigationDestination.value?.let { destination ->
+            when (destination) {
+                is NavigationDestination.Login -> {
+                    navController.navigate("LOGIN") {
+                        popUpTo("SPLASH") { inclusive = true }
+                    }
+                }
+                is NavigationDestination.OnBoarding -> {
+                    navController.navigate("ON_BOARDING") {
+                        popUpTo("SPLASH") { inclusive = true }
+                    }
+                }
+                is NavigationDestination.Member -> {
+                    navController.navigate("MEMBER_MAIN") {
+                        popUpTo("SPLASH") { inclusive = true }
+                    }
+                }
+                is NavigationDestination.Manager -> {
+                    // TODO: Manager 화면이 만들어지면 해당 route로 변경
+                    navController.navigate("MEMBER_MAIN") {
+                        popUpTo("SPLASH") { inclusive = true }
+                    }
+                }
             }
         }
     }

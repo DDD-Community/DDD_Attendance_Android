@@ -1,4 +1,4 @@
-package com.ddd.attendance.feature.member
+package com.ddd.attendance.feature.member.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.ddd.attendance.feature.member.main.MemberMainViewModel
 
 @Composable
 fun MemberMainScreen(
