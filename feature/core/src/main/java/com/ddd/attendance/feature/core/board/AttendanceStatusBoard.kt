@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.core.R
 import com.ddd.attendance.feature.core.model.AttendanceUiModel
-import com.ddd.attendance.feature.core.model.AttendanceType
+import com.ddd.attendance.feature.core.model.AttendanceStatus
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
@@ -75,7 +75,7 @@ fun AttendanceStatusBoard(
                             style = Typography.bodyMediumM
                         )
 
-                        if (item.type == AttendanceType.ABSENT && item.count > 0) {
+                        if (item.type == AttendanceStatus.ABSENT && item.count > 0) {
                             Spacer(Modifier.width(4.dp))
                             Image(
                                 modifier = Modifier

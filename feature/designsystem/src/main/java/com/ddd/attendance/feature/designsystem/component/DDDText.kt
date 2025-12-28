@@ -7,14 +7,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.Typography
-import com.ddd.attendance.feature.designsystem.theme.White
 
 @Composable
 fun DddText(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = White,
+    color: Color = TextPrimary,
     style: TextStyle = Typography.bodySmallM,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,

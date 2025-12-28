@@ -31,7 +31,11 @@ fun AdminScreen(
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
-        attendanceList = uiState.attendanceList
+        attendanceList = uiState.attendanceStatusList,
+        selectedTeamIndex = uiState.selectedTeamIndex,
+        onTabClick = {
+            viewModel.onIntent(AdminIntent.TabChanged(it))
+        }
     )
 }
 
@@ -40,7 +44,9 @@ internal fun Content(
     modifier: Modifier = Modifier,
     uiType: AdminType,
     nextScheduleDate: String,
-    attendanceList: ImmutableList<AttendanceUiModel>
+    attendanceList: ImmutableList<AttendanceUiModel>,
+    selectedTeamIndex: Int,
+    onTabClick:(Int) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -62,7 +68,9 @@ internal fun Content(
                 AdminType.Attendance -> {
                     AttendanceScreen(
                         nextScheduleDate = nextScheduleDate,
-                        attendanceList = attendanceList
+                        attendanceList = attendanceList,
+                        selectedTeamIndex = selectedTeamIndex,
+                        onTabClick = { onTabClick(it) }
                     )
                 }
                 AdminType.Schedule -> {

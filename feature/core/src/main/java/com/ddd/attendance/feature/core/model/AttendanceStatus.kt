@@ -6,7 +6,7 @@ import com.ddd.attendance.feature.designsystem.theme.FailError
 import com.ddd.attendance.feature.designsystem.theme.StatusCautionary
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 
-enum class AttendanceType(
+enum class AttendanceStatus(
     val labelRes: Int,
     val activeColor: Color
 ) {

@@ -16,7 +16,7 @@ val TextPrimary = White
 val TextSecondary = Color(0xFFEAEAEA)
 
 @Stable
-val BorderDefault = Color(0xFFC6C6C6)
+val TextDisabled = Color(0xFFC6C6C6)
 
 @Stable
 val BorderEnabled = Color(0xFF0D82F9)
