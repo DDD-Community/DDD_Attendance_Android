@@ -25,9 +25,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ddd.attendance.feature.designsystem.component.DDDText
+import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
-import com.ddd.attendance.feature.designsystem.theme.Fail
+import com.ddd.attendance.feature.designsystem.theme.FailError
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondary
 import com.ddd.attendance.feature.designsystem.theme.Typography
@@ -56,7 +56,7 @@ internal fun Content(
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        DDDText(
+        DddText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.enter_name),
             style = Typography.titleLargeB,
@@ -65,7 +65,7 @@ internal fun Content(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        DDDText(
+        DddText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.name_description),
             style = Typography.bodySmallM,
@@ -95,7 +95,7 @@ internal fun NameField(
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = if (isValid) BorderDisabled else Fail,
+                color = if (isValid) BorderDisabled else FailError,
                 shape = RoundedCornerShape(16.dp)
             ),
         verticalAlignment = Alignment.CenterVertically,

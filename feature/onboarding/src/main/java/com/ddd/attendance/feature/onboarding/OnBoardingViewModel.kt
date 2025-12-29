@@ -3,6 +3,7 @@ package com.ddd.attendance.feature.onboarding
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
@@ -107,15 +108,15 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
-    private fun resolveStep(type: OnBoardingType, index: Int): OnBoardingStep {
+    private fun resolveStep(type: UserType, index: Int): OnBoardingStep {
         val steps = when (type) {
-            OnBoardingType.Admin -> listOf(
+            UserType.Admin -> listOf(
                 OnBoardingStep.Invite,
                 OnBoardingStep.Name,
                 OnBoardingStep.Role,
                 OnBoardingStep.Work
             )
-            OnBoardingType.Member -> listOf(
+            UserType.Member -> listOf(
                 OnBoardingStep.Invite,
                 OnBoardingStep.Name,
                 OnBoardingStep.Role,

@@ -22,10 +22,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ddd.attendance.feature.designsystem.component.DDDIconButton
-import com.ddd.attendance.feature.designsystem.component.DDDText
+import com.ddd.attendance.feature.designsystem.component.DddIconButton
+import com.ddd.attendance.feature.designsystem.component.DddText
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
 import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
-import com.ddd.attendance.feature.designsystem.theme.SelectBoxBackground
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondary
 import com.ddd.attendance.feature.designsystem.theme.Transparent
@@ -60,7 +60,7 @@ internal fun Content(
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        DDDText(
+        DddText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = step.titleRes),
             style = Typography.titleLargeB,
@@ -69,7 +69,7 @@ internal fun Content(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        DDDText(
+        DddText(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = step.subTitleRes),
             style = Typography.bodySmallM,
@@ -108,7 +108,7 @@ internal fun SelectBox(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(SelectBoxBackground)
+            .background(BackgroundSecondary)
             .border(
                 width = 2.dp,
                 shape = RoundedCornerShape(16.dp),
@@ -120,13 +120,13 @@ internal fun SelectBox(
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        DDDText(
+        DddText(
             modifier = Modifier.weight(1f),
             text = text,
             style = Typography.bodyLargeM,
         )
 
-        DDDIconButton(
+        DddIconButton(
             modifier = Modifier
                 .size(24.dp),
             isSelected = isSelected,

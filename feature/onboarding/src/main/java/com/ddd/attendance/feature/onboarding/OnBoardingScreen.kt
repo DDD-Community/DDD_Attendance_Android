@@ -53,13 +53,15 @@ fun OnBoardingScreen(
                     navController.popBackStack()
                 }
                 NavigationEvent.GoToHome -> {
-                    navController.navigate("HOME")
+                    /*navController.navigate("HOME")*/
+                    navController.navigate("Admin")
                 }
             }
         }
     }
 
-    OnBoardingScreenContent(
+    Content(
+        modifier = modifier,
         step = uiState.step,
         grayBlockCount = uiState.grayBlockCount,
         blackBlockCount = uiState.blackBlockCount,
@@ -87,7 +89,7 @@ fun OnBoardingScreen(
 }
 
 @Composable
-internal fun OnBoardingScreenContent(
+internal fun Content(
     modifier: Modifier = Modifier,
     step: OnBoardingStep = OnBoardingStep.Invite,
     selectList: ImmutableList<SelectItemUiModel>,

@@ -1,6 +1,7 @@
 package com.ddd.attendance.feature.onboarding
 
 import androidx.compose.runtime.Stable
+import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.select.SelectItemUiModel
 import kotlinx.collections.immutable.ImmutableList
@@ -16,7 +17,7 @@ import kotlinx.collections.immutable.persistentListOf
  * */
 @Stable
 data class OnBoardingUiState(
-    val type: OnBoardingType = OnBoardingType.Member,
+    val type: UserType = UserType.Member,
     val step: OnBoardingStep = OnBoardingStep.Invite,
     val index: Int = 0,
     val grayBlockCount: Int = 0,
@@ -26,7 +27,7 @@ data class OnBoardingUiState(
     val name: String = "",
     val title: String = "",
     val subTitle: String = "",
-    val dummyType: OnBoardingType = OnBoardingType.Member,
+    val dummyType: UserType = UserType.Member,
     val dummyList: Map<OnBoardingStep, ImmutableList<SelectItemUiModel>> =
         defaultSelectItemMap(),
 ) {

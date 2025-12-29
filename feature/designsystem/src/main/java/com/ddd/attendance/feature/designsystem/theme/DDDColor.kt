@@ -16,13 +16,16 @@ val TextPrimary = White
 val TextSecondary = Color(0xFFEAEAEA)
 
 @Stable
-val BorderDisabled = Color(0xFFC6C6C6)
+val TextDisabled = Color(0xFFC6C6C6)
 
 @Stable
 val BorderEnabled = Color(0xFF0D82F9)
 
 @Stable
-val Fail = Color(0xFFFD1008)
+val BorderDisabled = Color(0xFF323537)
+
+@Stable
+val FailError = Color(0xFFFD1008)
 
 @Stable
 val BorderFailBackground = Color(0xFFFFE7E6)
@@ -40,4 +43,7 @@ val ButtonDisabled = Color(0xFFC1D3FF)
 val ButtonEnabled = Color(0xFF0D82F9)
 
 @Stable
-val SelectBoxBackground = Color(0xFF202325)
+val BackgroundSecondary = Color(0xFF202325)
+
+@Stable
+val StatusCautionary = Color(0xFFFD5D08)
