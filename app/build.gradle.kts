@@ -18,5 +18,8 @@ dependencies {
     implementation(projects.feature.login)
     implementation(projects.feature.splash)
     implementation(projects.feature.onboarding)
-    implementation(projects.feature.admin)
+    implementation(projects.feature.admin.main)
+    implementation(projects.feature.admin.attendance)
+    implementation(projects.feature.admin.schedule)
+    implementation(projects.feature.admin.profile)
 }
