@@ -57,7 +57,7 @@ fun DddLargeSizeButton(
             },
         contentAlignment = Alignment.Center
     ) {
-        DDDText(
+        DddText(
             text = text,
             color = textColor,
             style = textStyle
@@ -66,11 +66,12 @@ fun DddLargeSizeButton(
 }
 
 @Composable
-fun DDDIconButton(
+fun DddIconButton(
     modifier: Modifier = Modifier,
-    isSelected: Boolean,
+    isSelected: Boolean = false,
     enabledIconRes: Int,
     disabledIconRes: Int,
+
 ) {
     val iconRes = if (isSelected) enabledIconRes else disabledIconRes
 

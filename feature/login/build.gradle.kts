@@ -10,4 +10,5 @@ setNamespace("feature.login")
 
 dependencies {
     implementation(projects.domain)
+    implementation(projects.feature.core)
 }

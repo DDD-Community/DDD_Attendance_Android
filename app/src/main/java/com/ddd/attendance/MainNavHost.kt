@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ddd.attendance.feature.admin.AdminScreen
 import com.ddd.attendance.feature.home.HomeScreen
 import com.ddd.attendance.feature.login.LoginScreen
 import com.ddd.attendance.feature.onboarding.OnBoardingScreen
@@ -46,6 +47,11 @@ internal fun MainNavHost(
 
             composable(route = ScreenName.LOGIN.name) {
                 LoginScreen(navController = navigator.navController)
+            }
+
+            composable(route = ScreenName.ADMIN.name) {
+                AdminScreen(
+                    navController = navigator.navController)
             }
         }
     }
