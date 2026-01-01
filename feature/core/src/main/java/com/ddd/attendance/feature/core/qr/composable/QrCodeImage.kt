@@ -1,4 +1,4 @@
-package com.ddd.attendance.feature.core.qr
+package com.ddd.attendance.feature.core.qr.composable
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -23,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ddd.attendance.feature.core.qr.util.QrCodeGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -39,12 +40,14 @@ fun QrCodeImage(
     var isLoading by remember(text) { mutableStateOf(true) }
     var errorMessage by remember(text) { mutableStateOf<String?>(null) }
     
+    val generator = QrCodeGenerator()
+    
     LaunchedEffect(text) {
         isLoading = true
         errorMessage = null
         
         withContext(Dispatchers.IO) {
-            QrCodeFacade.generateQrCode(text, size.value.toInt(), size.value.toInt())
+            generator.generateQrCode(text, size.value.toInt(), size.value.toInt())
                 .onSuccess { bitmap ->
                     qrBitmap = bitmap
                     isLoading = false
@@ -94,32 +97,6 @@ fun QrCodeImage(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-        }
-    }
-}
-
-/**
- * QR 코드 스캔 결과를 나타내는 sealed class
- */
-sealed class QrScanResult {
-    object Scanning : QrScanResult()
-    data class Success(val text: String) : QrScanResult()
-    data class Error(val message: String) : QrScanResult()
-}
-
-/**
- * QR 코드 스캔을 위한 유틸리티 함수
- */
-object QrScanUtils {
-    suspend fun scanBitmap(bitmap: Bitmap): QrScanResult {
-        return withContext(Dispatchers.IO) {
-            QrCodeFacade.scanQrCode(bitmap)
-                .fold(
-                    onSuccess = { text -> QrScanResult.Success(text) },
-                    onFailure = { throwable -> 
-                        QrScanResult.Error(throwable.message ?: "QR 코드 스캔 실패")
-                    }
-                )
         }
     }
 }

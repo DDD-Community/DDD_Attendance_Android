@@ -1,4 +1,4 @@
-package com.ddd.attendance.feature.core.qr
+package com.ddd.attendance.feature.core.qr.util
 
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -7,7 +7,7 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 
-class QrCodeGenerator {
+internal class QrCodeGenerator {
     
     fun generateQrCode(
         text: String,
