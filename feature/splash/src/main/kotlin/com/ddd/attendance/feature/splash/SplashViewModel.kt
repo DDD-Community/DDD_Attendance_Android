@@ -20,11 +20,10 @@ class SplashViewModel @Inject constructor(
     private val _navigationDestination = MutableSharedFlow<NavigationDestination>()
     val navigationDestination: SharedFlow<NavigationDestination> = _navigationDestination.asSharedFlow()
     
-    init {
-        startSplash()
-    }
-    
-    private fun startSplash() {
+    /**
+     * 권한 처리 후 스플래시 시작
+     */
+    fun startSplashAfterPermission() {
         viewModelScope.launch {
             delay(2000) // 2초 후 적절한 화면으로 이동
             val destination = getUserNavigationDestinationUseCase()
