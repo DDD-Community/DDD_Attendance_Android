@@ -9,6 +9,5 @@ plugins {
 setNamespace("feature.admin.profile")
 
 dependencies {
-    api(projects.feature.designsystem)
-    api(projects.feature.core)
+    implementation(projects.feature.designsystem)
 }

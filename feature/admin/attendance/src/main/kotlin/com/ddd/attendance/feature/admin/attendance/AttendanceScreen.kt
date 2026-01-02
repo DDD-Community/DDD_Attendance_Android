@@ -27,6 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,12 +39,16 @@ import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
 import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceType
 import com.ddd.attendance.feature.core.board.AttendanceStatusBoard
 import com.ddd.attendance.feature.designsystem.component.DddText
+import com.ddd.attendance.feature.designsystem.theme.BackgroundDefault
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonDisabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonEnabled
+import com.ddd.attendance.feature.designsystem.theme.StatusCautionary
 import com.ddd.attendance.feature.designsystem.theme.TextDisabled
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondary
+import com.ddd.attendance.feature.designsystem.theme.Transparent
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import kotlinx.collections.immutable.ImmutableList
 
@@ -54,7 +62,8 @@ fun AttendanceScreen(
     memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int = 0,
-    onTabClick: (Int) -> Unit,
+    onTabClick:(Int) -> Unit,
+    onEditClick:() -> Unit
 ) {
     Content(
         nextScheduleDate = nextScheduleDate,
@@ -64,7 +73,8 @@ fun AttendanceScreen(
         memberAttendanceInfos = memberAttendanceInfos,
         teamList = teamList,
         selectedTeamIndex = selectedTeamIndex,
-        onTabClick = { onTabClick(it) }
+        onTabClick = { onTabClick(it) },
+        onEditClick = onEditClick
     )
 }
 
@@ -78,7 +88,8 @@ internal fun Content(
     memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
-    onTabClick: (Int) -> Unit
+    onTabClick:(Int) -> Unit,
+    onEditClick:() -> Unit
 ) {
     Column(
        modifier = modifier.fillMaxSize()
@@ -128,10 +139,9 @@ internal fun Content(
 
         TeamCardList(
             memberAttendanceInfos = memberAttendanceInfos,
-            selectedTeamName = teamList[selectedTeamIndex]
-        ) {
-
-        }
+            selectedTeamName = teamList[selectedTeamIndex],
+            onEditClick = onEditClick
+        )
     }
 }
 
@@ -139,7 +149,7 @@ internal fun Content(
 fun TeamTabBar(
     tabs: ImmutableList<String>,
     selectedIndex: Int,
-    onTabClick: (Int) -> Unit
+    onTabClick:(Int) -> Unit
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth()
@@ -164,7 +174,7 @@ fun TeamTabBar(
 fun TabItem(
     title: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick:() -> Unit
 ) {
     var textWidth by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
@@ -231,12 +241,35 @@ fun CardItem(
     memberAttendanceType: MemberAttendanceType,
     onEditClick:() -> Unit
 ) {
+    val isDisable = memberAttendanceType == MemberAttendanceType.ABSENT
+
+    val borderModifier = if (isDisable) {
+        Modifier.drawBehind {
+            val strokeWidth = 2.dp.toPx()
+            val cornerRadius = 16.dp.toPx()
+
+            drawRoundRect(
+                color = BorderDisabled,
+                size = size,
+                style = Stroke(
+                    width = strokeWidth,
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(4.dp.toPx(), 4.dp.toPx())
+                    )
+                ),
+                cornerRadius = CornerRadius(cornerRadius)
+            )
+        }.background(color = BackgroundDefault, shape = RoundedCornerShape(16.dp))
+    } else {
+        Modifier.background(color = BackgroundSecondary, shape = RoundedCornerShape(16.dp))
+    }
+
     Box(
         modifier = modifier
             .height(84.dp)
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .background(color = BackgroundSecondary, shape = RoundedCornerShape(16.dp))
+            .then(borderModifier)
     ) {
         Row(
             modifier = Modifier
@@ -249,13 +282,14 @@ fun CardItem(
             ) {
                 DddText(
                     text = name,
-                    style = Typography.titleSmallB
+                    style = Typography.titleSmallB,
+                    color = if (isDisable) BorderDisabled else TextPrimary
                 )
                 Row {
                     DddText(
                         text = team,
                         style = Typography.bodyMediumM,
-                        color = TextSecondary
+                        color = if (isDisable) BorderDisabled else TextSecondary
                     )
 
                     Spacer(modifier = Modifier.width(4.dp))
@@ -263,7 +297,7 @@ fun CardItem(
                     DddText(
                         text = "/ $role",
                         style = Typography.bodyMediumM,
-                        color = TextDisabled
+                        color = if (isDisable) BorderDisabled else TextDisabled
                     )
                 }
             }
@@ -287,11 +321,18 @@ fun CardItem(
                     MemberAttendanceType.ABSENT -> R.drawable.absent
                 }
 
+                val textColor = when (memberAttendanceType) {
+                    MemberAttendanceType.NONE -> Transparent
+                    MemberAttendanceType.ATTENDANCE -> TextPrimary
+                    MemberAttendanceType.LATE -> StatusCautionary
+                    MemberAttendanceType.ABSENT -> BorderDisabled
+                }
+
                 if (text.isNotBlank()) {
                     DddText(
                         text = text,
                         style = Typography.bodyMediumM,
-                        color = TextDisabled
+                        color = textColor
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                 }

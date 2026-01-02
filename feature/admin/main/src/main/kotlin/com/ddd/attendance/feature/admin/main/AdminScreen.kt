@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -39,8 +42,33 @@ fun AdminScreen(
         selectedTeamIndex = uiState.selectedTeamIndex,
         onTabClick = {
             viewModel.onIntent(AdminIntent.TabChanged(it))
+        },
+        onEditClick = {
+            viewModel.onIntent(AdminIntent.ShowEditPopup)
         }
     )
+
+    if (uiState.isShowEditPopup) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(AdminIntent.DismissEditPopup) },
+            title = { Text("편집") },
+            text = { Text("편집 화면으로 이동하시겠습니까?") },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.onIntent(AdminIntent.DismissEditPopup) }
+                ) {
+                    Text("확인")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onIntent(AdminIntent.DismissEditPopup) }
+                ) {
+                    Text("취소")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -54,7 +82,8 @@ internal fun Content(
     memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
-    onTabClick:(Int) -> Unit
+    onTabClick:(Int) -> Unit,
+    onEditClick:() -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -82,7 +111,8 @@ internal fun Content(
                         memberAttendanceInfos = memberAttendanceInfos,
                         teamList = teamList,
                         selectedTeamIndex = selectedTeamIndex,
-                        onTabClick = { onTabClick(it) }
+                        onTabClick = { onTabClick(it) },
+                        onEditClick = onEditClick
                     )
                 }
                 AdminType.Schedule -> {

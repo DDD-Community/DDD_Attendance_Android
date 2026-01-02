@@ -14,12 +14,8 @@ class AdminViewModel @Inject constructor(
     val uiState: StateFlow<AdminUiState> = _uiState.asStateFlow()
 
     fun onIntent(intent: AdminIntent) {
-        when(intent) {
-            is AdminIntent.TabChanged -> {
-                _uiState.update {
-                    reduce(it, intent)
-                }
-            }
+        _uiState.update {
+            reduce(it, intent)
         }
     }
 
@@ -28,9 +24,9 @@ class AdminViewModel @Inject constructor(
         intent: AdminIntent
     ): AdminUiState {
         return when (intent) {
-            is AdminIntent.TabChanged ->
-                state.copy(selectedTeamIndex = intent.index)
-
+            is AdminIntent.TabChanged -> state.copy(selectedTeamIndex = intent.index)
+            is AdminIntent.ShowEditPopup -> state.copy(isShowEditPopup = true)
+            is AdminIntent.DismissEditPopup -> state.copy(isShowEditPopup = false)
             else -> state
         }
     }

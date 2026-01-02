@@ -10,6 +10,7 @@ data class AdminUiState(
     val uiType: AdminType = AdminType.Attendance,
     val nextScheduleDate: String = "2026.03.07",
     val selectedTeamIndex: Int = 0,
+    val isShowEditPopup: Boolean = false,
     val dummyAttendanceStatus: AttendanceStatus = AttendanceStatus(
         attendance = 10,
         late = 2,
@@ -27,5 +28,5 @@ data class AdminUiState(
             MemberAttendanceInfo(name = "서원지", role = "iOS", MemberAttendanceType.ATTENDANCE)
         ),
 
-    val dummyTeamList: ImmutableList<String> = persistentListOf("web 1팀", "web 2팀", "Android 1팀", "Android 2팀", "iOS 1팀", "iOS 2팀")
+    val dummyTeamList: ImmutableList<String> = persistentListOf("web 1팀", "web 2팀", "Android 1팀", "Android 2팀", "iOS 1팀", "iOS 2팀"),
 )

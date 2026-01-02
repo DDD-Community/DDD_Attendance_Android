@@ -46,4 +46,7 @@ val ButtonEnabled = Color(0xFF0D82F9)
 val BackgroundSecondary = Color(0xFF202325)
 
 @Stable
+val BackgroundDefault = Color(0xFF0C0E0F)
+
+@Stable
 val StatusCautionary = Color(0xFFFD5D08)

@@ -9,6 +9,6 @@ plugins {
 setNamespace("feature.admin.attendance")
 
 dependencies {
-    api(projects.feature.designsystem)
+    implementation(projects.feature.designsystem)
     api(projects.feature.core)
 }
