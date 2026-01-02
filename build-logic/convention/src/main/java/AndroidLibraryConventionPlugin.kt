@@ -23,6 +23,10 @@ class AndroidLibraryConventionPlugin: Plugin<Project> {
                 configureCoroutineAndroid()
                 configureBuildTypes(commonExtension = this, extensionType = ExtensionType.LIBRARY)
 
+                buildFeatures {
+                    buildConfig = true
+                }
+
                 defaultConfig {
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                     consumerProguardFiles("consumer-rules.pro")

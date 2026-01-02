@@ -72,6 +72,7 @@ private fun Project.getPropertyFromFiles(propertyName: String): String {
  **/
 private fun BuildType.configureDebugBuildType(projectVersionName: String){
     isMinifyEnabled = false
+    buildConfigField("String", "APP_VERSION", "\"$projectVersionName\"")
 }
 
 /**
@@ -82,6 +83,7 @@ private fun BuildType.configureReleaseBuildType(
     projectVersionName: String
 ){
     isMinifyEnabled = true // 코드 난독화
+    buildConfigField("String", "APP_VERSION", "\"$projectVersionName\"")
     proguardFiles(
         commonExtension.getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
