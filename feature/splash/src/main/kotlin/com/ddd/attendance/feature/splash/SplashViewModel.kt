@@ -16,11 +16,10 @@ class SplashViewModel @Inject constructor() : ViewModel() {
     private val _navigateToLogin = MutableSharedFlow<Unit>()
     val navigateToLogin: SharedFlow<Unit> = _navigateToLogin.asSharedFlow()
     
-    init {
-        startSplash()
-    }
-    
-    private fun startSplash() {
+    /**
+     * 권한 처리 후 스플래시 시작
+     */
+    fun startSplashAfterPermission() {
         viewModelScope.launch {
             delay(2000) // 2초 후 로그인 화면으로 이동
             _navigateToLogin.emit(Unit)

@@ -7,4 +7,8 @@ plugins {
     alias(libs.plugins.attendance.android.coil)
 }
 
+dependencies {
+    implementation(projects.feature.core)
+}
+
 setNamespace("feature.splash")
