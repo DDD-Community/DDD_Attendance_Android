@@ -76,5 +76,10 @@ gradlePlugin {
             id = "attendance.coroutine"
             implementationClass = "CoroutineConventionPlugin"
         }
+
+        register("androidQrCode") {
+            id = "attendance.android.qrcode"
+            implementationClass = "AndroidQrCodeConventionPlugin"
+        }
     }
 }
