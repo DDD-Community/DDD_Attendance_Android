@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,86 +28,226 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 
 @Composable
 fun MemberMainScreen(
-    navController: NavController,
+    modifier: Modifier = Modifier,
     onNavigateToProfile: () -> Unit,
     onNavigateToAttendance: () -> Unit,
     viewModel: MemberMainViewModel = hiltViewModel()
 ) {
-    Column(
-        modifier = Modifier
+    val uiState by viewModel.uiState.collectAsState()
+
+    Box(
+        modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFF1C1C1E))
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+        ) {
+            MemberMainHeader(
+                onNavigateToProfile = onNavigateToProfile,
+                onNavigateToAttendance = onNavigateToAttendance
+            )
+
+            MemberMainAttendanceSection(
+                memberName = uiState.memberName,
+                activityPeriod = uiState.activityPeriod,
+                attendanceStats = uiState.attendanceStats
+            )
+
+            MemberMainScheduleSection(
+                scheduleItems = uiState.scheduleItems
+            )
+        }
+    }
+}
+
+@Composable
+fun MemberMainAttendanceSection(
+    memberName: String,
+    activityPeriod: String,
+    attendanceStats: AttendanceStats
+) {
+    Column(
+        modifier = Modifier.padding(top = 20.dp)
+    ) {
+        Text(
+            text = "${memberName}님의 출석 현황",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "활동기간 : $activityPeriod",
+            fontSize = 14.sp,
+            color = Color(0xFFEAEAEA)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .background(
+                    Color(0xFF202325),
+                    RoundedCornerShape(12.dp)
+                )
+                .padding(24.dp)
         ) {
-            Text(
-                text = "Member",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+            AttendanceCard(
+                count = attendanceStats.attendance.toString(),
+                label = "출석",
+                modifier = Modifier.weight(1f),
             )
-            
-            Row {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
-                        .clickable { onNavigateToProfile() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "P",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-                
-                Box(
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
-                        .clickable { onNavigateToAttendance() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "A",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(48.dp)
+                    .align(Alignment.CenterVertically)
+                    .background(Color(0xFF3A3A3C))
+            )
+
+            AttendanceCard(
+                count = attendanceStats.late.toString(),
+                label = "지각",
+                modifier = Modifier.weight(1f),
+            )
+
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(48.dp)
+                    .align(Alignment.CenterVertically)
+                    .background(Color(0xFF3A3A3C))
+            )
+
+            AttendanceCard(
+                count = attendanceStats.absent.toString(),
+                label = "결석",
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+fun MemberMainScheduleSection(
+    scheduleItems: List<ScheduleItem>
+) {
+    Column(
+        modifier = Modifier.padding(top = 32.dp)
+    ) {
+        Text(
+            text = "12기 일정표",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn {
+            items(scheduleItems.size) { index ->
+                val item = scheduleItems[index]
+                ScheduleItemComposable(
+                    date = item.date,
+                    title = item.title,
+                    subtitle = item.subtitle
+                )
+                if (index < scheduleItems.size - 1) {
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }
-        
+    }
+}
+
+@Composable
+fun AttendanceCard(
+    modifier: Modifier = Modifier,
+    count: String,
+    label: String,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = count,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            color = Color(0xFFEAEAEA)
+        )
+    }
+}
+
+@Composable
+fun ScheduleItemComposable(
+    date: String,
+    title: String,
+    subtitle: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Color(0xFF2C2C2E),
+                RoundedCornerShape(12.dp)
+            )
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(24.dp)
-            ) {
-                Text(
-                    text = "Member Main Screen",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+            modifier = Modifier
+                .background(
+                    Color(0xFF3A3A3C),
+                    RoundedCornerShape(8.dp)
                 )
-            }
+                .padding(12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = date,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                lineHeight = 14.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column {
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = subtitle,
+                fontSize = 12.sp,
+                color = Color(0xFF8E8E93)
+            )
         }
     }
 }

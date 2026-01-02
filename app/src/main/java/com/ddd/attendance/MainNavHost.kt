@@ -59,7 +59,6 @@ internal fun MainNavHost(
 
             composable(route = ScreenName.MEMBER_MAIN.name) {
                 MemberMainScreen(
-                    navController = navigator.navController,
                     onNavigateToProfile = {
                         navigator.navController.navigate(ScreenName.MEMBER_PROFILE.name)
                     },
