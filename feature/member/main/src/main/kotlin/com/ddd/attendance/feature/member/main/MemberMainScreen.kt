@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,24 +46,30 @@ fun MemberMainScreen(
             .background(Color(0xFF1C1C1E))
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
             MemberMainHeader(
                 onNavigateToProfile = onNavigateToProfile,
                 onNavigateToAttendance = onNavigateToAttendance
             )
 
-            MemberMainAttendanceSection(
-                memberName = uiState.memberName,
-                activityPeriod = uiState.activityPeriod,
-                attendanceStats = uiState.attendanceStats
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
+                MemberMainAttendanceSection(
+                    memberName = uiState.memberName,
+                    activityPeriod = uiState.activityPeriod,
+                    attendanceStats = uiState.attendanceStats
+                )
 
-            MemberMainScheduleSection(
-                scheduleItems = uiState.scheduleItems
-            )
+                MemberMainScheduleSection(
+                    generationNumber = uiState.generationNumber,
+                    scheduleItems = uiState.scheduleItems
+                )
+            }
         }
     }
 }
@@ -140,32 +148,29 @@ fun MemberMainAttendanceSection(
 
 @Composable
 fun MemberMainScheduleSection(
+    generationNumber: Int,
     scheduleItems: List<ScheduleItem>
 ) {
     Column(
-        modifier = Modifier.padding(top = 32.dp)
+        modifier = Modifier.padding(top = 56.dp)
     ) {
         Text(
-            text = "12기 일정표",
-            fontSize = 18.sp,
+            text = "${generationNumber}기 일정표",
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(scheduleItems.size) { index ->
-                val item = scheduleItems[index]
-                ScheduleItemComposable(
-                    date = item.date,
-                    title = item.title,
-                    subtitle = item.subtitle
-                )
-                if (index < scheduleItems.size - 1) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-            }
+        scheduleItems.forEachIndexed { _, item ->
+            ScheduleItemComposable(
+                date = item.date,
+                title = item.title,
+                subtitle = item.subtitle
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
@@ -213,45 +218,67 @@ fun ScheduleItemComposable(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    Color(0xFF3A3A3C),
-                    RoundedCornerShape(8.dp)
-                )
-                .padding(12.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = date,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                lineHeight = 14.sp
-            )
-        }
+        ScheduleDateBox(
+            date = date,
+            modifier = Modifier.size(54.dp)
+        )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column {
             Text(
                 text = title,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
             Text(
                 text = subtitle,
-                fontSize = 12.sp,
-                color = Color(0xFF8E8E93)
+                fontSize = 15.sp,
+                color = Color(0xFFEAEAEA)
             )
         }
     }
 }
 
+@Composable
+fun ScheduleDateBox(
+    date: String,
+    modifier: Modifier = Modifier
+) {
+    val dateParts = date.split("\n")
+    val month = dateParts.getOrNull(0) ?: ""
+    val day = dateParts.getOrNull(1) ?: ""
+    
+    Box(
+        modifier = modifier
+            .background(
+                Color(0xFFE1EAFF),
+                RoundedCornerShape(8.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = month,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF0C0E0F)
+            )
+            
+            Text(
+                text = day,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0C0E0F)
+            )
+        }
+    }
+}
 
 @Composable
 private fun MemberMainHeader(
