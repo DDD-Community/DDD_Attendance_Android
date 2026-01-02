@@ -10,4 +10,5 @@ setNamespace("feature.member.attendance")
 
 dependencies {
     implementation(projects.feature.designsystem)
+    implementation(projects.feature.core)
 }
