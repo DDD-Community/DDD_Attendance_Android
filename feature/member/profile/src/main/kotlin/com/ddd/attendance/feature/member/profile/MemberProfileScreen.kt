@@ -121,7 +121,7 @@ private fun MemberBottomSection(
         // 탈퇴하기, 로그아웃을 가로로 배치
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp).clickable { /* TODO: 탈퇴하기 클릭 */ },
