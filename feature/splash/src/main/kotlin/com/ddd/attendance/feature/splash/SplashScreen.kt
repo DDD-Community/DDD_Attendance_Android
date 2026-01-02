@@ -26,7 +26,7 @@ fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val navigateToLogin = viewModel.navigateToLogin.collectAsStateWithLifecycle(null)
+    val navigateToLogin = viewModel.navigationDestination.collectAsStateWithLifecycle(null)
 
     // 카메라 권한 요청 런처
     val permissionLauncher = rememberLauncherForActivityResult(
