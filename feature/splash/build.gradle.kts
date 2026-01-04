@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
     implementation(projects.feature.core)
+    implementation(projects.domain)
 }
 
 setNamespace("feature.splash")

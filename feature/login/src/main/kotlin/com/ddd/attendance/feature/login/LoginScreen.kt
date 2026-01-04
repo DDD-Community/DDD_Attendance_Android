@@ -30,22 +30,37 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.domain.model.LoginType
+import com.ddd.attendance.domain.model.NavigationDestination
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    val navigateToNext = viewModel.navigateToNext.collectAsStateWithLifecycle(null)
+    val navigationDestination = viewModel.navigationDestination.collectAsStateWithLifecycle(null)
     
-    LaunchedEffect(navigateToNext.value) {
-        navigateToNext.value?.let {
-            //Home까지 이동을 위해 주석
-            /*navController.navigate("HOME") {
-                popUpTo("LOGIN") { inclusive = true }
-            }*/
-            navController.navigate("ON_BOARDING") {
-                popUpTo("LOGIN") { inclusive = false }
+    LaunchedEffect(navigationDestination.value) {
+        navigationDestination.value?.let { destination ->
+            when (destination) {
+                is NavigationDestination.Login -> {
+                    // 이미 로그인 화면에 있으므로 아무것도 하지 않음
+                }
+                is NavigationDestination.OnBoarding -> {
+                    navController.navigate("ON_BOARDING") {
+                        popUpTo("LOGIN") { inclusive = false }
+                    }
+                }
+                is NavigationDestination.Member -> {
+                    navController.navigate("MEMBER_MAIN") {
+                        popUpTo("LOGIN") { inclusive = true }
+                    }
+                }
+                is NavigationDestination.Manager -> {
+                    // TODO: Manager 화면이 만들어지면 해당 route로 변경
+                    navController.navigate("MEMBER_MAIN") {
+                        popUpTo("LOGIN") { inclusive = true }
+                    }
+                }
             }
         }
     }

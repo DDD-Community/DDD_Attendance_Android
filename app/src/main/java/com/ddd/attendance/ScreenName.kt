@@ -1,5 +1,5 @@
 package com.ddd.attendance
 
 enum class ScreenName {
-    ON_BOARDING, HOME, LOGIN, SPLASH, ADMIN
+    ON_BOARDING, HOME, LOGIN, SPLASH, MEMBER_MAIN, MEMBER_PROFILE, MEMBER_ATTENDANCE, ADMIN
 }

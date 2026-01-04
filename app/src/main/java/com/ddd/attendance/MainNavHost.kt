@@ -12,6 +12,9 @@ import androidx.navigation.compose.composable
 import com.ddd.attendance.feature.admin.AdminScreen
 import com.ddd.attendance.feature.home.HomeScreen
 import com.ddd.attendance.feature.login.LoginScreen
+import com.ddd.attendance.feature.member.main.MemberMainScreen
+import com.ddd.attendance.feature.member.profile.MemberProfileScreen
+import com.ddd.attendance.feature.member.attendance.MemberAttendanceScreen
 import com.ddd.attendance.feature.onboarding.OnBoardingScreen
 import com.ddd.attendance.feature.splash.SplashScreen
 import com.ddd.attendance.ui.theme.DddBackgroundDark
@@ -52,6 +55,25 @@ internal fun MainNavHost(
             composable(route = ScreenName.ADMIN.name) {
                 AdminScreen(
                     navController = navigator.navController)
+            }
+
+            composable(route = ScreenName.MEMBER_MAIN.name) {
+                MemberMainScreen(
+                    onNavigateToProfile = {
+                        navigator.navController.navigate(ScreenName.MEMBER_PROFILE.name)
+                    },
+                    onNavigateToAttendance = {
+                        navigator.navController.navigate(ScreenName.MEMBER_ATTENDANCE.name)
+                    }
+                )
+            }
+
+            composable(route = ScreenName.MEMBER_PROFILE.name) {
+                MemberProfileScreen(navController = navigator.navController)
+            }
+
+            composable(route = ScreenName.MEMBER_ATTENDANCE.name) {
+                MemberAttendanceScreen(navController = navigator.navController)
             }
         }
     }
