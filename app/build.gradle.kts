@@ -22,4 +22,7 @@ dependencies {
     implementation(projects.feature.admin.attendance)
     implementation(projects.feature.admin.schedule)
     implementation(projects.feature.admin.profile)
+    implementation(projects.feature.member.attendance)
+    implementation(projects.feature.member.main)
+    implementation(projects.feature.member.profile)
 }
