@@ -1,6 +1,5 @@
 package com.ddd.attendance.feature.admin.main
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,11 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,16 +27,14 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.feature.admin.attendance.AttendanceScreen
 import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
+import com.ddd.attendance.feature.admin.main.dropdown.EditPopupDropdown
+import com.ddd.attendance.feature.admin.main.dropdown.ScreenChangeDropDown
 import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
@@ -69,6 +64,7 @@ fun AdminScreen(
         teamList = uiState.dummyTeamList,
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
+        isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
         selectedEditText = uiState.selectedEditText,
         onTabClick = {
             viewModel.onIntent(AdminIntent.TabChanged(it))
@@ -77,11 +73,22 @@ fun AdminScreen(
             viewModel.onIntent(AdminIntent.ShowEditPopup)
         },
         onEditConfirm = {
-            viewModel.onIntent(AdminIntent.ConfirmEditPopup)
+            viewModel.onIntent(AdminIntent.HideEditPopup)
         },
         onEditItemSelected = {
             viewModel.onIntent(AdminIntent.DropDownTextChanged(it))
         },
+        onHeaderClick = {
+            viewModel.onIntent(AdminIntent.ShowDropDownScreenChange)
+        },
+        onScreenChangeDropDownDismiss = {
+            viewModel.onIntent(AdminIntent.HideDropDownScreenChange)
+
+        },
+        onUiTypeChanged = {
+            viewModel.onIntent(AdminIntent.ScreenUiTypeChanged(it))
+        },
+
     )
 }
 
@@ -98,11 +105,15 @@ internal fun Content(
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
+    isShowScreenChangeDropDownVisible: Boolean,
     selectedEditText: String,
     onTabClick: (Int) -> Unit,
     onEditClick: () -> Unit,
     onEditConfirm: () -> Unit,
-    onEditItemSelected: (String) -> Unit
+    onEditItemSelected: (String) -> Unit,
+    onHeaderClick:() -> Unit,
+    onUiTypeChanged: (AdminType) -> Unit,
+    onScreenChangeDropDownDismiss: () -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -115,8 +126,7 @@ internal fun Content(
                 modifier = modifier,
                 type = UserType.Admin,
             ) {
-                Log.d("UserHeader", "클릭")
-                //show select box
+                onHeaderClick()
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -154,6 +164,13 @@ internal fun Content(
                 onItemSelected = {
                     onEditItemSelected(it)
                 }
+            )
+        }
+
+        if (isShowScreenChangeDropDownVisible) {
+            ScreenChangeDropDown(
+                onScreenChangeDropDownDismiss = onScreenChangeDropDownDismiss,
+                onUiTypeChanged = { onUiTypeChanged(it) }
             )
         }
     }
@@ -267,77 +284,5 @@ internal fun EditPopup(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun EditPopupDropdown(
-    anchorWidth: Dp,
-    anchorHeightPx: Int,
-    expanded: Boolean,
-    items: List<String>,
-    onDismiss: () -> Unit,
-    onItemSelected: (String) -> Unit
-) {
-    if (!expanded) return
-
-    val density = LocalDensity.current
-    val spacingPx = with(density) { 8.dp.toPx().toInt() }
-
-    Popup(
-        offset = IntOffset(
-            x = 0,
-            y = anchorHeightPx + spacingPx
-        ),
-        onDismissRequest = onDismiss,
-        properties = PopupProperties(focusable = true)
-    ) {
-        Surface(
-            modifier = Modifier.width(anchorWidth),
-            shape = RoundedCornerShape(16.dp),
-            color = White,
-            tonalElevation = 0.dp,
-            shadowElevation = 4.dp
-        ) {
-            Column {
-                items.forEachIndexed { index, text ->
-                    EditPopupDropdownItem(
-                        text = text
-                    ) {
-                        onItemSelected(text)
-                    }
-
-                    if (index < items.lastIndex) {
-                        Spacer(
-                            modifier = Modifier
-                                .height(1.dp)
-                                .fillMaxWidth()
-                                .background(BorderAlternative)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun EditPopupDropdownItem(
-    text: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(44.dp)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        DddText(
-            text = text,
-            style = Typography.bodySmallB,
-            color = BackgroundSecondary
-        )
     }
 }

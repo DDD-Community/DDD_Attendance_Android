@@ -2,6 +2,7 @@
 <resources>
     <string name="attendance_change_confirm">출석 상태를 변경하시겠습니까?</string>
     <string name="attendance">출석</string>
+    <string name="schedule">일정</string>
     <string name="late">지각</string>
     <string name="absent">결석</string>
     <string name="presentation">발표</string>

@@ -11,6 +11,7 @@ data class AdminUiState(
     val nextScheduleDate: String = "2026.03.07",
     val selectedTeamIndex: Int = 0,
     val isShowEditPopup: Boolean = false,
+    val isShowScreenChangeDropDown: Boolean = false,
     val selectedEditText: String = "출석",
     val dummyAttendanceStatus: AttendanceStatus = AttendanceStatus(
         attendance = 10,

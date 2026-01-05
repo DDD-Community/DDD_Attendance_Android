@@ -27,11 +27,14 @@ class AdminViewModel @Inject constructor(
         return when (intent) {
             is AdminIntent.TabChanged -> state.copy(selectedTeamIndex = intent.index)
             is AdminIntent.ShowEditPopup -> state.copy(isShowEditPopup = true)
-            is AdminIntent.ConfirmEditPopup -> {
+            is AdminIntent.HideEditPopup -> {
                 Log.d("AdminViewModel-Data-Reduce", state.selectedEditText)
                 state.copy(isShowEditPopup = false)
             }
             is AdminIntent.DropDownTextChanged -> state.copy(selectedEditText = intent.text)
+            is AdminIntent.ShowDropDownScreenChange -> state.copy(isShowScreenChangeDropDown = true)
+            is AdminIntent.HideDropDownScreenChange -> state.copy(isShowScreenChangeDropDown = false)
+            is AdminIntent.ScreenUiTypeChanged -> state.copy(uiType = intent.type)
             else -> state
         }
     }
