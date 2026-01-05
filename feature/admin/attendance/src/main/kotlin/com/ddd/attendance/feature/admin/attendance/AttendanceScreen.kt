@@ -184,6 +184,7 @@ fun TabItem(
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(
             text = title,
             style = Typography.bodySmallM,
@@ -316,9 +317,9 @@ fun CardItem(
 
                 val iconRes = when (memberAttendanceType) {
                     MemberAttendanceType.NONE -> null
-                    MemberAttendanceType.ATTENDANCE -> R.drawable.attendance
-                    MemberAttendanceType.LATE -> R.drawable.late
-                    MemberAttendanceType.ABSENT -> R.drawable.absent
+                    MemberAttendanceType.ATTENDANCE -> R.drawable.ic_attendance
+                    MemberAttendanceType.LATE -> R.drawable.ic_late
+                    MemberAttendanceType.ABSENT -> R.drawable.ic_absent
                 }
 
                 val textColor = when (memberAttendanceType) {
@@ -355,7 +356,7 @@ fun CardItem(
                         ) {
                             onEditClick()
                         },
-                    painter = painterResource(id = R.drawable.edit_pencil),
+                    painter = painterResource(id = R.drawable.ic_edit_pencil),
                     contentDescription = "수정 아이콘",
                 )
             }

@@ -91,7 +91,7 @@ fun AttendanceStatusBoard(
                                         indication = null,
                                         interactionSource = remember { MutableInteractionSource() }
                                     ) { onInfoClick() },
-                                painter = painterResource(R.drawable.info),
+                                painter = painterResource(R.drawable.ic_info),
                                 contentDescription = null
                             )
                         }

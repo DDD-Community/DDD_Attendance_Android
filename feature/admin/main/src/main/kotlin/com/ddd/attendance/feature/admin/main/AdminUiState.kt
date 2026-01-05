@@ -11,6 +11,7 @@ data class AdminUiState(
     val nextScheduleDate: String = "2026.03.07",
     val selectedTeamIndex: Int = 0,
     val isShowEditPopup: Boolean = false,
+    val selectedEditText: String = "출석",
     val dummyAttendanceStatus: AttendanceStatus = AttendanceStatus(
         attendance = 10,
         late = 2,
@@ -28,5 +29,12 @@ data class AdminUiState(
             MemberAttendanceInfo(name = "서원지", role = "iOS", MemberAttendanceType.ATTENDANCE)
         ),
 
+    val dummySelectedEditPopupItemList: ImmutableList<String> =
+        persistentListOf(
+            "출석",
+            "지각",
+            "결석",
+            "발표"
+        ),
     val dummyTeamList: ImmutableList<String> = persistentListOf("web 1팀", "web 2팀", "Android 1팀", "Android 2팀", "iOS 1팀", "iOS 2팀"),
 )

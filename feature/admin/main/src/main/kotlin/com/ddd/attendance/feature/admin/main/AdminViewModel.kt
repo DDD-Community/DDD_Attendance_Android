@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.admin.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,11 @@ class AdminViewModel @Inject constructor(
         return when (intent) {
             is AdminIntent.TabChanged -> state.copy(selectedTeamIndex = intent.index)
             is AdminIntent.ShowEditPopup -> state.copy(isShowEditPopup = true)
-            is AdminIntent.DismissEditPopup -> state.copy(isShowEditPopup = false)
+            is AdminIntent.ConfirmEditPopup -> {
+                Log.d("AdminViewModel-Data-Reduce", state.selectedEditText)
+                state.copy(isShowEditPopup = false)
+            }
+            is AdminIntent.DropDownTextChanged -> state.copy(selectedEditText = intent.text)
             else -> state
         }
     }

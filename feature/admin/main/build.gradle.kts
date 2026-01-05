@@ -12,4 +12,5 @@ dependencies {
     implementation(projects.feature.admin.attendance)
     implementation(projects.feature.admin.schedule)
     implementation(projects.feature.admin.profile)
+    implementation(projects.feature.designsystem)
 }
