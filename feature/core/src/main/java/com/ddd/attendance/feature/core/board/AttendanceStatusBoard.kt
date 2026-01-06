@@ -37,7 +37,7 @@ fun AttendanceStatusBoard(
     attendance: Int,
     late: Int,
     absent: Int,
-    onInfoClick: () -> Unit = {}
+    onAbsentNotificationClick: () -> Unit = {}
 ) {
     val items = listOf(
         AttendanceStatusUiModel(AttendanceStatus.ATTENDANCE, attendance),
@@ -90,7 +90,7 @@ fun AttendanceStatusBoard(
                                     .clickable(
                                         indication = null,
                                         interactionSource = remember { MutableInteractionSource() }
-                                    ) { onInfoClick() },
+                                    ) { onAbsentNotificationClick() },
                                 painter = painterResource(R.drawable.ic_error_info),
                                 contentDescription = null
                             )

@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -82,6 +83,7 @@ fun AdminScreen(
         isEditDialogVisible = uiState.isShowEditPopup,
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
         isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
+        isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
         selectedEditText = uiState.selectedEditText,
         scheduleList = uiState.dummyScheduleList,
         onTabClick = {
@@ -113,6 +115,12 @@ fun AdminScreen(
         },
         onScheduleItemClick = {
             viewModel.onIntent(AdminIntent.SchedulePositionSelected(it))
+        },
+        onAbsentNotificationClick = {
+            viewModel.onIntent(AdminIntent.ShowAbsentNotificationPopup)
+        },
+        onAbsentNotificationDismiss = {
+            viewModel.onIntent(AdminIntent.HideAbsentNotificationPopup)
         }
     )
 }
@@ -133,6 +141,7 @@ internal fun Content(
     isEditDialogVisible: Boolean,
     isShowScreenChangeDropDownVisible: Boolean,
     isShowScheduleBottomSheet: Boolean,
+    isShowAbsentNotificationPopup: Boolean,
     selectedEditText: String,
     onTabClick: (Int) -> Unit,
     onEditClick: (text: String) -> Unit,
@@ -143,7 +152,9 @@ internal fun Content(
     onScreenChangeDropDownDismiss: () -> Unit,
     onScheduleBottomSheetDismiss: () -> Unit,
     onDataClick: () -> Unit,
-    onScheduleItemClick: (index: Int) -> Unit
+    onScheduleItemClick: (index: Int) -> Unit,
+    onAbsentNotificationClick: () -> Unit,
+    onAbsentNotificationDismiss: () -> Unit
 ) {
     val headerText =
         if (uiType == AdminType.Attendance) {
@@ -184,7 +195,8 @@ internal fun Content(
                             onEditClick = {
                                 onEditClick(it)
                             },
-                            onDataClick = onDataClick
+                            onDataClick = onDataClick,
+                            onAbsentNotificationClick = onAbsentNotificationClick
                         )
                     }
                     AdminType.Schedule -> {
@@ -222,6 +234,12 @@ internal fun Content(
             },
             onScheduleItemClick = { onScheduleItemClick(it) }
         )
+
+        AbsentNotificationPopup(
+            isShow = isShowAbsentNotificationPopup
+        ) {
+            onAbsentNotificationDismiss()
+        }
     }
 }
 
@@ -524,6 +542,69 @@ private fun ScheduleCard(
                 style = Typography.bodySmallR,
                 color = TextSecondaryLight
             )
+        }
+    }
+}
+
+@Composable
+internal fun AbsentNotificationPopup(
+    modifier: Modifier = Modifier,
+    isShow: Boolean,
+    onDismiss: () -> Unit
+) {
+
+    if (!isShow) return
+
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Box(
+            modifier = modifier
+                .padding(horizontal = 36.dp)
+                .clip(shape = RoundedCornerShape(16.dp))
+                .background(color = BackgroundSecondaryLight)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 36.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                DddText(
+                    text = stringResource(R.string.schedule_warning_title),
+                    style = Typography.titleSmallB,
+                    color = BackgroundSecondaryDark
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                DddText(
+                    text = stringResource(R.string.schedule_late_penalty_message),
+                    style = Typography.bodySmallR,
+                    color = TextSecondaryLight,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ButtonEnabled
+                    ),
+                    onClick = onDismiss
+                ) {
+                    DddText(
+                        text = stringResource(R.string.confirm),
+                        style = Typography.bodySmallM
+                    )
+                }
+            }
         }
     }
 }

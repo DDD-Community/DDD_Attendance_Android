@@ -14,6 +14,7 @@ data class AdminUiState(
     val isShowEditPopup: Boolean = false,
     val isShowScreenChangeDropDown: Boolean = false,
     val isShowScheduleBottomSheet: Boolean = false,
+    val isShowAbsentNotificationPopup: Boolean = false,
     val selectedEditText: String = "출석",
     val dummyAttendanceStatus: AttendanceStatus = AttendanceStatus(
         attendance = 10,

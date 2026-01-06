@@ -64,7 +64,8 @@ fun AttendanceScreen(
     selectedTeamIndex: Int = 0,
     onTabClick:(Int) -> Unit,
     onEditClick:(text: String) -> Unit,
-    onDataClick: () -> Unit
+    onDataClick: () -> Unit,
+    onAbsentNotificationClick: () -> Unit
 ) {
     Content(
         nextScheduleDate = nextScheduleDate,
@@ -76,7 +77,8 @@ fun AttendanceScreen(
         selectedTeamIndex = selectedTeamIndex,
         onTabClick = { onTabClick(it) },
         onEditClick = onEditClick,
-        onDataClick = onDataClick
+        onDataClick = onDataClick,
+        onAbsentNotificationClick = onAbsentNotificationClick
     )
 }
 
@@ -92,7 +94,8 @@ internal fun Content(
     selectedTeamIndex: Int,
     onTabClick:(Int) -> Unit,
     onEditClick:(text: String) -> Unit,
-    onDataClick: () -> Unit
+    onDataClick: () -> Unit,
+    onAbsentNotificationClick: () -> Unit
 ) {
     Column(
        modifier = modifier.fillMaxSize()
@@ -130,9 +133,7 @@ internal fun Content(
             attendance = attendance,
             late = late,
             absent = absent,
-            onInfoClick = {
-
-            }
+            onAbsentNotificationClick = onAbsentNotificationClick
         )
 
         Spacer(modifier = Modifier.height(28.dp))

@@ -50,6 +50,8 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.HideDropDownScreenChange -> state.copy(isShowScreenChangeDropDown = false)
             is AdminIntent.ShowScheduleBottomSheet -> state.copy(isShowScheduleBottomSheet = true)
             is AdminIntent.HideScheduleBottomSheet -> state.copy(isShowScheduleBottomSheet = false)
+            is AdminIntent.ShowAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = true)
+            is AdminIntent.HideAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = false)
 
             else -> state
         }

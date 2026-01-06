@@ -10,5 +10,7 @@ interface AdminIntent {
     data object HideDropDownScreenChange: AdminIntent
     data object ShowScheduleBottomSheet: AdminIntent
     data object HideScheduleBottomSheet: AdminIntent
+    data object ShowAbsentNotificationPopup: AdminIntent
+    data object HideAbsentNotificationPopup: AdminIntent
     data class SchedulePositionSelected(val index: Int): AdminIntent
 }
