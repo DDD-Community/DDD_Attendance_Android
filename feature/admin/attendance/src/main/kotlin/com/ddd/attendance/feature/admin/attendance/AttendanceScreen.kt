@@ -63,7 +63,7 @@ fun AttendanceScreen(
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int = 0,
     onTabClick:(Int) -> Unit,
-    onEditClick:() -> Unit
+    onEditClick:(text: String) -> Unit
 ) {
     Content(
         nextScheduleDate = nextScheduleDate,
@@ -89,7 +89,7 @@ internal fun Content(
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
     onTabClick:(Int) -> Unit,
-    onEditClick:() -> Unit
+    onEditClick:(text: String) -> Unit
 ) {
     Column(
        modifier = modifier.fillMaxSize()
@@ -215,7 +215,7 @@ fun TabItem(
 fun TeamCardList(
     memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
     selectedTeamName: String,
-    onEditClick:() -> Unit
+    onEditClick:(text: String) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -227,7 +227,7 @@ fun TeamCardList(
                 role = item.role,
                 memberAttendanceType = item.attendanceType
             ) {
-                onEditClick()
+                onEditClick(it)
             }
         }
     }
@@ -240,7 +240,7 @@ fun CardItem(
     team: String,
     role: String,
     memberAttendanceType: MemberAttendanceType,
-    onEditClick:() -> Unit
+    onEditClick:(text: String) -> Unit
 ) {
     val isDisable = memberAttendanceType == MemberAttendanceType.ABSENT
 
@@ -354,7 +354,7 @@ fun CardItem(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
-                            onEditClick()
+                            onEditClick(text)
                         },
                     painter = painterResource(id = R.drawable.ic_edit_pencil),
                     contentDescription = "수정 아이콘",

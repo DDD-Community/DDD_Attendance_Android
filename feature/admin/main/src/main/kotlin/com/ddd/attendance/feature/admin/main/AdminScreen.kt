@@ -36,6 +36,7 @@ import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
 import com.ddd.attendance.feature.admin.main.dropdown.EditPopupDropdown
 import com.ddd.attendance.feature.admin.main.dropdown.ScreenChangeDropDown
 import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
+import com.ddd.attendance.feature.admin.schedule.model.Schedule
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.designsystem.component.DddText
@@ -53,6 +54,7 @@ fun AdminScreen(
     viewModel: AdminViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
@@ -66,11 +68,12 @@ fun AdminScreen(
         isEditDialogVisible = uiState.isShowEditPopup,
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
         selectedEditText = uiState.selectedEditText,
+        scheduleList = uiState.dummyScheduleList,
         onTabClick = {
             viewModel.onIntent(AdminIntent.TabChanged(it))
         },
-        onEditClick = {
-            viewModel.onIntent(AdminIntent.ShowEditPopup)
+        onEditClick = { selectedText ->
+            viewModel.onIntent(AdminIntent.ShowEditPopup(selectedText))
         },
         onEditConfirm = {
             viewModel.onIntent(AdminIntent.HideEditPopup)
@@ -101,6 +104,7 @@ internal fun Content(
     late: Int,
     absent: Int,
     memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
+    scheduleList: ImmutableList<Schedule>,
     editItems: ImmutableList<String>,
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
@@ -108,13 +112,18 @@ internal fun Content(
     isShowScreenChangeDropDownVisible: Boolean,
     selectedEditText: String,
     onTabClick: (Int) -> Unit,
-    onEditClick: () -> Unit,
+    onEditClick: (text: String) -> Unit,
     onEditConfirm: () -> Unit,
     onEditItemSelected: (String) -> Unit,
     onHeaderClick:() -> Unit,
     onUiTypeChanged: (AdminType) -> Unit,
     onScreenChangeDropDownDismiss: () -> Unit
 ) {
+    val headerText =
+        if (uiType == AdminType.Attendance) {
+            stringResource(R.string.attendance)
+        } else stringResource(R.string.schedule)
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -125,6 +134,7 @@ internal fun Content(
             UserHeader(
                 modifier = modifier,
                 type = UserType.Admin,
+                text = headerText
             ) {
                 onHeaderClick()
             }
@@ -145,11 +155,15 @@ internal fun Content(
                             teamList = teamList,
                             selectedTeamIndex = selectedTeamIndex,
                             onTabClick = { onTabClick(it) },
-                            onEditClick = onEditClick
+                            onEditClick = {
+                                onEditClick(it)
+                            }
                         )
                     }
                     AdminType.Schedule -> {
-                        ScheduleScreen()
+                        ScheduleScreen(
+                            scheduleList = scheduleList
+                        )
                     }
                 }
             }

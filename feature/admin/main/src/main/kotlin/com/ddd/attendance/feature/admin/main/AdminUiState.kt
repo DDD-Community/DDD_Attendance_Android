@@ -3,6 +3,7 @@ package com.ddd.attendance.feature.admin.main
 import com.ddd.attendance.feature.admin.attendance.model.AttendanceStatus
 import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
 import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceType
+import com.ddd.attendance.feature.admin.schedule.model.Schedule
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -38,4 +39,14 @@ data class AdminUiState(
             "발표"
         ),
     val dummyTeamList: ImmutableList<String> = persistentListOf("web 1팀", "web 2팀", "Android 1팀", "Android 2팀", "iOS 1팀", "iOS 2팀"),
+
+    val dummyScheduleList: ImmutableList<Schedule> = persistentListOf(
+        Schedule(month = "12월", "21", "오리엔테이션", "커리큘럼에 대한 설명 문구 작성1"),
+        Schedule(month = "12월", "28", "부스팅 데이 1", "커리큘럼에 대한 설명 문구 작성2"),
+        Schedule(month = "1월", "01", "직군 모임 1", "직군별 자료 발표"),
+        Schedule(month = "1월", "08", "오리엔테이션", "커리큘럼에 대한 설명 문구 작성3"),
+        Schedule(month = "1월", "15", "부스팅 데이 2", "커리큘럼에 대한 설명 문구 작성4"),
+        Schedule(month = "1월", "22", "직군 모임 2", "직군 인사이트 공유"),
+        Schedule(month = "1월", "29", "해커톤", "해커톤 진행")
+    )
 )

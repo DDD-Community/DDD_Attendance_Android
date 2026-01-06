@@ -28,9 +28,24 @@ val Typography: DddTypography = DddTypography(
         lineHeight = 32.sp,
         fontWeight = FontWeight.Bold,
     ),
+    titleMediumM = SansSerifStyle.copy(
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        fontWeight = FontWeight.Medium,
+    ),
     titleSmallB = SansSerifStyle.copy(
         fontSize = 20.sp,
         lineHeight = 28.sp,
+        fontWeight = FontWeight.Bold,
+    ),
+    titleSmallM = SansSerifStyle.copy(
+        fontSize = 20.sp,
+        lineHeight = 28.sp,
+        fontWeight = FontWeight.Medium,
+    ),
+    bodyLargeB = SansSerifStyle.copy(
+        fontSize = 18.sp,
+        lineHeight = 26.sp,
         fontWeight = FontWeight.Bold,
     ),
     bodyLargeM = SansSerifStyle.copy(
@@ -44,8 +59,8 @@ val Typography: DddTypography = DddTypography(
         fontWeight = FontWeight.Medium
     ),
     bodySmallB = SansSerifStyle.copy(
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
         fontWeight = FontWeight.Bold
     ),
     bodySmallM = SansSerifStyle.copy(
@@ -53,6 +68,11 @@ val Typography: DddTypography = DddTypography(
         lineHeight = 22.sp,
         fontWeight = FontWeight.Medium
     ),
+    bodySmallR = SansSerifStyle.copy(
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
+        fontWeight = FontWeight.Normal
+    )
 )
 
 @Immutable
@@ -60,11 +80,15 @@ data class DddTypography(
     val headlineSmallB: TextStyle,
     val titleLargeB: TextStyle,
     val titleMediumB: TextStyle,
+    val titleMediumM: TextStyle,
     val titleSmallB: TextStyle,
+    val titleSmallM: TextStyle,
     val bodyLargeM: TextStyle,
+    val bodyLargeB: TextStyle,
     val bodyMediumM: TextStyle,
     val bodySmallB: TextStyle,
     val bodySmallM: TextStyle,
+    val bodySmallR: TextStyle,
 )
 
 val LocalTypography = staticCompositionLocalOf {
@@ -72,10 +96,14 @@ val LocalTypography = staticCompositionLocalOf {
         headlineSmallB = SansSerifStyle,
         titleLargeB = SansSerifStyle,
         titleMediumB = SansSerifStyle,
+        titleMediumM = SansSerifStyle,
         titleSmallB = SansSerifStyle,
+        titleSmallM = SansSerifStyle,
+        bodyLargeB = SansSerifStyle,
         bodyLargeM = SansSerifStyle,
         bodyMediumM = SansSerifStyle,
         bodySmallB = SansSerifStyle,
         bodySmallM = SansSerifStyle,
+        bodySmallR = SansSerifStyle
     )
 }

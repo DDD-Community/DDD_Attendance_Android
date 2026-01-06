@@ -53,3 +53,6 @@ val BackgroundDefault = Color(0xFF0C0E0F)
 
 @Stable
 val StatusCautionary = Color(0xFFFD5D08)
+
+@Stable
+val NeutralBlue20 = Color(0xFFE1EAFF)
