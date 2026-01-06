@@ -5,6 +5,7 @@ interface AdminIntent {
     data class DropDownTextChanged(val text: String): AdminIntent
     data class ScreenUiTypeChanged(val type: AdminType): AdminIntent
     data class ShowEditPopup(val selectedText: String): AdminIntent
+    data class SchedulePositionSelected(val index: Int): AdminIntent
     data object HideEditPopup: AdminIntent
     data object ShowDropDownScreenChange: AdminIntent
     data object HideDropDownScreenChange: AdminIntent
@@ -12,5 +13,7 @@ interface AdminIntent {
     data object HideScheduleBottomSheet: AdminIntent
     data object ShowAbsentNotificationPopup: AdminIntent
     data object HideAbsentNotificationPopup: AdminIntent
-    data class SchedulePositionSelected(val index: Int): AdminIntent
+    data object ShowQrScanner: AdminIntent
+    data object HideQrScanner: AdminIntent
+    data object GoToProfile: AdminIntent
 }

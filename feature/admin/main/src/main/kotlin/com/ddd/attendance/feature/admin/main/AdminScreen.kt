@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.admin.main
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,6 +51,9 @@ import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
 import com.ddd.attendance.feature.admin.schedule.model.Schedule
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
+import com.ddd.attendance.feature.core.qr.QrScanState
+import com.ddd.attendance.feature.core.qr.composable.QrScannerScreen
+import com.ddd.attendance.feature.designsystem.component.DddIconButton
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundDefault
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
@@ -70,6 +76,15 @@ fun AdminScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                NavigationEvent.PopBackStack -> { navController.popBackStack() }
+                NavigationEvent.GoToProfile -> { navController.navigate("ADMIN_PROFILE") }
+            }
+        }
+    }
+
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
@@ -84,6 +99,7 @@ fun AdminScreen(
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
         isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
         isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
+        isShowQrScanner = uiState.isShowQrScanner,
         selectedEditText = uiState.selectedEditText,
         scheduleList = uiState.dummyScheduleList,
         onTabClick = {
@@ -100,6 +116,12 @@ fun AdminScreen(
         },
         onHeaderClick = {
             viewModel.onIntent(AdminIntent.ShowDropDownScreenChange)
+        },
+        onHeaderQrClick = {
+            viewModel.onIntent(AdminIntent.ShowQrScanner)
+        },
+        onHeaderProfileClick = {
+            viewModel.onIntent(AdminIntent.GoToProfile)
         },
         onScreenChangeDropDownDismiss = {
             viewModel.onIntent(AdminIntent.HideDropDownScreenChange)
@@ -121,6 +143,9 @@ fun AdminScreen(
         },
         onAbsentNotificationDismiss = {
             viewModel.onIntent(AdminIntent.HideAbsentNotificationPopup)
+        },
+        onQrScannerBottomSheetDismiss = {
+            viewModel.onIntent(AdminIntent.HideQrScanner)
         }
     )
 }
@@ -142,19 +167,23 @@ internal fun Content(
     isShowScreenChangeDropDownVisible: Boolean,
     isShowScheduleBottomSheet: Boolean,
     isShowAbsentNotificationPopup: Boolean,
+    isShowQrScanner: Boolean,
     selectedEditText: String,
     onTabClick: (Int) -> Unit,
     onEditClick: (text: String) -> Unit,
     onEditConfirm: () -> Unit,
     onEditItemSelected: (String) -> Unit,
     onHeaderClick:() -> Unit,
+    onHeaderQrClick: () -> Unit,
+    onHeaderProfileClick: () -> Unit,
     onUiTypeChanged: (AdminType) -> Unit,
     onScreenChangeDropDownDismiss: () -> Unit,
     onScheduleBottomSheetDismiss: () -> Unit,
     onDataClick: () -> Unit,
     onScheduleItemClick: (index: Int) -> Unit,
     onAbsentNotificationClick: () -> Unit,
-    onAbsentNotificationDismiss: () -> Unit
+    onAbsentNotificationDismiss: () -> Unit,
+    onQrScannerBottomSheetDismiss: () -> Unit,
 ) {
     val headerText =
         if (uiType == AdminType.Attendance) {
@@ -171,10 +200,11 @@ internal fun Content(
             UserHeader(
                 modifier = modifier,
                 type = UserType.Admin,
-                text = headerText
-            ) {
-                onHeaderClick()
-            }
+                text = headerText,
+                onClick = onHeaderClick,
+                onQrClick = onHeaderQrClick,
+                onProfileClick = onHeaderProfileClick
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -240,6 +270,20 @@ internal fun Content(
         ) {
             onAbsentNotificationDismiss()
         }
+
+        QrScanner(
+            isShow = isShowQrScanner,
+            onDismiss = onQrScannerBottomSheetDismiss,
+            onQrCodeDetected = {
+                Log.d("QrScanner-onQrCodeDetected", it)
+            },
+            onError = {
+                Log.d("QrScanner-onError", it)
+            },
+            onResult = {
+                Log.d("QrScanner-onResult", "$it")
+            }
+        )
     }
 }
 
@@ -604,6 +648,56 @@ internal fun AbsentNotificationPopup(
                         style = Typography.bodySmallM
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QrScanner(
+    modifier: Modifier = Modifier,
+    isShow: Boolean,
+    onDismiss: () -> Unit,
+    onQrCodeDetected: (String) -> Unit,
+    onError: (String) -> Unit,
+    onResult: (QrScanState) -> Unit
+) {
+    if (!isShow) return
+
+    val configuration = LocalConfiguration.current
+    val sheetHeight = configuration.screenHeightDp.dp * 0.9f
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .height(sheetHeight)
+                .clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+        ) {
+            QrScannerScreen(
+                onQrCodeDetected = onQrCodeDetected,
+                onResult = onResult,
+                onError = onError
+            )
+
+            Box(
+                modifier.padding(start = 24.dp, top = 24.dp)
+            ) {
+                DddIconButton(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                onDismiss()
+                            }
+                        ),
+                    enabledIconRes = R.drawable.ic_qr_close,
+                    disabledIconRes = R.drawable.ic_qr_close
+                )
             }
         }
     }

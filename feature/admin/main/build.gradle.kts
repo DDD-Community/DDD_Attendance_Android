@@ -13,4 +13,6 @@ dependencies {
     implementation(projects.feature.admin.schedule)
     implementation(projects.feature.admin.profile)
     implementation(projects.feature.designsystem)
+    implementation(projects.domain)
+    implementation(libs.androidx.compose.foundation.layout)
 }

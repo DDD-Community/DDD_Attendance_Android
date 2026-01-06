@@ -27,7 +27,9 @@ fun UserHeader(
     modifier: Modifier = Modifier,
     type: UserType,
     text: String,
-    onClick:() -> Unit = {}
+    onClick:() -> Unit = {},
+    onQrClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     val isAdmin = when(type) {
         UserType.Admin -> true
@@ -77,7 +79,14 @@ fun UserHeader(
 
         DddIconButton(
             modifier = Modifier
-                .size(36.dp),
+                .size(36.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = {
+                        onQrClick()
+                    }
+                ),
             enabledIconRes = R.drawable.ic_qr,
             disabledIconRes = R.drawable.ic_qr
         )
@@ -86,7 +95,14 @@ fun UserHeader(
 
         DddIconButton(
             modifier = Modifier
-                .size(36.dp),
+                .size(36.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = {
+                        onProfileClick()
+                    }
+                ),
             enabledIconRes = R.drawable.ic_profile,
             disabledIconRes = R.drawable.ic_profile,
         )
