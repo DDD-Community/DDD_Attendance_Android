@@ -40,14 +40,14 @@ import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceType
 import com.ddd.attendance.feature.core.board.AttendanceStatusBoard
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundDefault
-import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonDisabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonEnabled
 import com.ddd.attendance.feature.designsystem.theme.StatusCautionary
 import com.ddd.attendance.feature.designsystem.theme.TextDisabled
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
-import com.ddd.attendance.feature.designsystem.theme.TextSecondary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.Transparent
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import kotlinx.collections.immutable.ImmutableList
@@ -63,7 +63,8 @@ fun AttendanceScreen(
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int = 0,
     onTabClick:(Int) -> Unit,
-    onEditClick:(text: String) -> Unit
+    onEditClick:(text: String) -> Unit,
+    onDataClick: () -> Unit
 ) {
     Content(
         nextScheduleDate = nextScheduleDate,
@@ -74,7 +75,8 @@ fun AttendanceScreen(
         teamList = teamList,
         selectedTeamIndex = selectedTeamIndex,
         onTabClick = { onTabClick(it) },
-        onEditClick = onEditClick
+        onEditClick = onEditClick,
+        onDataClick = onDataClick
     )
 }
 
@@ -89,7 +91,8 @@ internal fun Content(
     teamList: ImmutableList<String>,
     selectedTeamIndex: Int,
     onTabClick:(Int) -> Unit,
-    onEditClick:(text: String) -> Unit
+    onEditClick:(text: String) -> Unit,
+    onDataClick: () -> Unit
 ) {
     Column(
        modifier = modifier.fillMaxSize()
@@ -98,7 +101,12 @@ internal fun Content(
             modifier = Modifier
                 .height(46.dp)
                 .padding(horizontal = 24.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onDataClick
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             DddText(
@@ -188,7 +196,7 @@ fun TabItem(
         Text(
             text = title,
             style = Typography.bodySmallM,
-            color = if (selected) TextPrimary else TextSecondary,
+            color = if (selected) TextPrimary else TextSecondaryDark,
             maxLines = 1,
             softWrap = false,
             onTextLayout = { result ->
@@ -262,7 +270,7 @@ fun CardItem(
             )
         }.background(color = BackgroundDefault, shape = RoundedCornerShape(16.dp))
     } else {
-        Modifier.background(color = BackgroundSecondary, shape = RoundedCornerShape(16.dp))
+        Modifier.background(color = BackgroundSecondaryDark, shape = RoundedCornerShape(16.dp))
     }
 
     Box(
@@ -290,7 +298,7 @@ fun CardItem(
                     DddText(
                         text = team,
                         style = Typography.bodyMediumM,
-                        color = if (isDisable) BorderDisabled else TextSecondary
+                        color = if (isDisable) BorderDisabled else TextSecondaryDark
                     )
 
                     Spacer(modifier = Modifier.width(4.dp))

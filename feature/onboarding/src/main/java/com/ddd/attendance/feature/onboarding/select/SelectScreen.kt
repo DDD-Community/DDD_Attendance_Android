@@ -24,10 +24,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.designsystem.component.DddIconButton
 import com.ddd.attendance.feature.designsystem.component.DddText
-import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
-import com.ddd.attendance.feature.designsystem.theme.TextSecondary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.Transparent
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.onboarding.OnBoardingStep
@@ -73,7 +73,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = step.subTitleRes),
             style = Typography.bodySmallM,
-            color = TextSecondary,
+            color = TextSecondaryDark,
             textAlign = TextAlign.Center
         )
 
@@ -108,7 +108,7 @@ internal fun SelectBox(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(BackgroundSecondary)
+            .background(BackgroundSecondaryDark)
             .border(
                 width = 2.dp,
                 shape = RoundedCornerShape(16.dp),

@@ -13,7 +13,10 @@ val Black = Color(0xFF000000)
 val TextPrimary = White
 
 @Stable
-val TextSecondary = Color(0xFFEAEAEA)
+val TextSecondaryDark = Color(0xFFEAEAEA)
+
+@Stable
+val TextSecondaryLight = Color(0xFF525252)
 
 @Stable
 val TextDisabled = Color(0xFFC6C6C6)
@@ -46,7 +49,10 @@ val ButtonDisabled = Color(0xFFC1D3FF)
 val ButtonEnabled = Color(0xFF0D82F9)
 
 @Stable
-val BackgroundSecondary = Color(0xFF202325)
+val BackgroundSecondaryDark = Color(0xFF202325)
+
+@Stable
+val BackgroundSecondaryLight = Color(0xFFF5F5F5)
 
 @Stable
 val BackgroundDefault = Color(0xFF0C0E0F)

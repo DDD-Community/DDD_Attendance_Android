@@ -7,4 +7,5 @@
     <string name="absent">결석</string>
     <string name="presentation">발표</string>
     <string name="confirm">확인</string>
+    <string name="select_schedule">일정 선택</string>
 </resources>

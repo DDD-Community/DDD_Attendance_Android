@@ -29,7 +29,7 @@ import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.FailError
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
-import com.ddd.attendance.feature.designsystem.theme.TextSecondary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.onboarding.R
 
@@ -69,7 +69,7 @@ internal fun Content(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = stringResource(id = R.string.name_description),
             style = Typography.bodySmallM,
-            color = TextSecondary,
+            color = TextSecondaryDark,
             textAlign = TextAlign.Center
         )
 

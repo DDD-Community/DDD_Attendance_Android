@@ -2,8 +2,10 @@ package com.ddd.attendance.feature.admin.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,11 +28,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -40,9 +48,15 @@ import com.ddd.attendance.feature.admin.schedule.model.Schedule
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.designsystem.component.DddText
-import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BackgroundDefault
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryLight
 import com.ddd.attendance.feature.designsystem.theme.BorderAlternative
+import com.ddd.attendance.feature.designsystem.theme.BorderEnabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonEnabled
+import com.ddd.attendance.feature.designsystem.theme.NeutralBlue20
+import com.ddd.attendance.feature.designsystem.theme.TextSecondaryDark
+import com.ddd.attendance.feature.designsystem.theme.TextSecondaryLight
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import com.ddd.attendance.feature.designsystem.theme.White
 import kotlinx.collections.immutable.ImmutableList
@@ -67,6 +81,7 @@ fun AdminScreen(
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
+        isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
         selectedEditText = uiState.selectedEditText,
         scheduleList = uiState.dummyScheduleList,
         onTabClick = {
@@ -86,12 +101,19 @@ fun AdminScreen(
         },
         onScreenChangeDropDownDismiss = {
             viewModel.onIntent(AdminIntent.HideDropDownScreenChange)
-
         },
         onUiTypeChanged = {
             viewModel.onIntent(AdminIntent.ScreenUiTypeChanged(it))
         },
-
+        onScheduleBottomSheetDismiss = {
+            viewModel.onIntent(AdminIntent.HideScheduleBottomSheet)
+        },
+        onDataClick = {
+            viewModel.onIntent(AdminIntent.ShowScheduleBottomSheet)
+        },
+        onScheduleItemClick = {
+            viewModel.onIntent(AdminIntent.SchedulePositionSelected(it))
+        }
     )
 }
 
@@ -110,6 +132,7 @@ internal fun Content(
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
     isShowScreenChangeDropDownVisible: Boolean,
+    isShowScheduleBottomSheet: Boolean,
     selectedEditText: String,
     onTabClick: (Int) -> Unit,
     onEditClick: (text: String) -> Unit,
@@ -117,7 +140,10 @@ internal fun Content(
     onEditItemSelected: (String) -> Unit,
     onHeaderClick:() -> Unit,
     onUiTypeChanged: (AdminType) -> Unit,
-    onScreenChangeDropDownDismiss: () -> Unit
+    onScreenChangeDropDownDismiss: () -> Unit,
+    onScheduleBottomSheetDismiss: () -> Unit,
+    onDataClick: () -> Unit,
+    onScheduleItemClick: (index: Int) -> Unit
 ) {
     val headerText =
         if (uiType == AdminType.Attendance) {
@@ -157,7 +183,8 @@ internal fun Content(
                             onTabClick = { onTabClick(it) },
                             onEditClick = {
                                 onEditClick(it)
-                            }
+                            },
+                            onDataClick = onDataClick
                         )
                     }
                     AdminType.Schedule -> {
@@ -169,36 +196,47 @@ internal fun Content(
             }
         }
 
-        if (isEditDialogVisible) {
-            EditPopup(
-                title = stringResource(R.string.attendance_change_confirm),
-                items = editItems,
-                selectedText = selectedEditText,
-                onConfirm = onEditConfirm,
-                onItemSelected = {
-                    onEditItemSelected(it)
-                }
-            )
-        }
+        EditPopup(
+            isShow = isEditDialogVisible,
+            title = stringResource(R.string.attendance_change_confirm),
+            items = editItems,
+            selectedText = selectedEditText,
+            onConfirm = onEditConfirm,
+            onItemSelected = {
+                onEditItemSelected(it)
+            }
+        )
 
-        if (isShowScreenChangeDropDownVisible) {
-            ScreenChangeDropDown(
-                onScreenChangeDropDownDismiss = onScreenChangeDropDownDismiss,
-                onUiTypeChanged = { onUiTypeChanged(it) }
-            )
-        }
+        ScreenChangeDropDown(
+            isShow = isShowScreenChangeDropDownVisible,
+            onScreenChangeDropDownDismiss = onScreenChangeDropDownDismiss,
+            onUiTypeChanged = { onUiTypeChanged(it) }
+        )
+
+        ScheduleBottomSheet(
+            isShow = isShowScheduleBottomSheet,
+            scheduleList = scheduleList,
+            onDismiss = onScheduleBottomSheetDismiss,
+            onConfirm = {
+                onScheduleBottomSheetDismiss()
+            },
+            onScheduleItemClick = { onScheduleItemClick(it) }
+        )
     }
 }
 
 @Composable
 internal fun EditPopup(
     modifier: Modifier = Modifier,
+    isShow: Boolean,
     title: String,
     selectedText: String,
     items: ImmutableList<String>,
     onConfirm: () -> Unit,
     onItemSelected: (String) -> Unit
 ) {
+    if (!isShow) return
+
     var isEditPopupListExpanded by remember { mutableStateOf(false) }
     var anchorWidth by remember { mutableStateOf(0.dp) }
     var anchorHeight by remember { mutableStateOf(0) }
@@ -222,7 +260,7 @@ internal fun EditPopup(
             DddText(
                 text = title,
                 style = Typography.titleSmallB,
-                color = BackgroundSecondary
+                color = BackgroundSecondaryDark
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -252,7 +290,7 @@ internal fun EditPopup(
                     DddText(
                         text = selectedText,
                         style = Typography.bodyLargeM,
-                        color = BackgroundSecondary
+                        color = BackgroundSecondaryDark
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -297,6 +335,195 @@ internal fun EditPopup(
                     style = Typography.bodySmallM
                 )
             }
+        }
+    }
+}
+
+@Composable
+internal fun ScheduleBottomSheet(
+    modifier: Modifier = Modifier,
+    isShow: Boolean,
+    scheduleList: ImmutableList<Schedule>,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    onScheduleItemClick: (index: Int) -> Unit
+) {
+    if (!isShow) return
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    onDismiss()
+                }
+        ) {
+            Column(
+                modifier = modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(520.dp)
+                    .background(
+                        color = White,
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp
+                        )
+                    )
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {}
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Box(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(4.dp)
+                        .background(
+                            color = TextSecondaryDark,
+                            shape = RoundedCornerShape(11.dp)
+                        )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                DddText(
+                    text = stringResource(R.string.select_schedule),
+                    style = Typography.titleMediumB,
+                    color = BackgroundSecondaryDark
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    itemsIndexed(scheduleList) { index, item ->
+                        ScheduleCard(
+                            month = item.month,
+                            day = item.day,
+                            title = item.title,
+                            description = item.description,
+                            isSelected = item.isSelected
+                        ) {
+                            onScheduleItemClick(index)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(58.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ButtonEnabled
+                    ),
+                    onClick = onConfirm
+                ) {
+                    DddText(
+                        text = stringResource(R.string.confirm),
+                        style = Typography.bodyLargeM
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScheduleCard(
+    modifier: Modifier = Modifier,
+    month: String,
+    day: String,
+    title: String,
+    description: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val borderSize = if (isSelected) 1.dp else 0.dp
+    val borderColor = if (isSelected) BorderEnabled else BackgroundSecondaryLight
+    val shape = RoundedCornerShape(16.dp)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(86.dp)
+            .clip(shape)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                onClick()
+            }
+            .background(
+                color = BackgroundSecondaryLight
+            )
+            .border(
+                width = borderSize,
+                color = borderColor,
+                shape = shape
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier
+                .size(54.dp)
+                .background(
+                    color = NeutralBlue20,
+                    shape = shape
+                ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            DddText(
+                text = month,
+                style = Typography.bodySmallM,
+                color = BackgroundDefault
+            )
+
+            DddText(
+                text = day,
+                style = Typography.titleSmallM,
+                color = BackgroundDefault
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(
+            modifier = Modifier,
+            verticalArrangement = Arrangement.Center
+        ) {
+            DddText(
+                text = title,
+                style = Typography.bodyLargeB,
+                color = BackgroundDefault
+            )
+
+            DddText(
+                text = description,
+                style = Typography.bodySmallR,
+                color = TextSecondaryLight
+            )
         }
     }
 }

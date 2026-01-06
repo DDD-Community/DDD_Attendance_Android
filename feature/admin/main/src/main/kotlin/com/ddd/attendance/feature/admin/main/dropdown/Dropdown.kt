@@ -24,7 +24,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.ddd.attendance.feature.admin.main.AdminType
 import com.ddd.attendance.feature.admin.main.R
 import com.ddd.attendance.feature.designsystem.component.DddText
-import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.BorderAlternative
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.Typography
@@ -74,7 +74,7 @@ internal fun EditPopupDropdown(
                         DddText(
                             text = text,
                             style = Typography.bodySmallB,
-                            color = BackgroundSecondary
+                            color = BackgroundSecondaryDark
                         )
                     }
 
@@ -94,9 +94,13 @@ internal fun EditPopupDropdown(
 
 @Composable
 internal fun ScreenChangeDropDown(
+    modifier: Modifier = Modifier,
+    isShow: Boolean,
     onScreenChangeDropDownDismiss: () -> Unit,
     onUiTypeChanged: (AdminType) -> Unit
 ) {
+    if (!isShow) return
+
     val density = LocalDensity.current
 
     Popup(
@@ -136,7 +140,7 @@ internal fun ScreenChangeDropDown(
                     modifier = Modifier
                         .height(1.dp)
                         .fillMaxWidth()
-                        .background(BackgroundSecondary)
+                        .background(BackgroundSecondaryDark)
                 )
 
                 Box(

@@ -22,8 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.admin.schedule.model.Schedule
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundDefault
-import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.NeutralBlue20
+import com.ddd.attendance.feature.designsystem.theme.TextPrimary
+import com.ddd.attendance.feature.designsystem.theme.TextSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import kotlinx.collections.immutable.ImmutableList
 
@@ -56,33 +58,24 @@ internal fun Content(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ScheduleList(
-                items = scheduleList
-            )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                itemsIndexed(scheduleList) { index, item ->
+                    ScheduleCard(
+                        month = item.month,
+                        day = item.day,
+                        title = item.title,
+                        description = item.description
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ScheduleList(
-    items: ImmutableList<Schedule>
-) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        itemsIndexed(items) { index, item ->
-            ScheduleItem(
-                month = item.month,
-                day = item.day,
-                title = item.title,
-                description = item.description
-            )
-        }
-    }
-}
-
-@Composable
-private fun ScheduleItem(
+private fun ScheduleCard(
     modifier: Modifier = Modifier,
     month: String,
     day: String,
@@ -94,7 +87,7 @@ private fun ScheduleItem(
             .fillMaxWidth()
             .height(86.dp)
             .background(
-                color = BackgroundSecondary,
+                color = BackgroundSecondaryDark,
                 shape = RoundedCornerShape(16.dp)
             ),
         verticalAlignment = Alignment.CenterVertically
@@ -133,11 +126,13 @@ private fun ScheduleItem(
             DddText(
                 text = title,
                 style = Typography.bodyLargeB,
+                color = TextPrimary
             )
 
             DddText(
                 text = description,
-                style = Typography.bodySmallR
+                style = Typography.bodySmallR,
+                color = TextSecondaryDark
             )
         }
     }
