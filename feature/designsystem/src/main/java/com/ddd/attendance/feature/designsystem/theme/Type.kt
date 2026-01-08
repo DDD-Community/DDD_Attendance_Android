@@ -13,6 +13,11 @@ private val SansSerifStyle = TextStyle(
 )
 
 val Typography: DddTypography = DddTypography(
+    headlineLargeB = SansSerifStyle.copy(
+        fontSize = 44.sp,
+        lineHeight = 56.sp,
+        fontWeight = FontWeight.Bold,
+    ),
     headlineSmallB = SansSerifStyle.copy(
         fontSize = 32.sp,
         lineHeight = 44.sp,
@@ -77,6 +82,7 @@ val Typography: DddTypography = DddTypography(
 
 @Immutable
 data class DddTypography(
+    val headlineLargeB: TextStyle,
     val headlineSmallB: TextStyle,
     val titleLargeB: TextStyle,
     val titleMediumB: TextStyle,
@@ -93,6 +99,7 @@ data class DddTypography(
 
 val LocalTypography = staticCompositionLocalOf {
     DddTypography(
+        headlineLargeB = SansSerifStyle,
         headlineSmallB = SansSerifStyle,
         titleLargeB = SansSerifStyle,
         titleMediumB = SansSerifStyle,

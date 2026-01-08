@@ -28,6 +28,9 @@ val BorderEnabled = Color(0xFF0D82F9)
 val BorderDisabled = Color(0xFF323537)
 
 @Stable
+val BorderInactive = TextDisabled
+
+@Stable
 val BorderAlternative = Color(0xFFF5F5F5)
 
 @Stable

@@ -687,17 +687,12 @@ private fun QrScanner(
             ) {
                 DddIconButton(
                     modifier = Modifier
-                        .size(36.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = {
-                                onDismiss()
-                            }
-                        ),
+                        .size(36.dp),
                     enabledIconRes = R.drawable.ic_qr_close,
                     disabledIconRes = R.drawable.ic_qr_close
-                )
+                ) {
+                    onDismiss()
+                }
             }
         }
     }

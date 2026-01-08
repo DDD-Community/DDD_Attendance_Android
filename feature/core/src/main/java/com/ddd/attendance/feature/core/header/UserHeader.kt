@@ -79,32 +79,22 @@ fun UserHeader(
 
         DddIconButton(
             modifier = Modifier
-                .size(36.dp)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = {
-                        onQrClick()
-                    }
-                ),
+                .size(36.dp),
             enabledIconRes = R.drawable.ic_qr,
             disabledIconRes = R.drawable.ic_qr
-        )
+        ) {
+            onQrClick()
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 
         DddIconButton(
             modifier = Modifier
-                .size(36.dp)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = {
-                        onProfileClick()
-                    }
-                ),
+                .size(36.dp),
             enabledIconRes = R.drawable.ic_profile,
             disabledIconRes = R.drawable.ic_profile,
-        )
+        ) {
+            onProfileClick()
+        }
     }
 }

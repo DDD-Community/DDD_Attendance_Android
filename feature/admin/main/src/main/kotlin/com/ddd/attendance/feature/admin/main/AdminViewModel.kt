@@ -23,8 +23,13 @@ class AdminViewModel @Inject constructor(
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     fun onIntent(intent: AdminIntent) {
-        _uiState.update {
-            reduce(it, intent)
+        when(intent) {
+            is AdminIntent.GoToProfile -> goToProfile()
+            else -> {
+                _uiState.update {
+                    reduce(it, intent)
+                }
+            }
         }
     }
 
@@ -64,10 +69,6 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.HideAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = false)
             is AdminIntent.ShowQrScanner -> state.copy(isShowQrScanner = true)
             is AdminIntent.HideQrScanner -> state.copy(isShowQrScanner = false)
-            is AdminIntent.GoToProfile -> {
-                goToProfile()
-                state.copy()
-            }
             else -> state
         }
     }
