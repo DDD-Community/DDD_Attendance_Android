@@ -37,6 +37,7 @@ googleCredentials = "1.3.0"
 googleId = "1.1.1"
 zxing = "3.5.2"
 cameraX = "1.3.1"
+foundationLayout = "1.10.0"
 
 
 [libraries]
@@ -100,6 +101,7 @@ kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ve
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 android-tools-common = { group = "com.android.tools", name = "common", version.ref = "androidTools" }
 inject = "javax.inject:javax.inject:1"
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 
 [bundles]
 compose = [

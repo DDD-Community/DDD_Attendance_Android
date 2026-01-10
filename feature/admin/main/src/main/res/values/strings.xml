@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="attendance_change_confirm">출석 상태를 변경하시겠습니까?</string>
+    <string name="attendance">출석</string>
+    <string name="schedule">일정</string>
+    <string name="late">지각</string>
+    <string name="absent">결석</string>
+    <string name="presentation">발표</string>
+    <string name="confirm">확인</string>
+    <string name="select_schedule">일정 선택</string>
+    <string name="schedule_warning_title">주의해주세요!</string>
+    <string name="schedule_late_penalty_message">2번 지각 시 노쇼비를 돌려받을 수\n없습니다.</string>
+</resources>

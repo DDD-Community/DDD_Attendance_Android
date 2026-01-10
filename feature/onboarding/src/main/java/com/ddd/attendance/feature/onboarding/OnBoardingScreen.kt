@@ -53,8 +53,7 @@ fun OnBoardingScreen(
                     navController.popBackStack()
                 }
                 NavigationEvent.GoToHome -> {
-                    /*navController.navigate("HOME")*/
-                    navController.navigate("Admin")
+                    navController.navigate("ADMIN_MAIN")
                 }
             }
         }

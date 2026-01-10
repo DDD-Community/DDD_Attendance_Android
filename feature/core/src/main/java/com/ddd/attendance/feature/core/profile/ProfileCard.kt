@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,7 +39,7 @@ data class ProfileData(
 @Composable
 fun ProfileCard(
     modifier: Modifier = Modifier,
-    profileData: ProfileData
+    profileData: ProfileData,
 ) {
     Box(
         modifier = modifier
@@ -62,14 +63,14 @@ fun ProfileCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 ProfileTag(
-                    text = "멤버",
+                    text = stringResource(R.string.member),
                     backgroundColor = Color.Transparent,
                     textColor = Color(0xFF0D82F9),
                     borderColor = Color(0xFF0D82F9),
                 )
                 
                 ProfileTag(
-                    text = "기수 수정",
+                    text = stringResource(R.string.edit_generation),
                     backgroundColor = Color(0xB20D82F9),
                     textColor = Color.White,
                     iconDrawableRes = R.drawable.ic_edit,
@@ -90,21 +91,21 @@ fun ProfileCard(
             
             // 정보 섹션들
             ProfileInfoSection(
-                label = "직군",
+                label = stringResource(R.string.job_role),
                 value = profileData.position
             )
             
             Spacer(modifier = Modifier.height(20.dp))
             
             ProfileInfoSection(
-                label = "소속 팀",
+                label = stringResource(R.string.team),
                 value = profileData.team
             )
             
             Spacer(modifier = Modifier.height(20.dp))
             
             ProfileInfoSection(
-                label = "소속 기수",
+                label = stringResource(R.string.generation),
                 value = profileData.generation
             )
             

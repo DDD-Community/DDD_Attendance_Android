@@ -18,7 +18,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.ddd.attendance.feature.core.permission.PermissionUtils
-import com.ddd.attendance.domain.model.NavigationDestination
 
 @Composable
 fun SplashScreen(
@@ -38,7 +37,7 @@ fun SplashScreen(
 
     LaunchedEffect(navigateToLogin.value) {
         navigateToLogin.value?.let {
-            navController.navigate("ADMIN") {
+            navController.navigate("ADMIN_MAIN") {
                 popUpTo("SPLASH") { inclusive = true }
             }
         }

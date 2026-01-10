@@ -26,7 +26,7 @@ import com.ddd.attendance.feature.core.R
 import com.ddd.attendance.feature.core.model.AttendanceStatus
 import com.ddd.attendance.feature.core.model.AttendanceStatusUiModel
 import com.ddd.attendance.feature.designsystem.component.DddText
-import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondary
+import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.Typography
@@ -37,7 +37,7 @@ fun AttendanceStatusBoard(
     attendance: Int,
     late: Int,
     absent: Int,
-    onInfoClick: () -> Unit = {}
+    onAbsentNotificationClick: () -> Unit = {}
 ) {
     val items = listOf(
         AttendanceStatusUiModel(AttendanceStatus.ATTENDANCE, attendance),
@@ -50,7 +50,7 @@ fun AttendanceStatusBoard(
             .fillMaxWidth()
             .height(112.dp)
             .background(
-                color = BackgroundSecondary,
+                color = BackgroundSecondaryDark,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(horizontal = 24.dp)
@@ -90,8 +90,8 @@ fun AttendanceStatusBoard(
                                     .clickable(
                                         indication = null,
                                         interactionSource = remember { MutableInteractionSource() }
-                                    ) { onInfoClick() },
-                                painter = painterResource(R.drawable.info),
+                                    ) { onAbsentNotificationClick() },
+                                painter = painterResource(R.drawable.ic_error_info),
                                 contentDescription = null
                             )
                         }

@@ -9,12 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.ddd.attendance.feature.admin.AdminScreen
+import com.ddd.attendance.feature.admin.main.AdminScreen
+import com.ddd.attendance.feature.admin.profile.AdminProfileScreen
 import com.ddd.attendance.feature.home.HomeScreen
 import com.ddd.attendance.feature.login.LoginScreen
+import com.ddd.attendance.feature.member.attendance.MemberAttendanceScreen
 import com.ddd.attendance.feature.member.main.MemberMainScreen
 import com.ddd.attendance.feature.member.profile.MemberProfileScreen
-import com.ddd.attendance.feature.member.attendance.MemberAttendanceScreen
 import com.ddd.attendance.feature.onboarding.OnBoardingScreen
 import com.ddd.attendance.feature.splash.SplashScreen
 import com.ddd.attendance.ui.theme.DddBackgroundDark
@@ -52,9 +53,15 @@ internal fun MainNavHost(
                 LoginScreen(navController = navigator.navController)
             }
 
-            composable(route = ScreenName.ADMIN.name) {
+            composable(route = ScreenName.ADMIN_MAIN.name) {
                 AdminScreen(
                     navController = navigator.navController)
+            }
+
+            composable(route = ScreenName.ADMIN_PROFILE.name) {
+                AdminProfileScreen(
+                    navController = navigator.navController
+                )
             }
 
             composable(route = ScreenName.MEMBER_MAIN.name) {

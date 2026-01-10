@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirm">확인</string>
     <string name="schedule">일정</string>
     <string name="attendance">출석</string>
     <string name="late">지각</string>
     <string name="absent">결석</string>
+    <string name="member">멤버</string>
+    <string name="edit_generation">기수 변경</string>
+    <string name="job_role">직군</string>
+    <string name="team">소속 팀</string>
+    <string name="generation">소속 기수</string>
+    <string name="assigned_team">담당 팀</string>
+    <string name="assigned_task">담당 업무</string>
+    <string name="contributors">만든 사람들</string>
+    <string name="app_feedback">앱 피드백 남기기</string>
 </resources>

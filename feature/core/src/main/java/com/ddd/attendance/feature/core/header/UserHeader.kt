@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.feature.core.R
 import com.ddd.attendance.feature.core.model.UserType
@@ -27,8 +26,10 @@ import com.ddd.attendance.feature.designsystem.theme.Typography
 fun UserHeader(
     modifier: Modifier = Modifier,
     type: UserType,
-    text: String = stringResource(R.string.attendance),
-    onClick:() -> Unit = {}
+    text: String,
+    onClick:() -> Unit = {},
+    onQrClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     val isAdmin = when(type) {
         UserType.Admin -> true
@@ -61,7 +62,7 @@ fun UserHeader(
 
                 Image(
                     modifier = modifier,
-                    painter = painterResource(id = R.drawable.bottom_arrow_white),
+                    painter = painterResource(id = R.drawable.ic_bottom_arrow_white),
                     contentDescription = "UI 선택"
                 )
             }
@@ -69,7 +70,7 @@ fun UserHeader(
         } else {
             Image(
                 modifier = Modifier.size(44.dp),
-                painter = painterResource(id = R.drawable.logo_ddd),
+                painter = painterResource(id = R.drawable.ic_logo_ddd),
                 contentDescription = "앱 로고",
             )
         }
@@ -79,17 +80,21 @@ fun UserHeader(
         DddIconButton(
             modifier = Modifier
                 .size(36.dp),
-            enabledIconRes = R.drawable.qr_scan,
-            disabledIconRes = R.drawable.qr_scan
-        )
+            enabledIconRes = R.drawable.ic_qr,
+            disabledIconRes = R.drawable.ic_qr
+        ) {
+            onQrClick()
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 
         DddIconButton(
             modifier = Modifier
                 .size(36.dp),
-            enabledIconRes = R.drawable.my_page,
-            disabledIconRes = R.drawable.my_page,
-        )
+            enabledIconRes = R.drawable.ic_profile,
+            disabledIconRes = R.drawable.ic_profile,
+        ) {
+            onProfileClick()
+        }
     }
 }
