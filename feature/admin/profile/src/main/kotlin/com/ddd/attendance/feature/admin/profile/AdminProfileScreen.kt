@@ -59,7 +59,7 @@ fun AdminProfileScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                NavigationEvent.PopBackStack -> { navController.popBackStack() }
+                ProfileNavigationEvent.PopBackStack -> { navController.popBackStack() }
             }
         }
     }

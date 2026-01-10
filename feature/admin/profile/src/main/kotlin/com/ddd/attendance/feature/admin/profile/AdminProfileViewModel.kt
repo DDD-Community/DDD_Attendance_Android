@@ -34,7 +34,7 @@ class AdminProfileViewModel @Inject constructor() : ViewModel() {
 
     val uiState: StateFlow<AdminProfileUiState> = _uiState.asStateFlow()
 
-    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    private val _navigationEvent = MutableSharedFlow<ProfileNavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     fun onIntent(intent: AdminProfileIntent) {
@@ -60,6 +60,6 @@ class AdminProfileViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun popBackStack() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
+        viewModelScope.launch { _navigationEvent.emit(ProfileNavigationEvent.PopBackStack) }
     }
 }
