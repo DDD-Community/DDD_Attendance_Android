@@ -11,4 +11,5 @@ setNamespace("feature.onboarding")
 dependencies {
     implementation(projects.feature.designsystem)
     implementation(projects.feature.core)
+    implementation(projects.domain)
 }

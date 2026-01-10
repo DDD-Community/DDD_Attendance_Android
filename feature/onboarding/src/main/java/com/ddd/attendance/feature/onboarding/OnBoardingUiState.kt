@@ -24,6 +24,8 @@ data class OnBoardingUiState(
     val blackBlockCount: Int = 0,
     val inputInvitePinCode: String = "",
     val pinCodeStatus: PinCodeStatus = PinCodeStatus.Idle,
+    val generationId: Int = -1,
+    val generationName: String = "",
     val name: String = "",
     val title: String = "",
     val subTitle: String = "",

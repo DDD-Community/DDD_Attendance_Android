@@ -1,9 +1,12 @@
 package com.ddd.attendance.data.api.di
 
 import com.ddd.attendance.data.api.BuildConfig
+import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.api.UserApi
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
+import com.ddd.attendance.data.api.datasource.ApiOnboardingDataSourceImpl
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
+import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -48,7 +51,7 @@ object ApiModule {
         json: Json
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.example.com/") // TODO: 실제 API URL로 변경
+            .baseUrl("https://api.dddstudy.site/")
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
@@ -62,5 +65,15 @@ object ApiModule {
 
     @Provides
     @Singleton
+    fun provideOnboardingService(retrofit: Retrofit): OnboardingApi {
+        return retrofit.create(OnboardingApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
+
+    @Provides
+    @Singleton
+    fun provideApiOnboardingDataSource(impl: ApiOnboardingDataSourceImpl): ApiOnboardingDataSource = impl
 }

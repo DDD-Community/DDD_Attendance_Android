@@ -1,6 +1,8 @@
 package com.ddd.attendance.data.di
 
+import com.ddd.attendance.data.repository.OnboardingRepositoryImpl
 import com.ddd.attendance.data.repository.UserRepositoryImpl
+import com.ddd.attendance.domain.repository.OnboardingRepository
 import com.ddd.attendance.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,12 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindOnboardingRepository(
+        onboardingRepositoryImpl: OnboardingRepositoryImpl
+    ): OnboardingRepository
+
+
 }

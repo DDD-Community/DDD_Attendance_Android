@@ -37,7 +37,7 @@ fun SplashScreen(
 
     LaunchedEffect(navigateToLogin.value) {
         navigateToLogin.value?.let {
-            navController.navigate("ADMIN_MAIN") {
+            navController.navigate("LOGIN") {
                 popUpTo("SPLASH") { inclusive = true }
             }
         }

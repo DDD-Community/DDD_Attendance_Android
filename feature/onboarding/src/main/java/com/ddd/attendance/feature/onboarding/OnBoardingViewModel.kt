@@ -1,25 +1,28 @@
 package com.ddd.attendance.feature.onboarding
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.domain.repository.OnboardingRepository
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val onboardingRepository: OnboardingRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnBoardingUiState())
@@ -69,10 +72,16 @@ class OnBoardingViewModel @Inject constructor(
             }
 
             is OnBoardingIntent.VerifyPinCodeResult -> {
-                if (intent.result == PinCodeStatus.Success) {
+                if (intent.status == PinCodeStatus.Success) {
                     moveToStep(
-                        state.copy(pinCodeStatus = PinCodeStatus.Success),
-                        state.index + 1
+                        state = state.copy(
+                            pinCodeStatus = PinCodeStatus.Success,
+                            type = if (intent.data?.type == "MEMBER") UserType.Member else UserType.Admin,
+                            generationId = intent.data?.generationId?: -1,
+                            generationName = intent.data?.generationName?: ""
+
+                        ),
+                        nextIndex = state.index + 1
                     )
                 } else state.copy(pinCodeStatus = PinCodeStatus.Fail)
             }
@@ -128,15 +137,23 @@ class OnBoardingViewModel @Inject constructor(
 
     private fun verifyPinCode(state: OnBoardingUiState) {
         viewModelScope.launch {
-            delay(1000L)
-            val result =
-                if (state.inputInvitePinCode == "1234") {
-                    PinCodeStatus.Success
-                } else {
-                    PinCodeStatus.Fail
+            onboardingRepository
+                .verifyCode(state.inputInvitePinCode)
+                .catch {
+                    onIntent(
+                        OnBoardingIntent.VerifyPinCodeResult(
+                            status = PinCodeStatus.Fail
+                        )
+                    )
                 }
-
-            onIntent(OnBoardingIntent.VerifyPinCodeResult(result))
+                .collect {
+                    onIntent(
+                        OnBoardingIntent.VerifyPinCodeResult(
+                            status = PinCodeStatus.Success,
+                            data = it,
+                        )
+                    )
+                }
         }
     }
 
