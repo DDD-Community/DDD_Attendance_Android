@@ -1,9 +1,11 @@
 package com.ddd.attendance.feature.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.ItemSelect
 import com.ddd.attendance.domain.repository.OnboardingRepository
+import com.ddd.attendance.domain.repository.UserRepository
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.select.SelectItemUiModel
@@ -22,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    private val onboardingRepository: OnboardingRepository
+    private val onboardingRepository: OnboardingRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnBoardingUiState())
@@ -112,7 +115,7 @@ class OnBoardingViewModel @Inject constructor(
             }
 
             state.index == MAX_STEP_INDEX -> {
-                goToHome()
+                completeOnboardingAndLogin()
             }
 
             else -> {
@@ -189,6 +192,20 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
+    private fun completeOnboardingAndLogin() {
+        viewModelScope.launch {
+            val result = userRepository.completeOnboardingAndLogin()
+
+            if (result.isSuccess) {
+                Log.d(TAG, "Login successful, navigating to home")
+                goToHome()
+            } else {
+                Log.e(TAG, "Login failed: ${result.exceptionOrNull()}")
+                // TODO: 에러 처리 (로그인 실패)
+            }
+        }
+    }
+
     private fun popBackStack() {
         viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
     }
@@ -226,6 +243,7 @@ class OnBoardingViewModel @Inject constructor(
     }
 
     private companion object {
+        const val TAG = "OnBoardingViewModel"
         const val MAX_STEP_INDEX = 3
         const val PIN_CODE_LENGTH = 4
     }

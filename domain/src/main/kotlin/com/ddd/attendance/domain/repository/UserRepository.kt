@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
     fun login(loginType: LoginType): Flow<Unit>
+    suspend fun completeOnboardingAndLogin(): Result<Unit>
     suspend fun isUserLoggedIn(): Boolean
     suspend fun getUserRole(): String?
     suspend fun hasTempOAuthToken(): Boolean

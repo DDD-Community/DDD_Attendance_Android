@@ -5,6 +5,7 @@ import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.model.LoginRequest
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,6 +21,12 @@ class ApiLoginDataSourceImpl @Inject constructor(
                 provider = "GOOGLE",
                 token = idToken
             )
+
+            Log.d(TAG, "=== API LOGIN REQUEST ===")
+            Log.d(TAG, "Provider: ${request.provider}")
+            Log.d(TAG, "Token: ${idToken.take(20)}...")
+            Log.d(TAG, "========================")
+
             val response = authenticationApi.login(request)
 
             // 로그인 데이터 저장
@@ -40,6 +47,17 @@ class ApiLoginDataSourceImpl @Inject constructor(
             Log.d(TAG, "Access Token saved to DataStore")
 
             Result.success(Unit)
+        } catch (e: HttpException) {
+            val errorCode = e.code()
+            val errorBody = e.response()?.errorBody()?.string()
+
+            Log.e(TAG, "=== HTTP ERROR ===")
+            Log.e(TAG, "Status Code: $errorCode")
+            Log.e(TAG, "Error Body: $errorBody")
+            Log.e(TAG, "Message: ${e.message}")
+            Log.e(TAG, "==================")
+
+            Result.failure(Exception("HTTP $errorCode: $errorBody"))
         } catch (e: Exception) {
             Log.e(TAG, "Login failed", e)
             Result.failure(e)
