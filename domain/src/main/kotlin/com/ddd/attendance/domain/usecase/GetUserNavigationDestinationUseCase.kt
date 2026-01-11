@@ -9,11 +9,16 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): NavigationDestination {
         return when {
+            hasTempOAuthToken() -> NavigationDestination.OnBoarding
             !isUserLoggedIn() -> NavigationDestination.Login
             !isOnboardingCompleted() -> NavigationDestination.OnBoarding
             isManagerRole() -> NavigationDestination.Manager
             else -> NavigationDestination.Member
         }
+    }
+
+    private suspend fun hasTempOAuthToken(): Boolean {
+        return userRepository.hasTempOAuthToken()
     }
 
     private suspend fun isUserLoggedIn(): Boolean {

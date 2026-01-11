@@ -7,4 +7,5 @@ interface UserRepository {
     fun login(loginType: LoginType): Flow<Unit>
     suspend fun isUserLoggedIn(): Boolean
     suspend fun getUserRole(): String?
+    suspend fun hasTempOAuthToken(): Boolean
 }

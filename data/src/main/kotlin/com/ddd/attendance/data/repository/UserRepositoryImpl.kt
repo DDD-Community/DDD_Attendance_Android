@@ -23,13 +23,21 @@ class UserRepositoryImpl @Inject constructor(
                 if (socialLoginResult.isFailure) {
                     throw IllegalStateException("Google login failed")
                 }
-                
+
                 val idToken = socialLoginResult.getOrThrow()
-                val apiResult = apiLoginDataSource.login(idToken)
-                if (apiResult.isFailure) {
-                    throw IllegalStateException("API login failed")
-                }
-                
+
+                // 온보딩 화면에서 사용할 수 있도록 임시 저장
+                userPreferencesDataStore.saveTempOAuthToken(
+                    token = idToken,
+                    provider = "GOOGLE"
+                )
+
+                // TODO: 온보딩 완료 후 API 호출하도록 이동
+                // val apiResult = apiLoginDataSource.login(idToken)
+                // if (apiResult.isFailure) {
+                //     throw IllegalStateException("API login failed")
+                // }
+
                 emit(Unit)
             }
         }
@@ -42,5 +50,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getUserRole(): String? {
         return userPreferencesDataStore.oauthProvider.firstOrNull()
+    }
+
+    override suspend fun hasTempOAuthToken(): Boolean {
+        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
+        return !tempToken.isNullOrEmpty()
     }
 }

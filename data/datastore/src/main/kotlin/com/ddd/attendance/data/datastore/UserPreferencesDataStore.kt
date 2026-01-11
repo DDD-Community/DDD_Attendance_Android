@@ -32,6 +32,10 @@ class UserPreferencesDataStore @Inject constructor(
         private val KEY_ACCESS_TOKEN = stringPreferencesKey("access_token")
         private val KEY_REFRESH_TOKEN = stringPreferencesKey("refresh_token")
         private val KEY_OAUTH_REFRESH_TOKEN = stringPreferencesKey("oauth_refresh_token")
+
+        // 온보딩 전 임시 저장용
+        private val KEY_TEMP_OAUTH_TOKEN = stringPreferencesKey("temp_oauth_token")
+        private val KEY_TEMP_OAUTH_PROVIDER = stringPreferencesKey("temp_oauth_provider")
     }
 
     suspend fun saveLoginData(
@@ -97,6 +101,29 @@ class UserPreferencesDataStore @Inject constructor(
     suspend fun clearAll() {
         dataStore.edit { preferences ->
             preferences.clear()
+        }
+    }
+
+    // 온보딩 전 임시 OAuth 토큰 저장
+    suspend fun saveTempOAuthToken(token: String, provider: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_TEMP_OAUTH_TOKEN] = token
+            preferences[KEY_TEMP_OAUTH_PROVIDER] = provider
+        }
+    }
+
+    val tempOauthToken: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_TEMP_OAUTH_TOKEN]
+    }
+
+    val tempOauthProvider: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_TEMP_OAUTH_PROVIDER]
+    }
+
+    suspend fun clearTempOAuthData() {
+        dataStore.edit { preferences ->
+            preferences.remove(KEY_TEMP_OAUTH_TOKEN)
+            preferences.remove(KEY_TEMP_OAUTH_PROVIDER)
         }
     }
 }
