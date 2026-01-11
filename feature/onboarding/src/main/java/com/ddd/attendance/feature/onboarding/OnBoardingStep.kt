@@ -17,7 +17,7 @@ enum class OnBoardingStep(
         titleRes = R.string.enter_name,
         subTitleRes = R.string.name_description
     ),
-    Role(
+    Job(
         index = 2,
         titleRes = R.string.select_role,
         subTitleRes = R.string.select_role_description
@@ -27,7 +27,7 @@ enum class OnBoardingStep(
         titleRes = R.string.select_team,
         subTitleRes = R.string.select_team_description
     ),
-    Work(
+    Role(
         index = 4,
         titleRes = R.string.select_work,
         subTitleRes = R.string.select_work_description

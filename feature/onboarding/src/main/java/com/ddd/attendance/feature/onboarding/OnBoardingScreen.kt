@@ -202,7 +202,7 @@ internal fun OnBoardingBody(
                         onNameChanged = onNameChanged
                     )
                 }
-                OnBoardingStep.Role, OnBoardingStep.Team, OnBoardingStep.Work -> {
+                OnBoardingStep.Job, OnBoardingStep.Team, OnBoardingStep.Role -> {
                     SelectionScreen(
                         step = step,
                         items = selectList.toPersistentList(),

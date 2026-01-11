@@ -13,7 +13,7 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
             !isUserLoggedIn() -> NavigationDestination.Login
             !isOnboardingCompleted() -> NavigationDestination.OnBoarding
             isManagerRole() -> NavigationDestination.Manager
-            else -> NavigationDestination.Member
+            else -> NavigationDestination.OnBoarding
         }
     }
 

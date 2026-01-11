@@ -57,7 +57,7 @@ fun LoginScreen(
                 }
                 is NavigationDestination.Manager -> {
                     // TODO: Manager 화면이 만들어지면 해당 route로 변경
-                    navController.navigate("MEMBER_MAIN") {
+                    navController.navigate("ADMIN_MAIN") {
                         popUpTo("LOGIN") { inclusive = true }
                     }
                 }
