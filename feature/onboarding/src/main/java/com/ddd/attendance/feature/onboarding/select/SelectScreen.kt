@@ -84,8 +84,7 @@ internal fun Content(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(
-                items = items,
-                key = { _, item -> "${item.text}_${item.id}" }
+                items = items
             ) { index, item ->
                 SelectBox(
                     text = item.text,

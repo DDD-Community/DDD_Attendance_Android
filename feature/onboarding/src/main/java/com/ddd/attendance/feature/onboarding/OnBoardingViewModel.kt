@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.domain.model.ItemSelect
 import com.ddd.attendance.domain.repository.OnboardingRepository
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
+import com.ddd.attendance.feature.onboarding.select.SelectItemUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,7 +54,6 @@ class OnBoardingViewModel @Inject constructor(
                 } else _uiState.update { reduce(it, intent) }
 
             }
-
             else -> _uiState.update { reduce(it, intent) }
         }
     }
@@ -72,17 +74,19 @@ class OnBoardingViewModel @Inject constructor(
             }
 
             is OnBoardingIntent.VerifyPinCodeResult -> {
-                if (intent.status == PinCodeStatus.Success) {
-                    moveToStep(
-                        state = state.copy(
-                            pinCodeStatus = PinCodeStatus.Success,
-                            type = if (intent.data?.type == "MEMBER") UserType.Member else UserType.Admin,
-                            generationId = intent.data?.generationId?: -1,
-                            generationName = intent.data?.generationName?: ""
-
-                        ),
-                        nextIndex = state.index + 1
+                if(intent.status == PinCodeStatus.Success) {
+                    val type = if(intent.data?.type == "MEMBER") UserType.Member else UserType.Admin
+                    val newState = state.copy(
+                        pinCodeStatus = PinCodeStatus.Success,
+                        type = type,
+                        generationId = intent.data?.generationId ?: -1,
+                        generationName = intent.data?.generationName ?: ""
                     )
+
+                    //선택 리스트 호출
+                    fetchSelectList(type, newState.generationId)
+
+                    moveToStep(newState, state.index + 1)
                 } else state.copy(pinCodeStatus = PinCodeStatus.Fail)
             }
 
@@ -99,38 +103,27 @@ class OnBoardingViewModel @Inject constructor(
             is OnBoardingIntent.NameChanged -> state.copy(name = intent.name)
 
             is OnBoardingIntent.SelectListItem -> {
-                val updatedMap =
-                    state.dummyList.mapValues { (step, items) ->
-                        if (step == state.step) {
-                            items
-                                .mapIndexed { index, item ->
-                                    item.copy(isSelected = index == intent.position)
-                                }
-                                .toPersistentList()
-                        } else {
-                            items
+                // 현재 step에 해당하는 아이템 목록에서 선택된 position만 isSelected = true로 갱신
+                state.copy(
+                    selectedItemMap =
+                        state.selectedItemMap.mapValues { (step, items) ->
+                            if (step == state.step) {
+                                items.mapIndexed { index, item ->
+                                    item.copy(
+                                        isSelected = index == intent.position
+                                    )
+                                }.toPersistentList()
+                            } else items
                         }
-                    }
-
-                state.copy(dummyList = updatedMap)
+                )
             }
         }
     }
 
     private fun resolveStep(type: UserType, index: Int): OnBoardingStep {
         val steps = when (type) {
-            UserType.Admin -> listOf(
-                OnBoardingStep.Invite,
-                OnBoardingStep.Name,
-                OnBoardingStep.Role,
-                OnBoardingStep.Work
-            )
-            UserType.Member -> listOf(
-                OnBoardingStep.Invite,
-                OnBoardingStep.Name,
-                OnBoardingStep.Role,
-                OnBoardingStep.Team
-            )
+            UserType.Member -> listOf(OnBoardingStep.Invite, OnBoardingStep.Name, OnBoardingStep.Job, OnBoardingStep.Team)
+            UserType.Admin -> listOf(OnBoardingStep.Invite, OnBoardingStep.Name, OnBoardingStep.Job, OnBoardingStep.Role)
         }
         return steps[index.coerceIn(0, steps.lastIndex)]
     }
@@ -157,6 +150,17 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
+    private fun fetchSelectList(type: UserType, generationId: Int) {
+        viewModelScope.launch {
+            val flow = if(type == UserType.Member) onboardingRepository.getMemberSelectList(generationId)
+            else onboardingRepository.getAdminSelectList()
+            flow.collect { map ->
+                Log.d("fetchSelectList", map.toStepMap().toString())
+                _uiState.update { it.copy(selectedItemMap = map.toStepMap()) }
+            }
+        }
+    }
+
     private fun popBackStack() {
         viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
     }
@@ -167,11 +171,30 @@ class OnBoardingViewModel @Inject constructor(
 
     private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
         return state.copy(
-            step = resolveStep(state.dummyType, nextIndex),
+            step = resolveStep(state.type, nextIndex),
             index = nextIndex,
             grayBlockCount = nextIndex,
             blackBlockCount = MAX_STEP_INDEX - nextIndex
         )
+    }
+
+    private fun Map<String, List<ItemSelect>>.toStepMap(): Map<OnBoardingStep, ImmutableList<SelectItemUiModel>> {
+        return this.mapKeys { (key, _) ->
+            when (key) {
+                "job" -> OnBoardingStep.Job
+                "role" -> OnBoardingStep.Role
+                "team" -> OnBoardingStep.Team
+                else -> throw IllegalArgumentException("Unknown key: $key")
+            }
+        }.mapValues { (step, items) ->
+            items.map { item ->
+                SelectItemUiModel(
+                    step = step,
+                    text = item.name,
+                    isSelected = false
+                )
+            }.toPersistentList()
+        }
     }
 
     private companion object {

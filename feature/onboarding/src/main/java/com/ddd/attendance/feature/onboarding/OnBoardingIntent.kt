@@ -1,7 +1,6 @@
 package com.ddd.attendance.feature.onboarding
 
 import com.ddd.attendance.domain.model.VerifyCode
-import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 
 sealed interface OnBoardingIntent {

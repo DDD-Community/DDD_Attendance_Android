@@ -3,8 +3,7 @@ package com.ddd.attendance.data.mapper
 import com.ddd.attendance.data.model.JobRoleResponse
 import com.ddd.attendance.data.model.TeamResponse
 import com.ddd.attendance.data.model.VerifyCodeResponse
-import com.ddd.attendance.domain.model.JobRole
-import com.ddd.attendance.domain.model.Team
+import com.ddd.attendance.domain.model.ItemSelect
 import com.ddd.attendance.domain.model.VerifyCode
 
 fun VerifyCodeResponse.toDomain(): VerifyCode {
@@ -16,20 +15,27 @@ fun VerifyCodeResponse.toDomain(): VerifyCode {
     )
 }
 
-fun List<TeamResponse>.toTeamDomain(): List<Team> {
+fun List<TeamResponse>.toItemSelectTeamDomain(): List<ItemSelect> {
     return map { response ->
-        Team(
-            teamId = response.teamId,
+        ItemSelect(
+            id = response.teamId,
             name = response.name
         )
     }
 }
 
-fun List<JobRoleResponse>.toJobRoleDomain(): List<JobRole> {
+fun List<JobRoleResponse>.toItemSelectRoleDomain(): List<ItemSelect> {
     return map { response ->
-        JobRole(
-            key = response.key,
-            description = response.description
+        ItemSelect(
+            name = response.description
+        )
+    }
+}
+
+fun List<JobRoleResponse>.toItemSelectJobDomain(): List<ItemSelect> {
+    return map { response ->
+        ItemSelect(
+            name = response.description
         )
     }
 }
