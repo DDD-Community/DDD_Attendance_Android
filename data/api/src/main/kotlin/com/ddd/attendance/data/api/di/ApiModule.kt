@@ -1,5 +1,6 @@
 package com.ddd.attendance.data.api.di
 
+import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.BuildConfig
 import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.api.UserApi
@@ -59,8 +60,8 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideUserApiService(retrofit: Retrofit): UserApi {
-        return retrofit.create(UserApi::class.java)
+    fun provideAuthenticationApiService(retrofit: Retrofit): AuthenticationApi {
+        return retrofit.create(AuthenticationApi::class.java)
     }
 
     @Provides

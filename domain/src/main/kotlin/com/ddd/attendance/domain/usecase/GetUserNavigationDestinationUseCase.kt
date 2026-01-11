@@ -9,6 +9,7 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): NavigationDestination {
         return when {
+            hasTempOAuthToken() -> NavigationDestination.OnBoarding
             !isUserLoggedIn() -> NavigationDestination.Login
             !isOnboardingCompleted() -> NavigationDestination.OnBoarding
             isManagerRole() -> NavigationDestination.Manager
@@ -16,22 +17,23 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
         }
     }
 
+    private suspend fun hasTempOAuthToken(): Boolean {
+        return userRepository.hasTempOAuthToken()
+    }
+
     private suspend fun isUserLoggedIn(): Boolean {
-        // TODO: 사용자 로그인 상태 체크
-        // userRepository를 통해 토큰 유효성 확인
-        return true // 임시로 true 반환
+        return userRepository.isUserLoggedIn()
     }
 
     private suspend fun isOnboardingCompleted(): Boolean {
         // TODO: 실제 온보딩 상태 체크 로직 구현
-        // 예시: SharedPreferences나 데이터베이스에서 온보딩 완료 여부 확인
-        // 또는 userRepository를 통해 사용자 프로필 완성도 확인
-        return true // 임시로 true 반환
+        // 현재는 로그인되어 있으면 온보딩 완료로 간주
+        return true
     }
 
     private suspend fun isManagerRole(): Boolean {
-        // TODO: 사용자 권한이 매니저인지 체크
-        // userRepository를 통해 사용자 역할 확인
-        return false // 임시로 true 반환
+        val role = userRepository.getUserRole()
+        // TODO: 실제 역할 체크 로직 구현 (API 응답에 role 필드가 추가되면 수정 필요)
+        return false
     }
 }
