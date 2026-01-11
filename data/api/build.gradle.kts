@@ -10,4 +10,5 @@ setNamespace("data.api")
 
 dependencies {
     implementation(projects.data)
+    implementation(projects.data.datastore)
 }

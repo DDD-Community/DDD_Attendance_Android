@@ -1,22 +1,52 @@
 package com.ddd.attendance.data.api.datasource
 
-import com.ddd.attendance.data.api.UserApi
+import android.util.Log
+import com.ddd.attendance.data.api.AuthenticationApi
+import com.ddd.attendance.data.api.model.LoginRequest
+import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ApiLoginDataSourceImpl @Inject constructor(
-    private val userApi: UserApi
+    private val authenticationApi: AuthenticationApi,
+    private val userPreferencesDataStore: UserPreferencesDataStore
 ) : ApiLoginDataSource {
-    
+
     override suspend fun login(idToken: String): Result<Unit> {
         return try {
-            // TODO: 실제 API 호출 구현
-            // userApi.login(idToken)
+            val request = LoginRequest(
+                provider = "GOOGLE",
+                token = idToken
+            )
+            val response = authenticationApi.login(request)
+
+            // 로그인 데이터 저장
+            userPreferencesDataStore.saveLoginData(
+                userId = response.userId,
+                name = response.name,
+                email = response.email,
+                oauthProvider = response.oauthProvider,
+                message = response.message,
+                isNewUser = response.isNewUser,
+                accessToken = response.accessToken,
+                refreshToken = response.refreshToken,
+                oauthRefreshToken = response.oauthRefreshToken
+            )
+
+            Log.d(TAG, "Login successful - User ID: ${response.userId}, Name: ${response.name}, Email: ${response.email}")
+            Log.d(TAG, "isNewUser: ${response.isNewUser}, Provider: ${response.oauthProvider}")
+            Log.d(TAG, "Access Token saved to DataStore")
+
             Result.success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Login failed", e)
             Result.failure(e)
         }
+    }
+
+    companion object {
+        private const val TAG = "ApiLoginDataSource"
     }
 }

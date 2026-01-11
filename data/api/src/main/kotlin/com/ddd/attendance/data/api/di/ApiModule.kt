@@ -1,7 +1,7 @@
 package com.ddd.attendance.data.api.di
 
+import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.BuildConfig
-import com.ddd.attendance.data.api.UserApi
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -48,7 +48,7 @@ object ApiModule {
         json: Json
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.example.com/") // TODO: 실제 API URL로 변경
+            .baseUrl("https://api.dddstudy.site/")
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
@@ -56,8 +56,8 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideUserApiService(retrofit: Retrofit): UserApi {
-        return retrofit.create(UserApi::class.java)
+    fun provideAuthenticationApiService(retrofit: Retrofit): AuthenticationApi {
+        return retrofit.create(AuthenticationApi::class.java)
     }
 
     @Provides

@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.ddd.attendance.domain.model.NavigationDestination
 import com.ddd.attendance.feature.core.permission.PermissionUtils
 
 @Composable
@@ -36,10 +37,29 @@ fun SplashScreen(
     }
 
     LaunchedEffect(navigateToLogin.value) {
-        navigateToLogin.value?.let {
-            navController.navigate("ADMIN_MAIN") {
-                popUpTo("SPLASH") { inclusive = true }
+        when (navigateToLogin.value) {
+            NavigationDestination.Login -> {
+                navController.navigate("LOGIN") {
+                    popUpTo("SPLASH") { inclusive = true }
+                }
             }
+
+            NavigationDestination.Manager -> {
+                navController.navigate("ADMIN_MAIN") {
+                    popUpTo("SPLASH") { inclusive = true }
+                }
+            }
+            NavigationDestination.Member -> {
+                navController.navigate("MEMBER_MAIN") {
+                    popUpTo("SPLASH") { inclusive = true }
+                }
+            }
+            NavigationDestination.OnBoarding -> {
+                navController.navigate("ON_BOARDING") {
+                    popUpTo("SPLASH") { inclusive = true }
+                }
+            }
+            null -> {}
         }
     }
 

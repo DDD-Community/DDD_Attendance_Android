@@ -17,7 +17,7 @@ class GoogleLoginDataSourceImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : GoogleLoginDataSource {
     private val credentialManager = CredentialManager.create(context)
-    
+
     override suspend fun login(): Result<String> {
         return try {
             val googleIdOption = GetGoogleIdOption.Builder()
@@ -25,25 +25,27 @@ class GoogleLoginDataSourceImpl @Inject constructor(
                 .setServerClientId(SERVER_CLIENT_ID)
                 .setAutoSelectEnabled(true)
                 .build()
-                
+
             val request = GetCredentialRequest.Builder()
                 .addCredentialOption(googleIdOption)
                 .build()
-                
+
             val result = credentialManager.getCredential(
                 request = request,
                 context = context
             )
-            
+
             when (val credential = result.credential) {
                 is CustomCredential -> {
                     if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        val googleIdTokenCredential =
+                            GoogleIdTokenCredential.createFrom(credential.data)
                         Result.success(googleIdTokenCredential.idToken)
                     } else {
                         Result.failure(IllegalStateException("Unexpected credential type"))
                     }
                 }
+
                 else -> {
                     Result.failure(IllegalStateException("Unexpected credential type"))
                 }
@@ -52,7 +54,7 @@ class GoogleLoginDataSourceImpl @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     private suspend fun signOut(): Result<Unit> {
         return try {
             credentialManager.clearCredentialState(
@@ -63,8 +65,9 @@ class GoogleLoginDataSourceImpl @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     companion object {
-        private const val SERVER_CLIENT_ID = "369957721624-834shassrfsjt9j97oe2801clnngqtls.apps.googleusercontent.com"
+        private const val SERVER_CLIENT_ID =
+            "369957721624-834shassrfsjt9j97oe2801clnngqtls.apps.googleusercontent.com"
     }
 }
