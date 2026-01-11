@@ -1,6 +1,5 @@
 package com.ddd.attendance.feature.onboarding
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

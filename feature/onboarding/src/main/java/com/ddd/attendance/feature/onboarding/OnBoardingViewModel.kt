@@ -1,7 +1,5 @@
 package com.ddd.attendance.feature.onboarding
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.ItemSelect
@@ -24,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     private val onboardingRepository: OnboardingRepository
 ) : ViewModel() {
 
@@ -36,24 +33,8 @@ class OnBoardingViewModel @Inject constructor(
 
     fun onIntent(intent: OnBoardingIntent) {
         when (intent) {
-            is OnBoardingIntent.GoToNextStep -> {
-                val current = _uiState.value
-
-                if (current.step == OnBoardingStep.Invite && current.pinCodeStatus == PinCodeStatus.Ready) {
-                    verifyPinCode(current)
-                } else if (current.index == MAX_STEP_INDEX) {
-                    goToHome()
-                } else _uiState.update { reduce(it, intent) }
-            }
-
-            is OnBoardingIntent.GoToPreviousStep -> {
-                val current = _uiState.value
-
-                if (current.step == OnBoardingStep.Invite) {
-                    popBackStack()
-                } else _uiState.update { reduce(it, intent) }
-
-            }
+            is OnBoardingIntent.GoToNextStep -> handleNextStep()
+            is OnBoardingIntent.GoToPreviousStep -> handlePreviousStep()
             else -> _uiState.update { reduce(it, intent) }
         }
     }
@@ -76,15 +57,18 @@ class OnBoardingViewModel @Inject constructor(
             is OnBoardingIntent.VerifyPinCodeResult -> {
                 if(intent.status == PinCodeStatus.Success) {
                     val type = if(intent.data?.type == "MEMBER") UserType.Member else UserType.Admin
+
                     val newState = state.copy(
-                        pinCodeStatus = PinCodeStatus.Success,
                         type = type,
+                        pinCodeStatus = PinCodeStatus.Success,
                         generationId = intent.data?.generationId ?: -1,
                         generationName = intent.data?.generationName ?: ""
                     )
 
-                    //선택 리스트 호출
-                    fetchSelectList(type, newState.generationId)
+                    fetchSelectList(
+                        type = type,
+                        generationId = newState.generationId
+                    )
 
                     moveToStep(newState, state.index + 1)
                 } else state.copy(pinCodeStatus = PinCodeStatus.Fail)
@@ -103,7 +87,6 @@ class OnBoardingViewModel @Inject constructor(
             is OnBoardingIntent.NameChanged -> state.copy(name = intent.name)
 
             is OnBoardingIntent.SelectListItem -> {
-                // 현재 step에 해당하는 아이템 목록에서 선택된 position만 isSelected = true로 갱신
                 state.copy(
                     selectedItemMap =
                         state.selectedItemMap.mapValues { (step, items) ->
@@ -120,13 +103,57 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
-    private fun resolveStep(type: UserType, index: Int): OnBoardingStep {
-        val steps = when (type) {
-            UserType.Member -> listOf(OnBoardingStep.Invite, OnBoardingStep.Name, OnBoardingStep.Job, OnBoardingStep.Team)
-            UserType.Admin -> listOf(OnBoardingStep.Invite, OnBoardingStep.Name, OnBoardingStep.Job, OnBoardingStep.Role)
+    private fun handleNextStep() {
+        val state = _uiState.value
+
+        when {
+            state.step == OnBoardingStep.Invite && state.pinCodeStatus == PinCodeStatus.Ready -> {
+                verifyPinCode(state)
+            }
+
+            state.index == MAX_STEP_INDEX -> {
+                goToHome()
+            }
+
+            else -> {
+                _uiState.update { reduce(it, OnBoardingIntent.GoToNextStep) }
+            }
         }
-        return steps[index.coerceIn(0, steps.lastIndex)]
     }
+
+    private fun handlePreviousStep() {
+        val state = _uiState.value
+
+        if (state.step == OnBoardingStep.Invite) {
+            popBackStack()
+        } else {
+            _uiState.update { reduce(it, OnBoardingIntent.GoToPreviousStep) }
+        }
+    }
+
+    private fun resolveStep(
+        type: UserType,
+        index: Int
+    ): OnBoardingStep {
+        val steps = stepOrder(type)
+        return steps[index.coerceIn(steps.indices)]
+    }
+
+    private fun stepOrder(type: UserType): List<OnBoardingStep> =
+        when (type) {
+            UserType.Member -> listOf(
+                OnBoardingStep.Invite,
+                OnBoardingStep.Name,
+                OnBoardingStep.Job,
+                OnBoardingStep.Team
+            )
+            UserType.Admin -> listOf(
+                OnBoardingStep.Invite,
+                OnBoardingStep.Name,
+                OnBoardingStep.Job,
+                OnBoardingStep.Role
+            )
+        }
 
     private fun verifyPinCode(state: OnBoardingUiState) {
         viewModelScope.launch {
@@ -152,10 +179,11 @@ class OnBoardingViewModel @Inject constructor(
 
     private fun fetchSelectList(type: UserType, generationId: Int) {
         viewModelScope.launch {
-            val flow = if(type == UserType.Member) onboardingRepository.getMemberSelectList(generationId)
-            else onboardingRepository.getAdminSelectList()
+            val flow =
+                if(type == UserType.Member) onboardingRepository.getMemberSelectList(generationId)
+                else onboardingRepository.getAdminSelectList()
+
             flow.collect { map ->
-                Log.d("fetchSelectList", map.toStepMap().toString())
                 _uiState.update { it.copy(selectedItemMap = map.toStepMap()) }
             }
         }

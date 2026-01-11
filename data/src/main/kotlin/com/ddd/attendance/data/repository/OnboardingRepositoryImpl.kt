@@ -27,26 +27,26 @@ class OnboardingRepositoryImpl @Inject constructor(
     }
 
     override fun getMemberSelectList(id: Int): Flow<Map<String, List<ItemSelect>>> = flow {
-        val (roleResult, teamResult) = coroutineScope {
+        val (jobResult, teamResult) = coroutineScope {
             val jobDeferred = async { apiLoginDataSource.getJobs() }
             val teamDeferred = async { apiLoginDataSource.getTeams(id) }
 
             jobDeferred.await() to teamDeferred.await()
         }
 
-        val roles = roleResult.getOrElse { emptyList() }
+        val jobs = jobResult.getOrElse { emptyList() }
         val teams = teamResult.getOrElse { emptyList() }
 
         emit(
-            mapOf(
-                "job" to roles.toItemSelectJobDomain(),
+            linkedMapOf(
+                "job" to jobs.toItemSelectJobDomain(),
                 "team" to teams.toItemSelectTeamDomain()
             )
         )
     }
 
     override fun getAdminSelectList(): Flow<Map<String, List<ItemSelect>>> = flow {
-        val (roleResult, jobResult) = coroutineScope {
+        val (jobResult, roleResult) = coroutineScope {
             val jobDeferred = async { apiLoginDataSource.getJobs() }
             val roleDeferred = async { apiLoginDataSource.getRole() }
 
@@ -57,7 +57,7 @@ class OnboardingRepositoryImpl @Inject constructor(
         val jobs = jobResult.getOrElse { emptyList() }
 
         emit(
-            mapOf(
+            linkedMapOf(
                 "job" to jobs.toItemSelectJobDomain(),
                 "role" to roles.toItemSelectRoleDomain()
             )
