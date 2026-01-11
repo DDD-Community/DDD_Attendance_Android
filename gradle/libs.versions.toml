@@ -38,6 +38,7 @@ googleId = "1.1.1"
 zxing = "3.5.2"
 cameraX = "1.3.1"
 foundationLayout = "1.10.0"
+datastore = "1.1.1"
 
 
 [libraries]
@@ -94,6 +95,8 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX" }
 
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
 #convention setting
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -142,3 +145,4 @@ attendance-kotlin-library-parcelize-serialization = { id = "attendance.kotlin.li
 attendance-android-googlelogin = { id = "attendance.android.googlelogin", version = "unspecified" } # AndroidGoogleLoginConventionPlugin
 attendance-coroutine = { id = "attendance.coroutine", version = "unspecified" } # CoroutineConventionPlugin
 attendance-android-qrcode = { id = "attendance.android.qrcode", version = "unspecified" } # AndroidQrCodeConventionPlugin
+attendance-android-datastore = { id = "attendance.android.datastore", version = "unspecified" } # AndroidDataStoreConventionPlugin

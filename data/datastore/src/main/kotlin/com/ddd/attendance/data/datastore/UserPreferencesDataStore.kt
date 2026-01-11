@@ -1,0 +1,102 @@
+package com.ddd.attendance.data.datastore
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_preferences")
+
+@Singleton
+class UserPreferencesDataStore @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    private val dataStore = context.dataStore
+
+    companion object {
+        private val KEY_USER_ID = longPreferencesKey("user_id")
+        private val KEY_NAME = stringPreferencesKey("name")
+        private val KEY_EMAIL = stringPreferencesKey("email")
+        private val KEY_OAUTH_PROVIDER = stringPreferencesKey("oauth_provider")
+        private val KEY_MESSAGE = stringPreferencesKey("message")
+        private val KEY_IS_NEW_USER = booleanPreferencesKey("is_new_user")
+        private val KEY_ACCESS_TOKEN = stringPreferencesKey("access_token")
+        private val KEY_REFRESH_TOKEN = stringPreferencesKey("refresh_token")
+        private val KEY_OAUTH_REFRESH_TOKEN = stringPreferencesKey("oauth_refresh_token")
+    }
+
+    suspend fun saveLoginData(
+        userId: Long,
+        name: String,
+        email: String,
+        oauthProvider: String,
+        message: String,
+        isNewUser: Boolean,
+        accessToken: String,
+        refreshToken: String,
+        oauthRefreshToken: String
+    ) {
+        dataStore.edit { preferences ->
+            preferences[KEY_USER_ID] = userId
+            preferences[KEY_NAME] = name
+            preferences[KEY_EMAIL] = email
+            preferences[KEY_OAUTH_PROVIDER] = oauthProvider
+            preferences[KEY_MESSAGE] = message
+            preferences[KEY_IS_NEW_USER] = isNewUser
+            preferences[KEY_ACCESS_TOKEN] = accessToken
+            preferences[KEY_REFRESH_TOKEN] = refreshToken
+            preferences[KEY_OAUTH_REFRESH_TOKEN] = oauthRefreshToken
+        }
+    }
+
+    val userId: Flow<Long?> = dataStore.data.map { preferences ->
+        preferences[KEY_USER_ID]
+    }
+
+    val name: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_NAME]
+    }
+
+    val email: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_EMAIL]
+    }
+
+    val oauthProvider: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_OAUTH_PROVIDER]
+    }
+
+    val message: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_MESSAGE]
+    }
+
+    val isNewUser: Flow<Boolean?> = dataStore.data.map { preferences ->
+        preferences[KEY_IS_NEW_USER]
+    }
+
+    val accessToken: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_ACCESS_TOKEN]
+    }
+
+    val refreshToken: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_REFRESH_TOKEN]
+    }
+
+    val oauthRefreshToken: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_OAUTH_REFRESH_TOKEN]
+    }
+
+    suspend fun clearAll() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+}

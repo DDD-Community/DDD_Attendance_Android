@@ -81,5 +81,10 @@ gradlePlugin {
             id = "attendance.android.qrcode"
             implementationClass = "AndroidQrCodeConventionPlugin"
         }
+
+        register("androidDataStore") {
+            id = "attendance.android.datastore"
+            implementationClass = "AndroidDataStoreConventionPlugin"
+        }
     }
 }
