@@ -1,4 +1,4 @@
-package com.ddd.attendance.domain.model
+package com.ddd.attendance.domain.model.onboarding
 
 data class VerifyCode(
     val generationId: Int,

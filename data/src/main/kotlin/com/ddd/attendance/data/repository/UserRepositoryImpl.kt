@@ -1,9 +1,12 @@
 package com.ddd.attendance.data.repository
 
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
+import com.ddd.attendance.data.datasource.ApiUsersDataSource
 import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.data.mapper.users.toDomain
 import com.ddd.attendance.domain.model.LoginType
+import com.ddd.attendance.domain.model.users.Users
 import com.ddd.attendance.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -13,6 +16,7 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val googleLoginDataSource: GoogleLoginDataSource,
     private val apiLoginDataSource: ApiLoginDataSource,
+    private val apiUsersDataSource: ApiUsersDataSource,
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : UserRepository {
     
@@ -33,14 +37,40 @@ class UserRepositoryImpl @Inject constructor(
                 )
 
                 // TODO: 온보딩 완료 후 API 호출하도록 이동
-                // val apiResult = apiLoginDataSource.login(idToken)
-                // if (apiResult.isFailure) {
-                //     throw IllegalStateException("API login failed")
-                // }
+                 val apiResult = apiLoginDataSource.login(idToken)
+                 if (apiResult.isFailure) {
+                     throw IllegalStateException("API login failed")
+                 }
 
                 emit(Unit)
             }
         }
+    }
+
+    override fun usersSave(
+        name: String,
+        generationId: Int,
+        jobRole: String,
+        teamId: Int,
+        managerRoles: List<String>,
+        provider: String,
+        token: String,
+        oauthRefreshToken: String,
+        invitationCode: String
+    ): Flow<Users>  = flow {
+        val result = apiUsersDataSource.users(
+            name = name,
+            generationId = generationId,
+            jobRole = jobRole,
+            teamId = teamId,
+            managerRoles = managerRoles,
+            provider = provider,
+            token = token,
+            oauthRefreshToken = oauthRefreshToken,
+            invitationCode = invitationCode
+        )
+        val response = result.getOrThrow()
+        emit(response.toDomain())
     }
 
     override suspend fun isUserLoggedIn(): Boolean {

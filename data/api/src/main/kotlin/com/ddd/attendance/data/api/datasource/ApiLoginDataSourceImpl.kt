@@ -3,8 +3,8 @@ package com.ddd.attendance.data.api.datasource
 import android.util.Log
 import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.model.LoginRequest
-import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
+import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,15 +24,15 @@ class ApiLoginDataSourceImpl @Inject constructor(
 
             // 로그인 데이터 저장
             userPreferencesDataStore.saveLoginData(
-                userId = response.userId,
-                name = response.name,
-                email = response.email,
-                oauthProvider = response.oauthProvider,
-                message = response.message,
-                isNewUser = response.isNewUser,
-                accessToken = response.accessToken,
-                refreshToken = response.refreshToken,
-                oauthRefreshToken = response.oauthRefreshToken
+                userId = response.userId?: 0,
+                name = response.name?: "",
+                email = response.email?: "",
+                oauthProvider = response.oauthProvider?: "",
+                message = response.message?: "",
+                isNewUser = response.isNewUser?: false,
+                accessToken = response.accessToken?: "",
+                refreshToken = response.refreshToken?: "",
+                oauthRefreshToken = response.oauthRefreshToken?: ""
             )
 
             Log.d(TAG, "Login successful - User ID: ${response.userId}, Name: ${response.name}, Email: ${response.email}")

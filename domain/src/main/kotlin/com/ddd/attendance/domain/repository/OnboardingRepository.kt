@@ -1,7 +1,7 @@
 package com.ddd.attendance.domain.repository
 
-import com.ddd.attendance.domain.model.ItemSelect
-import com.ddd.attendance.domain.model.VerifyCode
+import com.ddd.attendance.domain.model.onboarding.ItemSelect
+import com.ddd.attendance.domain.model.onboarding.VerifyCode
 import kotlinx.coroutines.flow.Flow
 
 interface OnboardingRepository {
