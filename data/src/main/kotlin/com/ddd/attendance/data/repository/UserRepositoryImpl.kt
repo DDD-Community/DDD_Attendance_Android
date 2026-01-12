@@ -37,10 +37,10 @@ class UserRepositoryImpl @Inject constructor(
                 )
 
                 // TODO: 온보딩 완료 후 API 호출하도록 이동
-                 val apiResult = apiLoginDataSource.login(idToken)
-                 if (apiResult.isFailure) {
-                     throw IllegalStateException("API login failed")
-                 }
+//                 val apiResult = apiLoginDataSource.login(idToken)
+//                 if (apiResult.isFailure) {
+//                     throw IllegalStateException("API login failed")
+//                 }
 
                 emit(Unit)
             }
@@ -55,7 +55,6 @@ class UserRepositoryImpl @Inject constructor(
         managerRoles: List<String>,
         provider: String,
         token: String,
-        oauthRefreshToken: String,
         invitationCode: String
     ): Flow<Users>  = flow {
         val result = apiUsersDataSource.users(
@@ -66,7 +65,6 @@ class UserRepositoryImpl @Inject constructor(
             managerRoles = managerRoles,
             provider = provider,
             token = token,
-            oauthRefreshToken = oauthRefreshToken,
             invitationCode = invitationCode
         )
         val response = result.getOrThrow()

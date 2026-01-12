@@ -14,7 +14,6 @@ interface UserRepository {
         managerRoles: List<String>,
         provider: String,
         token: String,
-        oauthRefreshToken: String,
         invitationCode: String
     ): Flow<Users>
     suspend fun isUserLoggedIn(): Boolean

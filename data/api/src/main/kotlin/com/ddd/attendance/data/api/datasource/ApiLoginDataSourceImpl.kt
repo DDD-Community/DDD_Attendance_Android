@@ -32,7 +32,6 @@ class ApiLoginDataSourceImpl @Inject constructor(
                 isNewUser = response.isNewUser?: false,
                 accessToken = response.accessToken?: "",
                 refreshToken = response.refreshToken?: "",
-                oauthRefreshToken = response.oauthRefreshToken?: ""
             )
 
             Log.d(TAG, "Login successful - User ID: ${response.userId}, Name: ${response.name}, Email: ${response.email}")

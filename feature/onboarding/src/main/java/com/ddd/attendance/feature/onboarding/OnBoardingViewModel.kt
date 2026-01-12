@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -277,24 +279,10 @@ class OnBoardingViewModel @Inject constructor(
 
     fun submitOnboarding() {
         val state = _uiState.value
-
         submitOnboardingFlow(state)
-            // ✅ 성공이든 실패든 무조건 다음으로 흘림
-            .catch { emit(Unit) }
-            // ✅ 로그인 Flow 실행
-            .flatMapLatest {
-                loginUseCase(LoginType.GOOGLE)
-            }
-            // ✅ 로그인 성공 시 홈 이동
-            .onEach {
-                _navigationEvent.emit(NavigationEvent.GoToHome)
-            }
-            // ❌ 로그인 실패만 여기로
-            .catch { e ->
-                _navigationEvent.emit(
-                    NavigationEvent.FailOnBoarding(e.message.orEmpty())
-                )
-            }
+            .flatMapConcat { loginUseCase(LoginType.GOOGLE) }
+            .onEach { goToHome() }
+            .catch { e -> _navigationEvent.emit(NavigationEvent.FailOnBoarding(e.message.orEmpty())) }
             .launchIn(viewModelScope)
     }
 
@@ -303,8 +291,22 @@ class OnBoardingViewModel @Inject constructor(
     ): Flow<Unit> = flow {
         val token = userPreferencesDataStore.tempOauthToken.first().orEmpty()
         val provider = userPreferencesDataStore.tempOauthProvider.first().orEmpty()
-        val oauthRefreshToken = userPreferencesDataStore.oauthRefreshToken.first().orEmpty()
 
+        Log.d(
+            "submitOnboardingFlow",
+            """
+                name = ${state.name}
+                generationId = ${state.generationId}
+                jobRole = ${state.jobRole}
+                teamId = ${state.teamId}
+                managerRoles = ${state.managerRoles}
+                provider = $provider
+                token = $token
+                invitationCode = ${state.inputInvitePinCode}
+                """.trimIndent()
+        )
+
+        //TODO: users/api 호출
         usersSaveUseCase(
             name = state.name,
             generationId = state.generationId,
@@ -313,7 +315,6 @@ class OnBoardingViewModel @Inject constructor(
             managerRoles = state.managerRoles,
             provider = provider,
             token = token,
-            oauthRefreshToken = oauthRefreshToken,
             invitationCode = state.inputInvitePinCode
         ).collect {
             emit(Unit)

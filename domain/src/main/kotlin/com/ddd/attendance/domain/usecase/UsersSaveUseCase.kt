@@ -16,7 +16,6 @@ class UsersSaveUseCase @Inject constructor(
         managerRoles: List<String>,
         provider: String,
         token: String,
-        oauthRefreshToken: String,
         invitationCode: String
     ): Flow<Users> {
         return userRepository.usersSave(
@@ -27,7 +26,6 @@ class UsersSaveUseCase @Inject constructor(
             managerRoles = managerRoles,
             provider = provider,
             token = token,
-            oauthRefreshToken = oauthRefreshToken,
             invitationCode = invitationCode
         )
     }

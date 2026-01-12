@@ -19,7 +19,6 @@ class ApiUsersDataSourceImpl @Inject constructor(
         managerRoles: List<String>,
         provider: String,
         token: String,
-        oauthRefreshToken: String,
         invitationCode: String
     ): Result<UsersResponse> {
         return try {
@@ -34,7 +33,6 @@ class ApiUsersDataSourceImpl @Inject constructor(
                             managerRoles = managerRoles,
                             provider = provider,
                             token = token,
-                            oauthRefreshToken = oauthRefreshToken,
                             invitationCode = invitationCode
                         )
                     )

@@ -11,6 +11,5 @@ data class UserRequest(
     val managerRoles: List<String> = emptyList(),
     val provider: String,
     val token: String,
-    val oauthRefreshToken: String,
     val invitationCode: String
 )

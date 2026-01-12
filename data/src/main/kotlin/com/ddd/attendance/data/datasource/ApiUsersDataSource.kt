@@ -11,7 +11,6 @@ interface ApiUsersDataSource {
         managerRoles: List<String>,
         provider: String,
         token: String,
-        oauthRefreshToken: String,
         invitationCode: String
     ): Result<UsersResponse>
 }
