@@ -1,28 +1,47 @@
 package com.ddd.attendance.feature.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ddd.attendance.domain.model.ItemSelect
-import com.ddd.attendance.domain.repository.OnboardingRepository
+import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.domain.model.LoginType
+import com.ddd.attendance.domain.model.onboarding.ItemSelect
+import com.ddd.attendance.domain.usecase.GetAdminSelectListUseCase
+import com.ddd.attendance.domain.usecase.GetMemberSelectListUseCase
+import com.ddd.attendance.domain.usecase.LoginUseCase
+import com.ddd.attendance.domain.usecase.UsersSaveUseCase
+import com.ddd.attendance.domain.usecase.VerifyCodeUseCase
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
 import com.ddd.attendance.feature.onboarding.select.SelectItemUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    private val onboardingRepository: OnboardingRepository
+    private val verifyCodeUseCase: VerifyCodeUseCase,
+    private val getAdminSelectListUseCase: GetAdminSelectListUseCase,
+    private val getMemberSelectListUseCase: GetMemberSelectListUseCase,
+    private val usersSaveUseCase: UsersSaveUseCase,
+    private val loginUseCase: LoginUseCase,
+    private val userPreferencesDataStore: UserPreferencesDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnBoardingUiState())
@@ -45,13 +64,17 @@ class OnBoardingViewModel @Inject constructor(
     ): OnBoardingUiState {
         return when (intent) {
             is OnBoardingIntent.GoToPreviousStep -> {
-                val prev = (state.index - 1).coerceAtLeast(0)
-                moveToStep(state, prev)
+                moveToStep(
+                    state = state,
+                    nextIndex = (state.index - 1).coerceAtLeast(0)
+                )
             }
 
             is OnBoardingIntent.GoToNextStep -> {
-                val next = (state.index + 1).coerceAtMost(MAX_STEP_INDEX)
-                moveToStep(state, next)
+                moveToStep(
+                    state = state,
+                    nextIndex = (state.index + 1).coerceAtMost(MAX_STEP_INDEX)
+                )
             }
 
             is OnBoardingIntent.VerifyPinCodeResult -> {
@@ -69,8 +92,8 @@ class OnBoardingViewModel @Inject constructor(
                         type = type,
                         generationId = newState.generationId
                     )
-
                     moveToStep(newState, state.index + 1)
+
                 } else state.copy(pinCodeStatus = PinCodeStatus.Fail)
             }
 
@@ -78,26 +101,76 @@ class OnBoardingViewModel @Inject constructor(
                 state.copy(
                     inputInvitePinCode = intent.pinCode,
                     pinCodeStatus =
-                        if (intent.pinCode.length == PIN_CODE_LENGTH) {
+                        if (intent.pinCode.length == PIN_CODE_LENGTH)
                             PinCodeStatus.Ready
-                        } else PinCodeStatus.Idle
+                        else PinCodeStatus.Idle
                 )
             }
 
-            is OnBoardingIntent.NameChanged -> state.copy(name = intent.name)
+            is OnBoardingIntent.NameChanged -> {
+                state.copy(name = intent.name)
+            }
 
             is OnBoardingIntent.SelectListItem -> {
-                state.copy(
-                    selectedItemMap =
-                        state.selectedItemMap.mapValues { (step, items) ->
-                            if (step == state.step) {
-                                items.mapIndexed { index, item ->
-                                    item.copy(
-                                        isSelected = index == intent.position
-                                    )
-                                }.toPersistentList()
-                            } else items
+                //단일 선택시
+                val singleMap =
+                    state.selectedItemMap.mapValues { (step, items) ->
+                        if (step == state.step) {
+                            items.mapIndexed { index, item ->
+                                item.copy(isSelected = index == intent.position)
+                            }.toPersistentList()
+                        } else items
+                    }
+
+                // 다중 선택 시
+                val multiMap =
+                    state.selectedItemMap.mapValues { (step, items) ->
+                        if (step == state.step) {
+                            items.mapIndexed { index, item ->
+                                if (index == intent.position)
+                                    item.copy(isSelected = !item.isSelected)
+                                else item
+                            }.toPersistentList()
+                        } else items
+                    }
+
+                //단일 선택시 job
+                val updatedJob =
+                    if (state.step == OnBoardingStep.Job) {
+                        singleMap[OnBoardingStep.Job]?.getOrNull(intent.position)?.key.toString()
+                    } else state.jobRole
+
+                //단일 선택시 teamId
+                val updatedTeamId =
+                    if (state.step == OnBoardingStep.Team) {
+                        singleMap[OnBoardingStep.Team]?.getOrNull(intent.position)?.teamId?: 0
+                    } else state.teamId
+
+                //다중 선택시 role item
+                val updatedRoleItem =
+                    if (state.step == OnBoardingStep.Role) {
+                        multiMap[OnBoardingStep.Role]?.getOrNull(intent.position)?.key.toString()
+                    } else ""
+
+                val updatedManagerRoles =
+                    state.managerRoles
+                        .toPersistentList()
+                        .let {
+                            if (it.contains(updatedRoleItem))
+                                it.remove(updatedRoleItem)
+                            else
+                                it.add(updatedRoleItem)
                         }
+                        .filter { it.isNotBlank() }
+                        .toPersistentList()
+
+                val map = if (state.step == OnBoardingStep.Role) multiMap else singleMap
+
+                state.copy(
+                    selectedItemMap = map,
+                    jobRole = updatedJob,
+                    teamId = updatedTeamId,
+                    managerRoles = updatedManagerRoles
                 )
             }
         }
@@ -112,7 +185,7 @@ class OnBoardingViewModel @Inject constructor(
             }
 
             state.index == MAX_STEP_INDEX -> {
-                goToHome()
+                submitOnboarding()
             }
 
             else -> {
@@ -139,6 +212,23 @@ class OnBoardingViewModel @Inject constructor(
         return steps[index.coerceIn(steps.indices)]
     }
 
+    private fun popBackStack() {
+        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
+    }
+
+    private fun goToHome() {
+        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToHome) }
+    }
+
+    private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
+        return state.copy(
+            step = resolveStep(state.type, nextIndex),
+            index = nextIndex,
+            grayBlockCount = nextIndex,
+            blackBlockCount = MAX_STEP_INDEX - nextIndex
+        )
+    }
+
     private fun stepOrder(type: UserType): List<OnBoardingStep> =
         when (type) {
             UserType.Member -> listOf(
@@ -157,8 +247,7 @@ class OnBoardingViewModel @Inject constructor(
 
     private fun verifyPinCode(state: OnBoardingUiState) {
         viewModelScope.launch {
-            onboardingRepository
-                .verifyCode(state.inputInvitePinCode)
+            verifyCodeUseCase(state.inputInvitePinCode)
                 .catch {
                     onIntent(
                         OnBoardingIntent.VerifyPinCodeResult(
@@ -180,8 +269,7 @@ class OnBoardingViewModel @Inject constructor(
     private fun fetchSelectList(type: UserType, generationId: Int) {
         viewModelScope.launch {
             val flow =
-                if(type == UserType.Member) onboardingRepository.getMemberSelectList(generationId)
-                else onboardingRepository.getAdminSelectList()
+                if(type == UserType.Member) getMemberSelectListUseCase(generationId) else getAdminSelectListUseCase()
 
             flow.collect { map ->
                 _uiState.update { it.copy(selectedItemMap = map.toStepMap()) }
@@ -189,21 +277,48 @@ class OnBoardingViewModel @Inject constructor(
         }
     }
 
-    private fun popBackStack() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
+    fun submitOnboarding() {
+        val state = _uiState.value
+        submitOnboardingFlow(state)
+            .flatMapConcat { loginUseCase(LoginType.GOOGLE) }
+            .onEach { goToHome() }
+            .catch { e -> _navigationEvent.emit(NavigationEvent.FailOnBoarding(e.message.orEmpty())) }
+            .launchIn(viewModelScope)
     }
 
-    private fun goToHome() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToHome) }
-    }
+    private fun submitOnboardingFlow(
+        state: OnBoardingUiState
+    ): Flow<Unit> = flow {
+        val token = userPreferencesDataStore.tempOauthToken.first().orEmpty()
+        val provider = userPreferencesDataStore.tempOauthProvider.first().orEmpty()
 
-    private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
-        return state.copy(
-            step = resolveStep(state.type, nextIndex),
-            index = nextIndex,
-            grayBlockCount = nextIndex,
-            blackBlockCount = MAX_STEP_INDEX - nextIndex
+        Log.d(
+            "submitOnboardingFlow",
+            """
+                name = ${state.name}
+                generationId = ${state.generationId}
+                jobRole = ${state.jobRole}
+                teamId = ${state.teamId}
+                managerRoles = ${state.managerRoles}
+                provider = $provider
+                token = $token
+                invitationCode = ${state.inputInvitePinCode}
+                """.trimIndent()
         )
+
+        //TODO: users/api 호출
+        usersSaveUseCase(
+            name = state.name,
+            generationId = state.generationId,
+            jobRole = state.jobRole,
+            teamId = state.teamId,
+            managerRoles = state.managerRoles,
+            provider = provider,
+            token = token,
+            invitationCode = state.inputInvitePinCode
+        ).collect {
+            emit(Unit)
+        }
     }
 
     private fun Map<String, List<ItemSelect>>.toStepMap(): Map<OnBoardingStep, ImmutableList<SelectItemUiModel>> {
@@ -219,6 +334,8 @@ class OnBoardingViewModel @Inject constructor(
                 SelectItemUiModel(
                     step = step,
                     text = item.name,
+                    teamId = item.teamId,
+                    key = item.key,
                     isSelected = false
                 )
             }.toPersistentList()

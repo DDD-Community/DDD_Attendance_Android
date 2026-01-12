@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.onboarding
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -49,11 +50,14 @@ fun OnBoardingScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                NavigationEvent.PopBackStack -> {
+                is NavigationEvent.PopBackStack -> {
                     navController.popBackStack()
                 }
-                NavigationEvent.GoToHome -> {
+                is NavigationEvent.GoToHome -> {
                     navController.navigate("ADMIN_MAIN")
+                }
+                is NavigationEvent.FailOnBoarding -> {
+                    Log.d("OnBoardingScreen", event.message)
                 }
             }
         }

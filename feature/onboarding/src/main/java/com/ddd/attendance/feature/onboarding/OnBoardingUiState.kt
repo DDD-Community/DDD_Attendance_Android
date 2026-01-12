@@ -24,9 +24,14 @@ data class OnBoardingUiState(
     val blackBlockCount: Int = 0,
     val inputInvitePinCode: String = "",
     val pinCodeStatus: PinCodeStatus = PinCodeStatus.Idle,
-    val generationId: Int = -1,
-    val generationName: String = "",
+
     val name: String = "",
+    val generationId: Int = -1,
+    val jobRole: String = "",
+    val teamId: Int = 0,
+    val managerRoles: ImmutableList<String> = persistentListOf(),
+
+    val generationName: String = "",
     val title: String = "",
     val subTitle: String = "",
     val selectedItemMap: Map<OnBoardingStep, ImmutableList<SelectItemUiModel>> = emptyMap()

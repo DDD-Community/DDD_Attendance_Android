@@ -1,12 +1,12 @@
 package com.ddd.attendance.data.repository
 
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
-import com.ddd.attendance.data.mapper.toDomain
-import com.ddd.attendance.data.mapper.toItemSelectJobDomain
-import com.ddd.attendance.data.mapper.toItemSelectRoleDomain
-import com.ddd.attendance.data.mapper.toItemSelectTeamDomain
-import com.ddd.attendance.domain.model.ItemSelect
-import com.ddd.attendance.domain.model.VerifyCode
+import com.ddd.attendance.data.mapper.onboarding.toDomain
+import com.ddd.attendance.data.mapper.onboarding.toItemSelectJobDomain
+import com.ddd.attendance.data.mapper.onboarding.toItemSelectRoleDomain
+import com.ddd.attendance.data.mapper.onboarding.toItemSelectTeamDomain
+import com.ddd.attendance.domain.model.onboarding.ItemSelect
+import com.ddd.attendance.domain.model.onboarding.VerifyCode
 import com.ddd.attendance.domain.repository.OnboardingRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
