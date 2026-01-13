@@ -1,5 +1,6 @@
 package com.ddd.attendance.data.datasource
 
+import com.ddd.attendance.data.model.QrResponse
 import com.ddd.attendance.data.model.UsersResponse
 
 interface ApiUsersDataSource {
@@ -13,4 +14,6 @@ interface ApiUsersDataSource {
         token: String,
         invitationCode: String
     ): Result<UsersResponse>
+
+    suspend fun getQr(userId: Long): Result<QrResponse>
 }

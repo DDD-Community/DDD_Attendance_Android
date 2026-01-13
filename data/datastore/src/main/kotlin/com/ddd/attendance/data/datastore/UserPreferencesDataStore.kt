@@ -42,6 +42,10 @@ class UserPreferencesDataStore @Inject constructor(
         private val KEY_TOTAL_ATTENDED = intPreferencesKey("total_attended")
         private val KEY_TOTAL_LATE = intPreferencesKey("total_late")
         private val KEY_TOTAL_ABSENT = intPreferencesKey("total_absent")
+
+        // QR 데이터
+        private val KEY_QR_ID = longPreferencesKey("qr_id")
+        private val KEY_QR_BASE64 = stringPreferencesKey("qr_base64")
     }
 
     suspend fun saveLoginData(
@@ -156,5 +160,21 @@ class UserPreferencesDataStore @Inject constructor(
 
     val totalAbsent: Flow<Int?> = dataStore.data.map { preferences ->
         preferences[KEY_TOTAL_ABSENT]
+    }
+
+    // QR 데이터 저장
+    suspend fun saveQrData(qrId: Long, qrBase64: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_QR_ID] = qrId
+            preferences[KEY_QR_BASE64] = qrBase64
+        }
+    }
+
+    val qrId: Flow<Long?> = dataStore.data.map { preferences ->
+        preferences[KEY_QR_ID]
+    }
+
+    val qrBase64: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_QR_BASE64]
     }
 }

@@ -100,6 +100,18 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getQr(userId: Long): Result<Unit> {
+        return apiUsersDataSource.getQr(userId).map { Unit }
+    }
+
+    override fun getQrBase64(): Flow<String> {
+        return userPreferencesDataStore.qrBase64.map { it ?: "" }
+    }
+
+    override fun getUserId(): Flow<Long> {
+        return userPreferencesDataStore.userId.map { it ?: 0L }
+    }
+
     override suspend fun completeOnboardingAndLogin(): Result<Unit> {
         return try {
             // 임시 저장된 OAuth 토큰 가져오기
