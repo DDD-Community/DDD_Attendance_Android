@@ -5,6 +5,7 @@ import com.ddd.attendance.data.api.UsersApi
 import com.ddd.attendance.data.api.model.users.UserRequest
 import com.ddd.attendance.data.datasource.ApiUsersDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.data.model.QrResponse
 import com.ddd.attendance.data.model.UsersResponse
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -81,6 +82,40 @@ class ApiUsersDataSourceImpl @Inject constructor(
             Result.failure(Exception("HTTP $errorCode: $errorBody"))
         } catch (e: Exception) {
             Log.e(TAG, "Users API failed", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getQr(userId: Long): Result<QrResponse> {
+        return try {
+            Log.d(TAG, "=== API GET QR REQUEST ===")
+            Log.d(TAG, "User ID: $userId")
+
+            val response = usersApi.getQr(userId)
+
+            // QR 데이터 저장
+            userPreferencesDataStore.saveQrData(
+                qrId = response.id,
+                qrBase64 = response.qrBase64
+            )
+
+            Log.d(TAG, "Get QR successful - QR ID: ${response.id}")
+            Log.d(TAG, "QR data saved to DataStore")
+
+            Result.success(response)
+        } catch (e: HttpException) {
+            val errorCode = e.code()
+            val errorBody = e.response()?.errorBody()?.string()
+
+            Log.e(TAG, "=== HTTP ERROR ===")
+            Log.e(TAG, "Status Code: $errorCode")
+            Log.e(TAG, "Error Body: $errorBody")
+            Log.e(TAG, "Message: ${e.message}")
+            Log.e(TAG, "==================")
+
+            Result.failure(Exception("HTTP $errorCode: $errorBody"))
+        } catch (e: Exception) {
+            Log.e(TAG, "Get QR failed", e)
             Result.failure(e)
         }
     }

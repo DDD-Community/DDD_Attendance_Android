@@ -62,7 +62,7 @@ fun MemberAttendanceScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     QrCodeImage(
-                        text = uiState.qrCodeText,
+                        text = uiState.qrCodeBase64,
                         size = 240.dp
                     )
                 }

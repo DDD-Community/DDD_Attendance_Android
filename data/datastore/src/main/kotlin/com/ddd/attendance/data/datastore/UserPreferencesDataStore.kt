@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -36,6 +37,19 @@ class UserPreferencesDataStore @Inject constructor(
         // 온보딩 전 임시 저장용
         private val KEY_TEMP_OAUTH_TOKEN = stringPreferencesKey("temp_oauth_token")
         private val KEY_TEMP_OAUTH_PROVIDER = stringPreferencesKey("temp_oauth_provider")
+
+        // 출석 통계
+        private val KEY_TOTAL_ATTENDED = intPreferencesKey("total_attended")
+        private val KEY_TOTAL_LATE = intPreferencesKey("total_late")
+        private val KEY_TOTAL_ABSENT = intPreferencesKey("total_absent")
+
+        // QR 데이터
+        private val KEY_QR_ID = longPreferencesKey("qr_id")
+        private val KEY_QR_BASE64 = stringPreferencesKey("qr_base64")
+
+        // 활동 기간
+        private val KEY_ACTIVITY_START_DATE = stringPreferencesKey("activity_start_date")
+        private val KEY_ACTIVITY_END_DATE = stringPreferencesKey("activity_end_date")
     }
 
     suspend fun saveLoginData(
@@ -98,6 +112,13 @@ class UserPreferencesDataStore @Inject constructor(
         preferences[KEY_REFRESH_TOKEN]
     }
 
+    // 임시 accessToken 저장 (테스트용)
+    suspend fun saveAccessToken(accessToken: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_ACCESS_TOKEN] = accessToken
+        }
+    }
+
     suspend fun clearAll() {
         dataStore.edit { preferences ->
             preferences.clear()
@@ -125,5 +146,62 @@ class UserPreferencesDataStore @Inject constructor(
             preferences.remove(KEY_TEMP_OAUTH_TOKEN)
             preferences.remove(KEY_TEMP_OAUTH_PROVIDER)
         }
+    }
+
+    // 출석 통계 저장
+    suspend fun saveAttendanceData(
+        totalAttended: Int,
+        totalLate: Int,
+        totalAbsent: Int
+    ) {
+        dataStore.edit { preferences ->
+            preferences[KEY_TOTAL_ATTENDED] = totalAttended
+            preferences[KEY_TOTAL_LATE] = totalLate
+            preferences[KEY_TOTAL_ABSENT] = totalAbsent
+        }
+    }
+
+    val totalAttended: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[KEY_TOTAL_ATTENDED]
+    }
+
+    val totalLate: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[KEY_TOTAL_LATE]
+    }
+
+    val totalAbsent: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[KEY_TOTAL_ABSENT]
+    }
+
+    // QR 데이터 저장
+    suspend fun saveQrData(qrId: Long, qrBase64: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_QR_ID] = qrId
+            preferences[KEY_QR_BASE64] = qrBase64
+        }
+    }
+
+    val qrId: Flow<Long?> = dataStore.data.map { preferences ->
+        preferences[KEY_QR_ID]
+    }
+
+    val qrBase64: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_QR_BASE64]
+    }
+
+    // 활동 기간 저장
+    suspend fun saveActivityPeriod(startDate: String, endDate: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_ACTIVITY_START_DATE] = startDate
+            preferences[KEY_ACTIVITY_END_DATE] = endDate
+        }
+    }
+
+    val activityStartDate: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_ACTIVITY_START_DATE]
+    }
+
+    val activityEndDate: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_ACTIVITY_END_DATE]
     }
 }
