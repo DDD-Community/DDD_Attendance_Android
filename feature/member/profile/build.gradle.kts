@@ -11,4 +11,5 @@ setNamespace("feature.member.profile")
 dependencies {
     implementation(projects.feature.designsystem)
     implementation(projects.feature.core)
+    implementation(projects.domain)
 }

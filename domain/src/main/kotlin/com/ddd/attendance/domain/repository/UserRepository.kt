@@ -28,6 +28,8 @@ interface UserRepository {
     fun getUserId(): Flow<Long>
     fun getUserName(): Flow<String>
     fun getUserGeneration(): Flow<String>
+    fun getUserTeam(): Flow<String>
+    fun getUserJobRole(): Flow<String>
     suspend fun getAttendanceCount(): Int
     suspend fun getLateCount(): Int
     suspend fun getAbsentCount(): Int

@@ -146,6 +146,14 @@ class UserRepositoryImpl @Inject constructor(
         return userPreferencesDataStore.generation.map { it ?: "" }
     }
 
+    override fun getUserTeam(): Flow<String> {
+        return userPreferencesDataStore.team.map { it ?: "" }
+    }
+
+    override fun getUserJobRole(): Flow<String> {
+        return userPreferencesDataStore.jobRole.map { it ?: "" }
+    }
+
     override suspend fun getAttendanceCount(): Int {
         return userPreferencesDataStore.totalAttended.firstOrNull() ?: 0
     }

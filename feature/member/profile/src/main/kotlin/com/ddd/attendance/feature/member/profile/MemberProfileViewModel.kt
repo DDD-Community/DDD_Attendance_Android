@@ -1,11 +1,14 @@
 package com.ddd.attendance.feature.member.profile
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.domain.usecase.GetUserInfoUseCase
 import com.ddd.attendance.feature.core.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class AppInfo(
@@ -24,14 +27,16 @@ data class MemberProfileUiState(
 )
 
 @HiltViewModel
-class MemberProfileViewModel @Inject constructor() : ViewModel() {
-    
+class MemberProfileViewModel @Inject constructor(
+    private val getUserInfoUseCase: GetUserInfoUseCase
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(
         MemberProfileUiState(
-            name = "김디디님",
-            position = "Designer",
-            team = "iOS 2팀",
-            generation = "11기",
+            name = "",
+            position = "",
+            team = "",
+            generation = "",
             organization = "Dynamic Developer Designers",
             appInfo = AppInfo(
                 version = BuildConfig.APP_VERSION,
@@ -40,6 +45,23 @@ class MemberProfileViewModel @Inject constructor() : ViewModel() {
             )
         )
     )
-    
+
     val uiState: StateFlow<MemberProfileUiState> = _uiState.asStateFlow()
+
+    init {
+        loadUserProfile()
+    }
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            getUserInfoUseCase().collect { userInfo ->
+                _uiState.value = _uiState.value.copy(
+                    name = "${userInfo.name}님",
+                    position = userInfo.jobRole,
+                    team = userInfo.team,
+                    generation = userInfo.generation
+                )
+            }
+        }
+    }
 }
