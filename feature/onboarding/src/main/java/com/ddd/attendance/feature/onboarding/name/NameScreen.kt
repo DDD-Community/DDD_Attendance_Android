@@ -90,74 +90,87 @@ internal fun NameField(
 ) {
     val isValid = value.length <= 5
 
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = if (isValid) BorderDisabled else FailError,
-                shape = RoundedCornerShape(16.dp)
-            ),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        BasicTextField(
-            value = value,
-            onValueChange = {
-                if (isValid) {
-                    //문자만 입력 가능
-                    onValueChange(
-                        it.filter { ch -> ch.isLetter() }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = if (isValid) BorderDisabled else FailError,
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = { input ->
+                    val filtered = input.filter { it.isLetter() }
+                    if (filtered.length <= 6) {
+                        onValueChange(filtered)
+                    }
+                },
+                modifier = Modifier
+                    .weight(1F)
+                    .height(56.dp),
+                textStyle = TextStyle(
+                    color = TextPrimary,
+                    fontSize = Typography.bodyMediumM.fontSize
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                decorationBox = { innerTextField ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        innerTextField()
+                    }
+                }
+            )
+
+            Box(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .width(24.dp)
+                    .height(24.dp)
+                    .then(
+                        if (isValid) {
+                            Modifier.clickable {
+                                onValueChange("")
+                            }
+                        } else Modifier
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!isValid) {
+                    Image(
+                        modifier = Modifier.wrapContentSize(),
+                        painter = painterResource(id = R.drawable.error),
+                        contentDescription = "오류 발생",
+                    )
+                } else {
+                    Image(
+                        modifier = Modifier.wrapContentSize(),
+                        painter = painterResource(id = R.drawable.close),
+                        contentDescription = "전체 제거",
                     )
                 }
-            },
-            modifier = Modifier
-                .weight(1F)
-                .height(56.dp),
-            textStyle = TextStyle(
-                color = TextPrimary,
-                fontSize = Typography.bodyMediumM.fontSize
-            ),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            decorationBox = { innerTextField ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    innerTextField()
-                }
             }
-        )
+        }
 
-        Box(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .width(24.dp)
-                .height(24.dp)
-                .then(
-                    if (isValid) {
-                        Modifier.clickable {
-                            onValueChange("")
-                        }
-                    } else Modifier
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            if (!isValid) {
-                Image(
-                    modifier = Modifier.wrapContentSize(),
-                    painter = painterResource(id = R.drawable.error),
-                    contentDescription = "오류 발생",
-                )
-            } else {
-                Image(
-                    modifier = Modifier.wrapContentSize(),
-                    painter = painterResource(id = R.drawable.close),
-                    contentDescription = "전체 제거",
-                )
-            }
+        if (!isValid) {
+            Spacer(modifier = Modifier.height(4.dp))
+
+            DddText(
+                text = stringResource(R.string.name_hint),
+                style = Typography.bodySmallR,
+                color = FailError,
+            )
         }
     }
 }
