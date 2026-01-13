@@ -16,6 +16,7 @@ interface UserRepository {
         token: String,
         invitationCode: String
     ): Flow<Users>
+    suspend fun completeOnboardingAndLogin(): Result<Unit>
     suspend fun isUserLoggedIn(): Boolean
     suspend fun getUserRole(): String?
     suspend fun hasTempOAuthToken(): Boolean

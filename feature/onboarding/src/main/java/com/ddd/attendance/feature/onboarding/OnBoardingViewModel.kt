@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
-import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.onboarding.ItemSelect
+import com.ddd.attendance.domain.usecase.CompleteOnboardingAndLoginUseCase
 import com.ddd.attendance.domain.usecase.GetAdminSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetMemberSelectListUseCase
-import com.ddd.attendance.domain.usecase.LoginUseCase
+import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import com.ddd.attendance.domain.usecase.UsersSaveUseCase
 import com.ddd.attendance.domain.usecase.VerifyCodeUseCase
 import com.ddd.attendance.feature.core.model.UserType
@@ -40,7 +40,8 @@ class OnBoardingViewModel @Inject constructor(
     private val getAdminSelectListUseCase: GetAdminSelectListUseCase,
     private val getMemberSelectListUseCase: GetMemberSelectListUseCase,
     private val usersSaveUseCase: UsersSaveUseCase,
-    private val loginUseCase: LoginUseCase,
+    private val completeOnboardingAndLoginUseCase: CompleteOnboardingAndLoginUseCase,
+    private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase,
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : ViewModel() {
 
@@ -217,7 +218,15 @@ class OnBoardingViewModel @Inject constructor(
     }
 
     private fun goToHome() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToHome) }
+        viewModelScope.launch {
+            val destination = getUserNavigationDestinationUseCase()
+            val route = when (destination) {
+                is com.ddd.attendance.domain.model.NavigationDestination.Member -> "MEMBER_MAIN"
+                is com.ddd.attendance.domain.model.NavigationDestination.Manager -> "ADMIN_MAIN"
+                else -> "MEMBER_MAIN"
+            }
+            _navigationEvent.emit(NavigationEvent.GoToDestination(route))
+        }
     }
 
     private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
@@ -280,7 +289,7 @@ class OnBoardingViewModel @Inject constructor(
     fun submitOnboarding() {
         val state = _uiState.value
         submitOnboardingFlow(state)
-            .flatMapConcat { loginUseCase(LoginType.GOOGLE) }
+            .flatMapConcat { completeOnboardingAndLoginUseCase() }
             .onEach { goToHome() }
             .catch { e -> _navigationEvent.emit(NavigationEvent.FailOnBoarding(e.message.orEmpty())) }
             .launchIn(viewModelScope)
@@ -306,7 +315,6 @@ class OnBoardingViewModel @Inject constructor(
                 """.trimIndent()
         )
 
-        //TODO: users/api 호출
         usersSaveUseCase(
             name = state.name,
             generationId = state.generationId,
@@ -343,6 +351,7 @@ class OnBoardingViewModel @Inject constructor(
     }
 
     private companion object {
+        const val TAG = "OnBoardingViewModel"
         const val MAX_STEP_INDEX = 3
         const val PIN_CODE_LENGTH = 4
     }

@@ -53,8 +53,8 @@ fun OnBoardingScreen(
                 is NavigationEvent.PopBackStack -> {
                     navController.popBackStack()
                 }
-                is NavigationEvent.GoToHome -> {
-                    navController.navigate("ADMIN_MAIN")
+                is NavigationEvent.GoToDestination -> {
+                    navController.navigate(event.destination)
                 }
                 is NavigationEvent.FailOnBoarding -> {
                     Log.d("OnBoardingScreen", event.message)

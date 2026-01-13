@@ -13,7 +13,7 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
             !isUserLoggedIn() -> NavigationDestination.Login
             !isOnboardingCompleted() -> NavigationDestination.OnBoarding
             isManagerRole() -> NavigationDestination.Manager
-            else -> NavigationDestination.OnBoarding
+            else -> NavigationDestination.Member
         }
     }
 
@@ -33,7 +33,6 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
 
     private suspend fun isManagerRole(): Boolean {
         val role = userRepository.getUserRole()
-        // TODO: 실제 역할 체크 로직 구현 (API 응답에 role 필드가 추가되면 수정 필요)
-        return false
+        return role?.uppercase() == "ADMIN" || role?.uppercase() == "MANAGER"
     }
 }

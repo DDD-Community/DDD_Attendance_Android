@@ -26,12 +26,12 @@ class UserPreferencesDataStore @Inject constructor(
         private val KEY_USER_ID = longPreferencesKey("user_id")
         private val KEY_NAME = stringPreferencesKey("name")
         private val KEY_EMAIL = stringPreferencesKey("email")
-        private val KEY_OAUTH_PROVIDER = stringPreferencesKey("oauth_provider")
-        private val KEY_MESSAGE = stringPreferencesKey("message")
-        private val KEY_IS_NEW_USER = booleanPreferencesKey("is_new_user")
+        private val KEY_GENERATION = stringPreferencesKey("generation")
+        private val KEY_TEAM = stringPreferencesKey("team")
+        private val KEY_JOB_ROLE = stringPreferencesKey("job_role")
+        private val KEY_ROLE = stringPreferencesKey("role")
         private val KEY_ACCESS_TOKEN = stringPreferencesKey("access_token")
         private val KEY_REFRESH_TOKEN = stringPreferencesKey("refresh_token")
-        private val KEY_OAUTH_REFRESH_TOKEN = stringPreferencesKey("oauth_refresh_token")
 
         // 온보딩 전 임시 저장용
         private val KEY_TEMP_OAUTH_TOKEN = stringPreferencesKey("temp_oauth_token")
@@ -42,9 +42,10 @@ class UserPreferencesDataStore @Inject constructor(
         userId: Long,
         name: String,
         email: String,
-        oauthProvider: String,
-        message: String,
-        isNewUser: Boolean,
+        generation: String,
+        team: String,
+        jobRole: String,
+        role: String,
         accessToken: String,
         refreshToken: String
     ) {
@@ -52,9 +53,10 @@ class UserPreferencesDataStore @Inject constructor(
             preferences[KEY_USER_ID] = userId
             preferences[KEY_NAME] = name
             preferences[KEY_EMAIL] = email
-            preferences[KEY_OAUTH_PROVIDER] = oauthProvider
-            preferences[KEY_MESSAGE] = message
-            preferences[KEY_IS_NEW_USER] = isNewUser
+            preferences[KEY_GENERATION] = generation
+            preferences[KEY_TEAM] = team
+            preferences[KEY_JOB_ROLE] = jobRole
+            preferences[KEY_ROLE] = role
             preferences[KEY_ACCESS_TOKEN] = accessToken
             preferences[KEY_REFRESH_TOKEN] = refreshToken
         }
@@ -72,16 +74,20 @@ class UserPreferencesDataStore @Inject constructor(
         preferences[KEY_EMAIL]
     }
 
-    val oauthProvider: Flow<String?> = dataStore.data.map { preferences ->
-        preferences[KEY_OAUTH_PROVIDER]
+    val generation: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_GENERATION]
     }
 
-    val message: Flow<String?> = dataStore.data.map { preferences ->
-        preferences[KEY_MESSAGE]
+    val team: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_TEAM]
     }
 
-    val isNewUser: Flow<Boolean?> = dataStore.data.map { preferences ->
-        preferences[KEY_IS_NEW_USER]
+    val jobRole: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_JOB_ROLE]
+    }
+
+    val role: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_ROLE]
     }
 
     val accessToken: Flow<String?> = dataStore.data.map { preferences ->

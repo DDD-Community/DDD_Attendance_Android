@@ -77,11 +77,35 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserRole(): String? {
-        return userPreferencesDataStore.oauthProvider.firstOrNull()
+        return userPreferencesDataStore.role.firstOrNull()
     }
 
     override suspend fun hasTempOAuthToken(): Boolean {
         val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
         return !tempToken.isNullOrEmpty()
+    }
+
+    override suspend fun completeOnboardingAndLogin(): Result<Unit> {
+        return try {
+            // 임시 저장된 OAuth 토큰 가져오기
+            val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
+
+            if (tempToken.isNullOrEmpty()) {
+                return Result.failure(IllegalStateException("No temp OAuth token found"))
+            }
+
+            // API 로그인 호출
+            val apiResult = apiLoginDataSource.login(tempToken)
+
+            if (apiResult.isSuccess) {
+                // 임시 토큰 삭제
+                userPreferencesDataStore.clearTempOAuthData()
+                Result.success(Unit)
+            } else {
+                apiResult
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
