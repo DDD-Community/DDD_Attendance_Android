@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -36,6 +37,11 @@ class UserPreferencesDataStore @Inject constructor(
         // 온보딩 전 임시 저장용
         private val KEY_TEMP_OAUTH_TOKEN = stringPreferencesKey("temp_oauth_token")
         private val KEY_TEMP_OAUTH_PROVIDER = stringPreferencesKey("temp_oauth_provider")
+
+        // 출석 통계
+        private val KEY_TOTAL_ATTENDED = intPreferencesKey("total_attended")
+        private val KEY_TOTAL_LATE = intPreferencesKey("total_late")
+        private val KEY_TOTAL_ABSENT = intPreferencesKey("total_absent")
     }
 
     suspend fun saveLoginData(
@@ -125,5 +131,30 @@ class UserPreferencesDataStore @Inject constructor(
             preferences.remove(KEY_TEMP_OAUTH_TOKEN)
             preferences.remove(KEY_TEMP_OAUTH_PROVIDER)
         }
+    }
+
+    // 출석 통계 저장
+    suspend fun saveAttendanceData(
+        totalAttended: Int,
+        totalLate: Int,
+        totalAbsent: Int
+    ) {
+        dataStore.edit { preferences ->
+            preferences[KEY_TOTAL_ATTENDED] = totalAttended
+            preferences[KEY_TOTAL_LATE] = totalLate
+            preferences[KEY_TOTAL_ABSENT] = totalAbsent
+        }
+    }
+
+    val totalAttended: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[KEY_TOTAL_ATTENDED]
+    }
+
+    val totalLate: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[KEY_TOTAL_LATE]
+    }
+
+    val totalAbsent: Flow<Int?> = dataStore.data.map { preferences ->
+        preferences[KEY_TOTAL_ABSENT]
     }
 }

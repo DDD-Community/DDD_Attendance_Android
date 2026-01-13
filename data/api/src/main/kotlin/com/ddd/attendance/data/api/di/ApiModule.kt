@@ -2,12 +2,16 @@ package com.ddd.attendance.data.api.di
 
 import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.BuildConfig
+import com.ddd.attendance.data.api.MeApi
 import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.api.UsersApi
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
+import com.ddd.attendance.data.api.datasource.ApiMeDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiOnboardingDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiUsersDataSourceImpl
+import com.ddd.attendance.data.api.interceptor.AuthInterceptor
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
+import com.ddd.attendance.data.datasource.ApiMeDataSource
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
 import com.ddd.attendance.data.datasource.ApiUsersDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -35,8 +39,11 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder().apply {
+            addInterceptor(authInterceptor)
             if (BuildConfig.DEBUG) {
                 addInterceptor(
                     HttpLoggingInterceptor().apply {
@@ -80,7 +87,17 @@ object ApiModule {
 
     @Provides
     @Singleton
+    fun provideMeService(retrofit: Retrofit): MeApi {
+        return retrofit.create(MeApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
+
+    @Provides
+    @Singleton
+    fun provideApiMeDataSource(impl: ApiMeDataSourceImpl): ApiMeDataSource = impl
 
     @Provides
     @Singleton

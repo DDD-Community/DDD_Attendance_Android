@@ -1,6 +1,7 @@
 package com.ddd.attendance.domain.repository
 
 import com.ddd.attendance.domain.model.LoginType
+import com.ddd.attendance.domain.model.Schedule
 import com.ddd.attendance.domain.model.users.Users
 import kotlinx.coroutines.flow.Flow
 
@@ -20,5 +21,11 @@ interface UserRepository {
     suspend fun isUserLoggedIn(): Boolean
     suspend fun getUserRole(): String?
     suspend fun hasTempOAuthToken(): Boolean
-
+    suspend fun getMe(): Result<Unit>
+    suspend fun getSchedules(): Result<List<Schedule>>
+    fun getUserName(): Flow<String>
+    fun getUserGeneration(): Flow<String>
+    suspend fun getAttendanceCount(): Int
+    suspend fun getLateCount(): Int
+    suspend fun getAbsentCount(): Int
 }
