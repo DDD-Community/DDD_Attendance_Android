@@ -8,6 +8,7 @@ import com.ddd.attendance.domain.model.onboarding.ItemSelect
 import com.ddd.attendance.domain.usecase.CompleteOnboardingAndLoginUseCase
 import com.ddd.attendance.domain.usecase.GetAdminSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetMemberSelectListUseCase
+import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import com.ddd.attendance.domain.usecase.UsersSaveUseCase
 import com.ddd.attendance.domain.usecase.VerifyCodeUseCase
 import com.ddd.attendance.feature.core.model.UserType
@@ -40,6 +41,7 @@ class OnBoardingViewModel @Inject constructor(
     private val getMemberSelectListUseCase: GetMemberSelectListUseCase,
     private val usersSaveUseCase: UsersSaveUseCase,
     private val completeOnboardingAndLoginUseCase: CompleteOnboardingAndLoginUseCase,
+    private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase,
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : ViewModel() {
 
@@ -216,7 +218,15 @@ class OnBoardingViewModel @Inject constructor(
     }
 
     private fun goToHome() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToHome) }
+        viewModelScope.launch {
+            val destination = getUserNavigationDestinationUseCase()
+            val route = when (destination) {
+                is com.ddd.attendance.domain.model.NavigationDestination.Member -> "MEMBER_MAIN"
+                is com.ddd.attendance.domain.model.NavigationDestination.Manager -> "ADMIN_MAIN"
+                else -> "MEMBER_MAIN"
+            }
+            _navigationEvent.emit(NavigationEvent.GoToDestination(route))
+        }
     }
 
     private fun moveToStep(state: OnBoardingUiState, nextIndex: Int): OnBoardingUiState {
@@ -305,7 +315,6 @@ class OnBoardingViewModel @Inject constructor(
                 """.trimIndent()
         )
 
-        //TODO: users/api 호출
         usersSaveUseCase(
             name = state.name,
             generationId = state.generationId,
