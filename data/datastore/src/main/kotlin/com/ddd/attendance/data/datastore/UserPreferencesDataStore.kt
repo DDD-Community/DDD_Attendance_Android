@@ -46,8 +46,7 @@ class UserPreferencesDataStore @Inject constructor(
         message: String,
         isNewUser: Boolean,
         accessToken: String,
-        refreshToken: String,
-        oauthRefreshToken: String
+        refreshToken: String
     ) {
         dataStore.edit { preferences ->
             preferences[KEY_USER_ID] = userId
@@ -58,7 +57,6 @@ class UserPreferencesDataStore @Inject constructor(
             preferences[KEY_IS_NEW_USER] = isNewUser
             preferences[KEY_ACCESS_TOKEN] = accessToken
             preferences[KEY_REFRESH_TOKEN] = refreshToken
-            preferences[KEY_OAUTH_REFRESH_TOKEN] = oauthRefreshToken
         }
     }
 
@@ -92,10 +90,6 @@ class UserPreferencesDataStore @Inject constructor(
 
     val refreshToken: Flow<String?> = dataStore.data.map { preferences ->
         preferences[KEY_REFRESH_TOKEN]
-    }
-
-    val oauthRefreshToken: Flow<String?> = dataStore.data.map { preferences ->
-        preferences[KEY_OAUTH_REFRESH_TOKEN]
     }
 
     suspend fun clearAll() {
