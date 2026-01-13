@@ -8,5 +8,7 @@ data class AdminProfileUiState(
     val task: String,
     val organization: String,
     val appInfo: AppInfo,
-    val isShowContributorBottomSheet: Boolean = false
+    val isShowContributorBottomSheet: Boolean = false,
+    val isShowWithdrawAccountPopup: Boolean = false,
+    val isShowLogoutPopup: Boolean = false,
 )

@@ -42,6 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.feature.core.contributor.ContributorBottomSheet
+import com.ddd.attendance.feature.core.popup.TwoButtonTitleContentPopup
 import com.ddd.attendance.feature.designsystem.component.DddIconButton
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
@@ -74,15 +75,20 @@ fun AdminProfileScreen(
         privacyPolicyText = uiState.appInfo.privacyPolicyText,
         privacyPolicyUrl = uiState.appInfo.privacyPolicyUrl,
         isShowContributorBottomSheet = uiState.isShowContributorBottomSheet,
+        isShowWithdrawAccountPopup = uiState.isShowWithdrawAccountPopup,
+        isShowLogoutPopup = uiState.isShowLogoutPopup,
+        onLogoutPopupEvent = { isShow ->
+            viewModel.onIntent(AdminProfileIntent.ShowLogout(isShow))
+        },
+        onWithdrawAccountPopupEvent = { isShow ->
+            viewModel.onIntent(AdminProfileIntent.ShowWithdrawAccount(isShow))
+        },
+        onContributorBottomSheetEvent = { isShow ->
+            viewModel.onIntent(AdminProfileIntent.ShowContributor(isShow))
+        },
         onBackClick = {
             viewModel.onIntent(AdminProfileIntent.PopBackStack)
         },
-        onInfoClick  = {
-            viewModel.onIntent(AdminProfileIntent.ShowContributorBottomSheet)
-        },
-        onContributorBottomSheetDismiss = {
-            viewModel.onIntent(AdminProfileIntent.HideContributorBottomSheet)
-        }
     )
 }
 
@@ -98,9 +104,12 @@ private fun Content(
     privacyPolicyUrl: String,
     privacyPolicyText: String,
     isShowContributorBottomSheet: Boolean,
+    isShowWithdrawAccountPopup: Boolean,
+    isShowLogoutPopup: Boolean,
+    onWithdrawAccountPopupEvent: (isShow: Boolean) -> Unit,
+    onLogoutPopupEvent: (isShow: Boolean) -> Unit,
+    onContributorBottomSheetEvent: (isShow: Boolean) -> Unit,
     onBackClick: () -> Unit,
-    onInfoClick: () -> Unit,
-    onContributorBottomSheetDismiss: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -114,7 +123,9 @@ private fun Content(
         ) {
             AdminProfileHeader(
                 onBackClick = onBackClick,
-                onInfoClick = onInfoClick
+                onInfoClick = {
+                    onContributorBottomSheetEvent(it)
+                }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -134,7 +145,13 @@ private fun Content(
             AdminBottomSection(
                 version = version,
                 privacyPolicyText = privacyPolicyText,
-                privacyPolicyUrl = privacyPolicyUrl
+                privacyPolicyUrl = privacyPolicyUrl,
+                onWithdrawAccountPopupEvent = {
+                    onWithdrawAccountPopupEvent(it)
+                },
+                onLogoutPopupEvent = {
+                    onLogoutPopupEvent(it)
+                }
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -145,7 +162,36 @@ private fun Content(
             onFeedback = {
 
             },
-            onDismiss = onContributorBottomSheetDismiss
+            onDismiss = {
+                onContributorBottomSheetEvent(it)
+            }
+        )
+
+        TwoButtonTitleContentPopup(
+            isShow = isShowWithdrawAccountPopup,
+            titleText = stringResource(R.string.withdrawal_confirm_title),
+            contentText = stringResource(R.string.withdrawal_warning_content),
+            confirmText = stringResource(R.string.withdraw_account),
+            onConfirm = {
+                //탈퇴 api 요청
+            },
+            cancelText = stringResource(R.string.cancel),
+            onCancel = {
+                onWithdrawAccountPopupEvent(false)
+            }
+        )
+
+        TwoButtonTitleContentPopup(
+            isShow = isShowLogoutPopup,
+            titleText = stringResource(R.string.logout_confirm_title),
+            confirmText = stringResource(R.string.logout),
+            onConfirm = {
+                //로그아웃 api 요청
+            },
+            cancelText = stringResource(R.string.cancel),
+            onCancel = {
+                onLogoutPopupEvent(false)
+            }
         )
     }
 }
@@ -153,7 +199,7 @@ private fun Content(
 @Composable
 private fun AdminProfileHeader(
     onBackClick: () -> Unit,
-    onInfoClick: () -> Unit
+    onInfoClick: (isShow: Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -178,7 +224,7 @@ private fun AdminProfileHeader(
             enabledIconRes = com.ddd.attendance.feature.core.R.drawable.ic_info,
             disabledIconRes = com.ddd.attendance.feature.core.R.drawable.ic_info,
         ) {
-            onInfoClick()
+            onInfoClick(true)
         }
     }
 }
@@ -326,16 +372,16 @@ private fun AdminBottomSection(
     modifier: Modifier = Modifier,
     version: String,
     privacyPolicyText: String,
-    privacyPolicyUrl: String
+    privacyPolicyUrl: String,
+    onWithdrawAccountPopupEvent: (isShow: Boolean) -> Unit,
+    onLogoutPopupEvent: (isShow: Boolean) -> Unit
 ) {
     val context = LocalContext.current
 
-    // 하단 메뉴
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 탈퇴하기, 로그아웃을 가로로 배치
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -350,7 +396,7 @@ private fun AdminBottomSection(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     ) {
-                        /* TODO: 탈퇴하기 클릭 */
+                        onWithdrawAccountPopupEvent(true)
                     },
                 text = stringResource(R.string.withdraw_account),
                 style = Typography.titleSmallM,
@@ -367,7 +413,7 @@ private fun AdminBottomSection(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     ) {
-                        /* TODO: 로그아웃 클릭 */
+                        onLogoutPopupEvent(true)
                     },
                 text = stringResource(R.string.logout),
                 style = Typography.titleSmallM,

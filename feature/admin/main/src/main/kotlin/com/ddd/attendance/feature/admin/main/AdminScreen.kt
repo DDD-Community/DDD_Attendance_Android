@@ -51,6 +51,7 @@ import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
 import com.ddd.attendance.feature.admin.schedule.model.Schedule
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
+import com.ddd.attendance.feature.core.popup.OneButtonTitleContentPopup
 import com.ddd.attendance.feature.core.qr.QrScanState
 import com.ddd.attendance.feature.core.qr.composable.QrScannerScreen
 import com.ddd.attendance.feature.designsystem.component.DddIconButton
@@ -265,8 +266,10 @@ internal fun Content(
             onScheduleItemClick = { onScheduleItemClick(it) }
         )
 
-        AbsentNotificationPopup(
-            isShow = isShowAbsentNotificationPopup
+        OneButtonTitleContentPopup(
+            isShow = isShowAbsentNotificationPopup,
+            titleText = stringResource(R.string.schedule_warning_title),
+            contentText = stringResource(R.string.schedule_late_penalty_message)
         ) {
             onAbsentNotificationDismiss()
         }

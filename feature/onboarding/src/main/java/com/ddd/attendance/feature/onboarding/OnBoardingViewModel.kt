@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
-import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.onboarding.ItemSelect
 import com.ddd.attendance.domain.usecase.GetAdminSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetMemberSelectListUseCase
@@ -25,11 +24,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -278,12 +273,13 @@ class OnBoardingViewModel @Inject constructor(
     }
 
     fun submitOnboarding() {
-        val state = _uiState.value
+        goToHome()
+        /*val state = _uiState.value
         submitOnboardingFlow(state)
             .flatMapConcat { loginUseCase(LoginType.GOOGLE) }
             .onEach { goToHome() }
             .catch { e -> _navigationEvent.emit(NavigationEvent.FailOnBoarding(e.message.orEmpty())) }
-            .launchIn(viewModelScope)
+            .launchIn(viewModelScope)*/
     }
 
     private fun submitOnboardingFlow(

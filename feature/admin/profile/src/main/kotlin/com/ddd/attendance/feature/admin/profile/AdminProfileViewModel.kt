@@ -53,8 +53,9 @@ class AdminProfileViewModel @Inject constructor() : ViewModel() {
         intent: AdminProfileIntent
     ): AdminProfileUiState {
         return when (intent) {
-            is AdminProfileIntent.ShowContributorBottomSheet -> state.copy(isShowContributorBottomSheet = true)
-            is AdminProfileIntent.HideContributorBottomSheet -> state.copy(isShowContributorBottomSheet = false)
+            is AdminProfileIntent.ShowContributor -> state.copy(isShowContributorBottomSheet = intent.isShow)
+            is AdminProfileIntent.ShowWithdrawAccount -> state.copy(isShowWithdrawAccountPopup = intent.isShow)
+            is AdminProfileIntent.ShowLogout -> state.copy(isShowLogoutPopup = intent.isShow)
             else -> state
         }
     }
