@@ -46,6 +46,10 @@ class UserPreferencesDataStore @Inject constructor(
         // QR 데이터
         private val KEY_QR_ID = longPreferencesKey("qr_id")
         private val KEY_QR_BASE64 = stringPreferencesKey("qr_base64")
+
+        // 활동 기간
+        private val KEY_ACTIVITY_START_DATE = stringPreferencesKey("activity_start_date")
+        private val KEY_ACTIVITY_END_DATE = stringPreferencesKey("activity_end_date")
     }
 
     suspend fun saveLoginData(
@@ -106,6 +110,13 @@ class UserPreferencesDataStore @Inject constructor(
 
     val refreshToken: Flow<String?> = dataStore.data.map { preferences ->
         preferences[KEY_REFRESH_TOKEN]
+    }
+
+    // 임시 accessToken 저장 (테스트용)
+    suspend fun saveAccessToken(accessToken: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_ACCESS_TOKEN] = accessToken
+        }
     }
 
     suspend fun clearAll() {
@@ -176,5 +187,21 @@ class UserPreferencesDataStore @Inject constructor(
 
     val qrBase64: Flow<String?> = dataStore.data.map { preferences ->
         preferences[KEY_QR_BASE64]
+    }
+
+    // 활동 기간 저장
+    suspend fun saveActivityPeriod(startDate: String, endDate: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_ACTIVITY_START_DATE] = startDate
+            preferences[KEY_ACTIVITY_END_DATE] = endDate
+        }
+    }
+
+    val activityStartDate: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_ACTIVITY_START_DATE]
+    }
+
+    val activityEndDate: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[KEY_ACTIVITY_END_DATE]
     }
 }

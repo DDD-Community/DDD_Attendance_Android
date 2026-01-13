@@ -2,6 +2,7 @@ package com.ddd.attendance.data.repository
 
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.ddd.attendance.data.datasource.ApiMeDataSource
+import com.ddd.attendance.data.datasource.ApiSchedulesDataSource
 import com.ddd.attendance.data.datasource.ApiUsersDataSource
 import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
@@ -22,6 +23,7 @@ class UserRepositoryImpl @Inject constructor(
     private val apiLoginDataSource: ApiLoginDataSource,
     private val apiUsersDataSource: ApiUsersDataSource,
     private val apiMeDataSource: ApiMeDataSource,
+    private val apiSchedulesDataSource: ApiSchedulesDataSource,
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : UserRepository {
     
@@ -154,5 +156,24 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getAbsentCount(): Int {
         return userPreferencesDataStore.totalAbsent.firstOrNull() ?: 0
+    }
+
+    override suspend fun fetchActivitySchedules(): Result<Unit> {
+        return apiSchedulesDataSource.getSchedules().map { Unit }
+    }
+
+    override fun getActivityPeriod(): Flow<String> {
+        return userPreferencesDataStore.activityStartDate.map { startDate ->
+            val endDate = userPreferencesDataStore.activityEndDate.firstOrNull()
+            if (startDate != null && endDate != null) {
+                "$startDate - $endDate"
+            } else {
+                ""
+            }
+        }
+    }
+
+    override suspend fun saveAccessToken(accessToken: String) {
+        userPreferencesDataStore.saveAccessToken(accessToken)
     }
 }

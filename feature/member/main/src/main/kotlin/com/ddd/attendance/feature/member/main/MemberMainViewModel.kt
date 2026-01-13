@@ -55,6 +55,10 @@ class MemberMainViewModel @Inject constructor(
     val uiState: StateFlow<MemberMainUiState> = _uiState.asStateFlow()
 
     init {
+        // 임시 accessToken 저장 (테스트용)
+//        viewModelScope.launch {
+//            userRepository.saveAccessToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2OCIsImlhdCI6MTc2ODI5MTU5MCwiZXhwIjoxNzY4Mjk1MTkwLCJyb2xlIjoiTUVNQkVSIn0.cUND7w8m8ZWlHpMt2D3EfSQaoY3F3DAAOeEQs22bLdk")
+//        }
         loadUserData()
     }
 
@@ -63,24 +67,31 @@ class MemberMainViewModel @Inject constructor(
             // 먼저 me API를 호출하여 사용자 데이터를 최신 상태로 업데이트
             userRepository.getMe()
 
+            // 활동 스케줄 데이터 가져오기 (활동 기간 계산)
+            userRepository.fetchActivitySchedules()
+
             // 스케줄 데이터 가져오기
             val schedulesResult = userRepository.getSchedules()
             val scheduleItems = schedulesResult.getOrNull()?.let { schedules ->
                 schedules.map { it.toScheduleItem() }
             } ?: emptyList()
 
-            // API 호출 후 DataStore에서 데이터를 가져와서 UI 업데이트
-            getUserInfoUseCase().collect { userInfo ->
-                _uiState.value = _uiState.value.copy(
-                    memberName = userInfo.name,
-                    generationNumber = extractGenerationNumber(userInfo.generation),
-                    attendanceStats = AttendanceStats(
-                        attendance = userInfo.attendanceCount,
-                        late = userInfo.lateCount,
-                        absent = userInfo.absentCount
-                    ),
-                    scheduleItems = scheduleItems
-                )
+            // 활동 기간 가져오기
+            userRepository.getActivityPeriod().collect { activityPeriod ->
+                // API 호출 후 DataStore에서 데이터를 가져와서 UI 업데이트
+                getUserInfoUseCase().collect { userInfo ->
+                    _uiState.value = _uiState.value.copy(
+                        memberName = userInfo.name,
+                        generationNumber = extractGenerationNumber(userInfo.generation),
+                        activityPeriod = activityPeriod.ifEmpty { _uiState.value.activityPeriod },
+                        attendanceStats = AttendanceStats(
+                            attendance = userInfo.attendanceCount,
+                            late = userInfo.lateCount,
+                            absent = userInfo.absentCount
+                        ),
+                        scheduleItems = scheduleItems
+                    )
+                }
             }
         }
     }

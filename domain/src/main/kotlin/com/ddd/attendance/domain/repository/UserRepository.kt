@@ -31,4 +31,7 @@ interface UserRepository {
     suspend fun getAttendanceCount(): Int
     suspend fun getLateCount(): Int
     suspend fun getAbsentCount(): Int
+    suspend fun fetchActivitySchedules(): Result<Unit>
+    fun getActivityPeriod(): Flow<String>
+    suspend fun saveAccessToken(accessToken: String)
 }

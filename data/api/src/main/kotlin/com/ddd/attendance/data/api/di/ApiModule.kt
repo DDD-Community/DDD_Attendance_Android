@@ -4,15 +4,18 @@ import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.BuildConfig
 import com.ddd.attendance.data.api.MeApi
 import com.ddd.attendance.data.api.OnboardingApi
+import com.ddd.attendance.data.api.SchedulesApi
 import com.ddd.attendance.data.api.UsersApi
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiMeDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiOnboardingDataSourceImpl
+import com.ddd.attendance.data.api.datasource.ApiSchedulesDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiUsersDataSourceImpl
 import com.ddd.attendance.data.api.interceptor.AuthInterceptor
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.ddd.attendance.data.datasource.ApiMeDataSource
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
+import com.ddd.attendance.data.datasource.ApiSchedulesDataSource
 import com.ddd.attendance.data.datasource.ApiUsersDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -93,6 +96,12 @@ object ApiModule {
 
     @Provides
     @Singleton
+    fun provideSchedulesService(retrofit: Retrofit): SchedulesApi {
+        return retrofit.create(SchedulesApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
 
     @Provides
@@ -106,5 +115,9 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideApiUsersDataSource(impl: ApiUsersDataSourceImpl): ApiUsersDataSource = impl
+
+    @Provides
+    @Singleton
+    fun provideApiSchedulesDataSource(impl: ApiSchedulesDataSourceImpl): ApiSchedulesDataSource = impl
 
 }
