@@ -77,7 +77,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserRole(): String? {
-        return userPreferencesDataStore.oauthProvider.firstOrNull()
+        return userPreferencesDataStore.role.firstOrNull()
     }
 
     override suspend fun hasTempOAuthToken(): Boolean {
