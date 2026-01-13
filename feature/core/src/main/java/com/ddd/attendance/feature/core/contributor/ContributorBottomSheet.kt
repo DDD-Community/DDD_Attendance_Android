@@ -38,7 +38,7 @@ fun ContributorBottomSheet(
     dragHandleColor: Color = Color(0xFF323537),
     backgroundColor: Color = BackgroundDefault,
     onFeedback: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: (isShow: Boolean) -> Unit
 ) {
     if (!isShow) return
 
@@ -131,7 +131,9 @@ fun ContributorBottomSheet(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     height = 58.dp,
                     text = stringResource(R.string.confirm),
-                    onClick = onDismiss
+                    onClick = {
+                        onDismiss(false)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(40.dp))

@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -288,6 +287,7 @@ class OnBoardingViewModel @Inject constructor(
 
     fun submitOnboarding() {
         val state = _uiState.value
+        
         submitOnboardingFlow(state)
             .flatMapConcat { completeOnboardingAndLoginUseCase() }
             .onEach { goToHome() }
