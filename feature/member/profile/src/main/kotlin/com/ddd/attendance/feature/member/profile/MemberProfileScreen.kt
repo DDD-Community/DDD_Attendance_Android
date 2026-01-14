@@ -20,6 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.ddd.attendance.feature.core.contributor.ContributorBottomSheet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +45,9 @@ fun MemberProfileScreen(
     viewModel: MemberProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+    val context = LocalContext.current
+    var showContributorBottomSheet by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +58,7 @@ fun MemberProfileScreen(
         ) {
             MemberProfileHeader(
                 onBackClick = { navController.popBackStack() },
-                onInfoClick = { /* TODO: 정보 버튼 클릭 */ }
+                onInfoClick = { showContributorBottomSheet = true }
             )
 
             ProfileCard(
@@ -70,6 +76,14 @@ fun MemberProfileScreen(
                 uiState = uiState,
             )
         }
+
+        ContributorBottomSheet(
+            isShow = showContributorBottomSheet,
+            onFeedback = {
+                openUrl(context, "https://forms.gle/your-feedback-form")
+            },
+            onDismiss = { showContributorBottomSheet = false }
+        )
     }
 }
 
