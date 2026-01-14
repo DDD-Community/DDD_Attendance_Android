@@ -15,4 +15,9 @@
     <string name="assigned_task">담당 업무</string>
     <string name="contributors">만든 사람들</string>
     <string name="app_feedback">앱 피드백 남기기</string>
+    <string name="withdraw_account">탈퇴하기</string>
+    <string name="logout">로그아웃</string>
+    <string name="logout_confirm_title">로그아웃 하시겠습니까?</string>
+    <string name="withdrawal_confirm_title">정말 탈퇴하시겠습니까?</string>
+    <string name="withdrawal_warning_content">탈퇴시, 등록된 모든 출석 데이터가\n삭제됩니다.</string>
 </resources>
