@@ -1,6 +1,7 @@
 package com.ddd.attendance.feature.member.main
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +10,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,7 +26,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -126,6 +132,7 @@ fun MemberMainAttendanceSection(
                 count = attendanceStats.late.toString(),
                 label = "지각",
                 modifier = Modifier.weight(1f),
+                countColor = Color(0xFFFD5D08),
             )
 
             Box(
@@ -140,6 +147,8 @@ fun MemberMainAttendanceSection(
                 count = attendanceStats.absent.toString(),
                 label = "결석",
                 modifier = Modifier.weight(1f),
+                countColor = Color(0xFFFD1008),
+                showAlertIcon = true
             )
         }
     }
@@ -166,7 +175,8 @@ fun MemberMainScheduleSection(
             ScheduleItemComposable(
                 date = item.date,
                 title = item.title,
-                subtitle = item.subtitle
+                subtitle = item.subtitle,
+                status = item.status
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -179,6 +189,9 @@ fun AttendanceCard(
     modifier: Modifier = Modifier,
     count: String,
     label: String,
+    countColor: Color = Color.White,
+    labelColor: Color = Color(0xFFEAEAEA),
+    showAlertIcon: Boolean = false
 ) {
     Column(
         modifier = modifier,
@@ -188,16 +201,29 @@ fun AttendanceCard(
             text = count,
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = countColor
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            color = Color(0xFFEAEAEA)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                color = labelColor
+            )
+            if (showAlertIcon) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_alert),
+                    contentDescription = "Alert",
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.Unspecified
+                )
+            }
+        }
     }
 }
 
@@ -205,37 +231,92 @@ fun AttendanceCard(
 fun ScheduleItemComposable(
     date: String,
     title: String,
-    subtitle: String
+    subtitle: String,
+    status: String = ""
 ) {
-    Row(
+    val isAttendance = status.equals("ATTENDANCE", ignoreCase = true)
+    val isLate = status.equals("LATE", ignoreCase = true)
+    val isAbsent = status.equals("ABSENT", ignoreCase = true)
+
+    val backgroundColor = when {
+        isAttendance -> Color(0xFF0D82F9)
+        isLate -> Color(0xFFFD5D08)
+        isAbsent -> Color.Transparent
+        else -> Color(0xFF202325)
+    }
+
+    val borderModifier = when {
+        isAbsent -> Modifier.drawBehind {
+            val strokeWidth = 1.dp.toPx()
+            val dashLength = 4.dp.toPx()
+            val gapLength = 4.dp.toPx()
+            drawRoundRect(
+                color = Color(0xFF6F6F6F),
+                style = Stroke(
+                    width = strokeWidth,
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(dashLength, gapLength),
+                        0f
+                    )
+                ),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx())
+            )
+        }
+        else -> Modifier
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Color(0xFF2C2C2E),
-                RoundedCornerShape(12.dp)
-            )
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(12.dp))
     ) {
-        ScheduleDateBox(
-            date = date,
-            modifier = Modifier.size(54.dp)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(
-                text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    backgroundColor,
+                    RoundedCornerShape(12.dp)
+                )
+                .then(borderModifier)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ScheduleDateBox(
+                date = date,
+                modifier = Modifier.size(54.dp),
+                isAbsent = isAbsent
             )
 
-            Text(
-                text = subtitle,
-                fontSize = 15.sp,
-                color = Color(0xFFEAEAEA)
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Text(
+                    text = title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isAbsent) Color(0xFF6F6F6F) else Color.White
+                )
+
+                Text(
+                    text = subtitle,
+                    fontSize = 15.sp,
+                    color = if (isAbsent) Color(0xFF6F6F6F) else Color(0xFFEAEAEA)
+                )
+            }
+        }
+
+        if (isAttendance || isLate) {
+            Icon(
+                painter = painterResource(
+                    id = if (isAttendance) R.drawable.ic_stamp_attendance
+                    else R.drawable.ic_stamp_late
+                ),
+                contentDescription = if (isAttendance) "출석" else "지각",
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(y = 2.dp)
+                    .size(width = 120.dp, height = 84.dp),
+                tint = Color(0xFFFFFFFF)
             )
         }
     }
@@ -244,16 +325,20 @@ fun ScheduleItemComposable(
 @Composable
 fun ScheduleDateBox(
     date: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isAbsent: Boolean = false
 ) {
     val dateParts = date.split("\n")
     val month = dateParts.getOrNull(0) ?: ""
     val day = dateParts.getOrNull(1) ?: ""
-    
+
+    val boxBackgroundColor = if (isAbsent) Color(0x33E1EAFF) else Color(0xCCE1EAFF)
+    val textColor = Color(0xFF0C0E0F)
+
     Box(
         modifier = modifier
             .background(
-                Color(0xFFE1EAFF),
+                boxBackgroundColor,
                 RoundedCornerShape(8.dp)
             ),
         contentAlignment = Alignment.Center
@@ -266,14 +351,14 @@ fun ScheduleDateBox(
                 text = month,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF0C0E0F)
+                color = textColor
             )
-            
+
             Text(
                 text = day,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0C0E0F)
+                color = textColor
             )
         }
     }

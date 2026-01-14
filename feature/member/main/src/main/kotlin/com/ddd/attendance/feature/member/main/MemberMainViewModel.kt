@@ -21,7 +21,8 @@ data class AttendanceStats(
 data class ScheduleItem(
     val date: String,
     val title: String,
-    val subtitle: String
+    val subtitle: String,
+    val status: String = ""
 )
 
 data class MemberMainUiState(
@@ -40,15 +41,40 @@ class MemberMainViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(
         MemberMainUiState(
-            memberName = "",
+            memberName = "김디디",
             activityPeriod = "2025.03.12 - 2025.08.12",
             attendanceStats = AttendanceStats(
-                attendance = 0,
-                late = 0,
-                absent = 0
+                attendance = 8,
+                late = 2,
+                absent = 1
             ),
-            generationNumber = 0,
-            scheduleItems = emptyList()
+            generationNumber = 12,
+            scheduleItems = listOf(
+                ScheduleItem(
+                    date = "12월\n99",
+                    title = "오리엔테이션",
+                    subtitle = "커리큘럼에 대한 설명 문구 작성",
+                    status = "ATTENDANCE"
+                ),
+                ScheduleItem(
+                    date = "12월\n9",
+                    title = "부스팅 데이1",
+                    subtitle = "커리큘럼에 대한 설명문구 작성",
+                    status = "LATE"
+                ),
+                ScheduleItem(
+                    date = "12월\n99",
+                    title = "직군 모임1",
+                    subtitle = "커리큘럼에 대한 설명 문구 작성",
+                    status = "ABSENT"
+                ),
+                ScheduleItem(
+                    date = "12월\n99",
+                    title = "오리엔테이션",
+                    subtitle = "커리큘럼에 대한 설명 문구 작성",
+                    status = ""
+                )
+            )
         )
     )
 
@@ -89,7 +115,7 @@ class MemberMainViewModel @Inject constructor(
                             late = userInfo.lateCount,
                             absent = userInfo.absentCount
                         ),
-                        scheduleItems = scheduleItems
+                        scheduleItems = _uiState.value.scheduleItems + scheduleItems
                     )
                 }
             }
@@ -108,7 +134,8 @@ class MemberMainViewModel @Inject constructor(
         return ScheduleItem(
             date = "$monthStr\n$dayStr",
             title = name,
-            subtitle = desc
+            subtitle = desc,
+            status = status
         )
     }
 }
