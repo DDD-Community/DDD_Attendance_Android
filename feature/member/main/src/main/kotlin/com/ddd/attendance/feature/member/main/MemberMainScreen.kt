@@ -59,9 +59,11 @@ fun MemberMainScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            val hasUnattendedSchedule = uiState.scheduleItems.any { it.status.isEmpty() }
             MemberMainHeader(
                 onNavigateToProfile = onNavigateToProfile,
-                onNavigateToAttendance = onNavigateToAttendance
+                onNavigateToAttendance = onNavigateToAttendance,
+                showQrTooltip = hasUnattendedSchedule
             )
 
             Column(
@@ -410,50 +412,77 @@ fun ScheduleDateBox(
 private fun MemberMainHeader(
     onNavigateToProfile: () -> Unit,
     onNavigateToAttendance: () -> Unit,
+    showQrTooltip: Boolean = false
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .padding(start = 16.dp, end = 24.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_logo),
-            contentDescription = "Logo",
+    Column {
+        Row(
             modifier = Modifier
-                .size(44.dp)
-                .padding(start = 10.dp, end = 9.dp, top = 8.dp, bottom = 8.dp),
-            tint = Color.White
-        )
-
-        Row {
-            Box(
+                .fillMaxWidth()
+                .height(52.dp)
+                .padding(start = 16.dp, end = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_logo),
+                contentDescription = "Logo",
                 modifier = Modifier
-                    .clickable { onNavigateToAttendance() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_qr),
-                    contentDescription = "QR",
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.Unspecified
-                )
+                    .size(44.dp)
+                    .padding(start = 10.dp, end = 9.dp, top = 8.dp, bottom = 8.dp),
+                tint = Color.White
+            )
+
+            Row {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clickable { onNavigateToAttendance() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_qr),
+                            contentDescription = "QR",
+                            modifier = Modifier.size(36.dp),
+                            tint = Color.Unspecified
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .clickable { onNavigateToProfile() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_profile),
+                        contentDescription = "Profile",
+                        modifier = Modifier.size(36.dp),
+                        tint = Color.Unspecified
+                    )
+                }
             }
+        }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
+        if (showQrTooltip) {
             Box(
                 modifier = Modifier
-                    .clickable { onNavigateToProfile() },
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(end = 24.dp),
+                contentAlignment = Alignment.TopEnd
             ) {
-                Icon(
-                    painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_profile),
-                    contentDescription = "Profile",
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.Unspecified
+                // QR 아이콘 중앙 위치: 프로필(36dp) + Spacer(8dp) + QR절반(18dp) = 62dp
+                // 말풍선 중앙: 148dp / 2 = 74dp
+                // offset: 74 - 62 = 12dp (오른쪽으로 이동)
+                Image(
+                    painter = painterResource(id = R.drawable.ic_qr_tool_tip),
+                    contentDescription = "QR 출석을 진행해주세요",
+                    modifier = Modifier
+                        .size(width = 148.dp, height = 42.dp)
+                        .offset(x = 12.dp)
                 )
             }
         }
