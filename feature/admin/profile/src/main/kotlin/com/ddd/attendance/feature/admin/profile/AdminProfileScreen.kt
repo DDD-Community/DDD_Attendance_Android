@@ -66,14 +66,14 @@ fun AdminProfileScreen(
     }
     Content(
         name = uiState.name,
-        position = uiState.position,
+        jobRole = uiState.jobRole,
         team = uiState.name,
-        task = uiState.task,
+        managerRoles = uiState.managerRoles,
         generation = uiState.generation,
         organization = uiState.organization,
-        version = uiState.appInfo.version,
-        privacyPolicyText = uiState.appInfo.privacyPolicyText,
-        privacyPolicyUrl = uiState.appInfo.privacyPolicyUrl,
+        version = uiState.version,
+        privacyPolicyText = uiState.privacyPolicyText,
+        privacyPolicyUrl = uiState.privacyPolicyUrl,
         isShowContributorBottomSheet = uiState.isShowContributorBottomSheet,
         isShowWithdrawAccountPopup = uiState.isShowWithdrawAccountPopup,
         isShowLogoutPopup = uiState.isShowLogoutPopup,
@@ -95,9 +95,9 @@ fun AdminProfileScreen(
 @Composable
 private fun Content(
     name: String,
-    position: String,
+    jobRole: String,
     team: String,
-    task: String,
+    managerRoles: List<String>,
     generation: String,
     organization: String,
     version: String,
@@ -133,9 +133,9 @@ private fun Content(
             AdminProfileCard(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 name = name,
-                position = position,
+                position = jobRole,
                 team = team,
-                task = task,
+                task = managerRoles.joinToString(),
                 generation = generation,
                 organization = organization
             )

@@ -47,7 +47,7 @@ class OnBoardingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(OnBoardingUiState())
     val uiState: StateFlow<OnBoardingUiState> = _uiState.asStateFlow()
 
-    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    private val _navigationEvent = MutableSharedFlow<OnboardingNavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     fun onIntent(intent: OnBoardingIntent) {
@@ -213,7 +213,7 @@ class OnBoardingViewModel @Inject constructor(
     }
 
     private fun popBackStack() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.PopBackStack) }
+        viewModelScope.launch { _navigationEvent.emit(OnboardingNavigationEvent.PopBackStack) }
     }
 
     private fun goToHome() {
@@ -224,7 +224,7 @@ class OnBoardingViewModel @Inject constructor(
                 is com.ddd.attendance.domain.model.NavigationDestination.Manager -> "ADMIN_MAIN"
                 else -> "MEMBER_MAIN"
             }
-            _navigationEvent.emit(NavigationEvent.GoToDestination(route))
+            _navigationEvent.emit(OnboardingNavigationEvent.GoToDestination(route))
         }
     }
 
@@ -291,7 +291,7 @@ class OnBoardingViewModel @Inject constructor(
         submitOnboardingFlow(state)
             .flatMapConcat { completeOnboardingAndLoginUseCase() }
             .onEach { goToHome() }
-            .catch { e -> _navigationEvent.emit(NavigationEvent.FailOnBoarding(e.message.orEmpty())) }
+            .catch { e -> _navigationEvent.emit(OnboardingNavigationEvent.FailOnBoarding(e.message.orEmpty())) }
             .launchIn(viewModelScope)
     }
 

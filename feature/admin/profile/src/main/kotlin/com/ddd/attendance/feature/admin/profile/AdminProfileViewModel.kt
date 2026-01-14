@@ -2,40 +2,55 @@ package com.ddd.attendance.feature.admin.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.domain.usecase.GetAdminMeUseCase
 import com.ddd.attendance.feature.core.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AdminProfileViewModel @Inject constructor() : ViewModel() {
-    private val _uiState = MutableStateFlow(
-        AdminProfileUiState (
-            name = "김디디님",
-            position = "Designer",
-            team = "iOS 2팀",
-            generation = "11기",
-            task = "팀매니징, 일정 리마인드, 사진 촬영, 장소 대관, SNS 관리, 출석 체크",
-            organization = "Dynamic Developer Designers",
-            appInfo = AppInfo(
-                version = BuildConfig.APP_VERSION,
-                privacyPolicyUrl = "https://ddd.ac.kr/privacy",
-                privacyPolicyText = "개인정보처리방침 보기"
-            ),
-            isShowContributorBottomSheet = false
-        )
-    )
-
+class AdminProfileViewModel @Inject constructor(
+    private val getAdminMeUseCase: GetAdminMeUseCase
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(AdminProfileUiState())
     val uiState: StateFlow<AdminProfileUiState> = _uiState.asStateFlow()
 
     private val _navigationEvent = MutableSharedFlow<ProfileNavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
+
+    init {
+        getAdminMeUseCase()
+            .onEach {
+                _uiState.update { state ->
+                    state.copy(
+                        name = it.name,
+                        jobRole = it.jobRole,
+                        team = it.team,
+                        generation = it.generation,
+                        managerRoles = it.managerRoles.toPersistentList(),
+                        organization = "Dynamic Developer Designers",
+                        isShowContributorBottomSheet = false,
+                        version = BuildConfig.APP_VERSION,
+                        privacyPolicyUrl = "https://ddd.ac.kr/privacy",
+                        privacyPolicyText = "개인정보처리방침 보기",
+                    )
+                }
+            }
+            .catch {
+
+            }
+            .launchIn(viewModelScope)
+    }
 
     fun onIntent(intent: AdminProfileIntent) {
         when(intent) {

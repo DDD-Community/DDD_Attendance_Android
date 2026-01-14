@@ -1,11 +1,11 @@
 package com.ddd.attendance.feature.admin.main
 
 interface AdminIntent {
-    data class TabChanged(val index: Int): AdminIntent
+    data class TabChanged(val teamId: Int, val selectedIndex: Int): AdminIntent
     data class DropDownTextChanged(val text: String): AdminIntent
     data class ScreenUiTypeChanged(val type: AdminType): AdminIntent
     data class ShowEditPopup(val selectedText: String): AdminIntent
-    data class SchedulePositionSelected(val index: Int): AdminIntent
+    data class SchedulePositionSelected(val selectedScheduleId: Long, val month: Int, val day: Int, val index: Int): AdminIntent
     data object HideEditPopup: AdminIntent
     data object ShowDropDownScreenChange: AdminIntent
     data object HideDropDownScreenChange: AdminIntent

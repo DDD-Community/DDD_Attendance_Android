@@ -10,5 +10,6 @@ setNamespace("feature.admin.attendance")
 
 dependencies {
     implementation(projects.feature.designsystem)
+    implementation(projects.domain)
     api(projects.feature.core)
 }

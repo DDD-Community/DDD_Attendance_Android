@@ -35,7 +35,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
+import com.ddd.attendance.domain.model.admin.AdminScheduleTeamAttendance
+import com.ddd.attendance.domain.model.admin.AdminTeam
 import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceType
 import com.ddd.attendance.feature.core.board.AttendanceStatusBoard
 import com.ddd.attendance.feature.designsystem.component.DddText
@@ -59,10 +60,10 @@ fun AttendanceScreen(
     attendance: Int,
     late: Int,
     absent: Int,
-    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
-    teamList: ImmutableList<String>,
+    memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
+    teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int = 0,
-    onTabClick:(Int) -> Unit,
+    onTabClick:(teamId: Int, selectedIndex: Int) -> Unit,
     onEditClick:(text: String) -> Unit,
     onDataClick: () -> Unit,
     onAbsentNotificationClick: () -> Unit
@@ -72,10 +73,12 @@ fun AttendanceScreen(
         attendance = attendance,
         late = late,
         absent = absent,
-        memberAttendanceInfos = memberAttendanceInfos,
+        memberAttendances = memberAttendances,
         teamList = teamList,
         selectedTeamIndex = selectedTeamIndex,
-        onTabClick = { onTabClick(it) },
+        onTabClick = { teamId, selectedIndex ->
+            onTabClick(teamId, selectedIndex)
+        },
         onEditClick = onEditClick,
         onDataClick = onDataClick,
         onAbsentNotificationClick = onAbsentNotificationClick
@@ -89,10 +92,10 @@ internal fun Content(
     attendance: Int,
     late: Int,
     absent: Int,
-    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
-    teamList: ImmutableList<String>,
+    memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
+    teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int,
-    onTabClick:(Int) -> Unit,
+    onTabClick:(teamId: Int, selectedIndex: Int) -> Unit,
     onEditClick:(text: String) -> Unit,
     onDataClick: () -> Unit,
     onAbsentNotificationClick: () -> Unit
@@ -100,6 +103,7 @@ internal fun Content(
     Column(
        modifier = modifier.fillMaxSize()
     ) {
+
         Row(
             modifier = Modifier
                 .height(46.dp)
@@ -112,18 +116,20 @@ internal fun Content(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            DddText(
-                text = "\uD83D\uDDD3\uFE0F",
-                style = Typography.bodyLargeM,
-            )
+            if (nextScheduleDate.isNotEmpty()) {
+                DddText(
+                    text = "\uD83D\uDDD3\uFE0F",
+                    style = Typography.bodyLargeM,
+                )
 
-            Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
-            DddText(
-                text = nextScheduleDate,
-                style = Typography.bodyLargeM,
-                color = TextPrimary
-            )
+                DddText(
+                    text = nextScheduleDate,
+                    style = Typography.bodyLargeM,
+                    color = TextPrimary
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -138,40 +144,44 @@ internal fun Content(
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        TeamTabBar(
-            tabs = teamList,
-            selectedIndex = selectedTeamIndex,
-            onTabClick = { onTabClick(it) }
-        )
+        if (teamList.isNotEmpty()) {
+            TeamTabBar(
+                tabs = teamList,
+                selectedIndex = selectedTeamIndex,
+                onTabClick = { teamId, index ->
+                    onTabClick(teamId, index)
+                }
+            )
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        TeamCardList(
-            memberAttendanceInfos = memberAttendanceInfos,
-            selectedTeamName = teamList[selectedTeamIndex],
-            onEditClick = onEditClick
-        )
+            TeamCardList(
+                memberAttendances = memberAttendances,
+                selectedTeamName = teamList[selectedTeamIndex].name,
+                onEditClick = onEditClick
+            )
+        }
     }
 }
 
 @Composable
 fun TeamTabBar(
-    tabs: ImmutableList<String>,
+    tabs: ImmutableList<AdminTeam>,
     selectedIndex: Int,
-    onTabClick:(Int) -> Unit
+    onTabClick:(teamId: Int, selectedIndex: Int) -> Unit
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
-        itemsIndexed(tabs) { index, title ->
+        itemsIndexed(tabs) { index, item ->
             if (index == 0) {
                 Spacer(modifier = Modifier.width(16.dp))
             }
 
             TabItem(
-                title = title,
+                title = item.name,
                 selected = index == selectedIndex,
-                onClick = { onTabClick(index) }
+                onClick = { onTabClick(tabs[index].teamId, index) }
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -222,19 +232,19 @@ fun TabItem(
 
 @Composable
 fun TeamCardList(
-    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
+    memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
     selectedTeamName: String,
     onEditClick:(text: String) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        itemsIndexed(memberAttendanceInfos) { index, item ->
+        itemsIndexed(memberAttendances) { _, item ->
             CardItem(
-                name = item.name,
+                name = item.userName,
                 team = selectedTeamName,
-                role = item.role,
-                memberAttendanceType = item.attendanceType
+                role = item.userInfo,
+                attendanceStatus = item.attendanceStatus
             ) {
                 onEditClick(it)
             }
@@ -248,9 +258,16 @@ fun CardItem(
     name: String,
     team: String,
     role: String,
-    memberAttendanceType: MemberAttendanceType,
+    attendanceStatus: String,
     onEditClick:(text: String) -> Unit
 ) {
+    val memberAttendanceType = when(attendanceStatus) {
+        "ATTENDANCE" -> MemberAttendanceType.ATTENDANCE
+        "LATE" -> MemberAttendanceType.LATE
+        "ABSENT" -> MemberAttendanceType.ABSENT
+        else -> MemberAttendanceType.NONE
+    }
+
     val isDisable = memberAttendanceType == MemberAttendanceType.ABSENT
 
     val borderModifier = if (isDisable) {

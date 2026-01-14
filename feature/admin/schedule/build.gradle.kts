@@ -10,5 +10,6 @@ setNamespace("feature.admin.schedule")
 
 dependencies {
     implementation(projects.feature.designsystem)
+    implementation(projects.domain)
     api(projects.feature.core)
 }

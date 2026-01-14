@@ -50,13 +50,13 @@ fun OnBoardingScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                is NavigationEvent.PopBackStack -> {
+                is OnboardingNavigationEvent.PopBackStack -> {
                     navController.popBackStack()
                 }
-                is NavigationEvent.GoToDestination -> {
+                is OnboardingNavigationEvent.GoToDestination -> {
                     navController.navigate(event.destination)
                 }
-                is NavigationEvent.FailOnBoarding -> {
+                is OnboardingNavigationEvent.FailOnBoarding -> {
                     Log.d("OnBoardingScreen", event.message)
                 }
             }
