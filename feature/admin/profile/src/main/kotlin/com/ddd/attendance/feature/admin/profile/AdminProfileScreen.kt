@@ -169,13 +169,13 @@ private fun Content(
 
         TwoButtonTitleContentPopup(
             isShow = isShowWithdrawAccountPopup,
-            titleText = stringResource(R.string.withdrawal_confirm_title),
-            contentText = stringResource(R.string.withdrawal_warning_content),
-            confirmText = stringResource(R.string.withdraw_account),
+            titleText = stringResource(com.ddd.attendance.feature.core.R.string.withdrawal_confirm_title),
+            contentText = stringResource(com.ddd.attendance.feature.core.R.string.withdrawal_warning_content),
+            confirmText = stringResource(com.ddd.attendance.feature.core.R.string.withdraw_account),
             onConfirm = {
                 //탈퇴 api 요청
             },
-            cancelText = stringResource(R.string.cancel),
+            cancelText = stringResource(com.ddd.attendance.feature.core.R.string.cancel),
             onCancel = {
                 onWithdrawAccountPopupEvent(false)
             }
@@ -183,12 +183,12 @@ private fun Content(
 
         TwoButtonTitleContentPopup(
             isShow = isShowLogoutPopup,
-            titleText = stringResource(R.string.logout_confirm_title),
-            confirmText = stringResource(R.string.logout),
+            titleText = stringResource(com.ddd.attendance.feature.core.R.string.logout_confirm_title),
+            confirmText = stringResource(com.ddd.attendance.feature.core.R.string.logout),
             onConfirm = {
                 //로그아웃 api 요청
             },
-            cancelText = stringResource(R.string.cancel),
+            cancelText = stringResource(com.ddd.attendance.feature.core.R.string.cancel),
             onCancel = {
                 onLogoutPopupEvent(false)
             }
@@ -298,7 +298,7 @@ fun AdminProfileCard(
                         Spacer(modifier = Modifier.width(6.dp))
 
                         DddText(
-                            text = stringResource(R.string.edit_generation),
+                            text = stringResource(com.ddd.attendance.feature.core.R.string.edit_generation),
                             style = Typography.bodySmallM
                         )
                     }
@@ -316,21 +316,21 @@ fun AdminProfileCard(
             Spacer(modifier = Modifier.height(20.dp))
 
             ProfileInfoSection(
-                label = stringResource(R.string.job_role),
+                label = stringResource(com.ddd.attendance.feature.core.R.string.job_role),
                 value = position
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             ProfileInfoSection(
-                label = stringResource(R.string.assigned_team),
+                label = stringResource(com.ddd.attendance.feature.core.R.string.assigned_team),
                 value = team
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             ProfileInfoSection(
-                label = stringResource(R.string.generation),
+                label = stringResource(com.ddd.attendance.feature.core.R.string.generation),
                 value = generation
             )
 
@@ -338,7 +338,7 @@ fun AdminProfileCard(
 
             Column {
                 DddText(
-                    text = stringResource(R.string.assigned_task),
+                    text = stringResource(com.ddd.attendance.feature.core.R.string.assigned_task),
                     style = Typography.bodySmallM,
                     color = TextSecondaryLight
                 )
@@ -398,7 +398,7 @@ private fun AdminBottomSection(
                     ) {
                         onWithdrawAccountPopupEvent(true)
                     },
-                text = stringResource(R.string.withdraw_account),
+                text = stringResource(com.ddd.attendance.feature.core.R.string.withdraw_account),
                 style = Typography.titleSmallM,
                 color = Color(0xFF8E8E93),
                 textDecoration = TextDecoration.Underline
@@ -415,7 +415,7 @@ private fun AdminBottomSection(
                     ) {
                         onLogoutPopupEvent(true)
                     },
-                text = stringResource(R.string.logout),
+                text = stringResource(com.ddd.attendance.feature.core.R.string.logout),
                 style = Typography.titleSmallM,
                 textDecoration = TextDecoration.Underline
             )

@@ -20,10 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import com.ddd.attendance.feature.core.contributor.ContributorBottomSheet
+import com.ddd.attendance.feature.core.popup.TwoButtonTitleContentPopup
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +45,6 @@ fun MemberProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    var showContributorBottomSheet by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -58,7 +56,7 @@ fun MemberProfileScreen(
         ) {
             MemberProfileHeader(
                 onBackClick = { navController.popBackStack() },
-                onInfoClick = { showContributorBottomSheet = true }
+                onInfoClick = { viewModel.showContributorBottomSheet(true) }
             )
 
             ProfileCard(
@@ -74,15 +72,36 @@ fun MemberProfileScreen(
 
             MemberBottomSection(
                 uiState = uiState,
+                onWithdrawClick = { viewModel.showWithdrawAccountPopup(true) },
+                onLogoutClick = { viewModel.showLogoutPopup(true) }
             )
         }
 
         ContributorBottomSheet(
-            isShow = showContributorBottomSheet,
+            isShow = uiState.isShowContributorBottomSheet,
             onFeedback = {
                 openUrl(context, "https://forms.gle/your-feedback-form")
             },
-            onDismiss = { showContributorBottomSheet = false }
+            onDismiss = { viewModel.showContributorBottomSheet(false) }
+        )
+
+        TwoButtonTitleContentPopup(
+            isShow = uiState.isShowWithdrawAccountPopup,
+            titleText = stringResource(com.ddd.attendance.feature.core.R.string.withdrawal_confirm_title),
+            contentText = stringResource(com.ddd.attendance.feature.core.R.string.withdrawal_warning_content),
+            confirmText = stringResource(com.ddd.attendance.feature.core.R.string.withdraw_account),
+            onConfirm = { viewModel.onWithdrawAccount() },
+            cancelText = stringResource(com.ddd.attendance.feature.core.R.string.cancel),
+            onCancel = { viewModel.showWithdrawAccountPopup(false) }
+        )
+
+        TwoButtonTitleContentPopup(
+            isShow = uiState.isShowLogoutPopup,
+            titleText = stringResource(com.ddd.attendance.feature.core.R.string.logout_confirm_title),
+            confirmText = stringResource(com.ddd.attendance.feature.core.R.string.logout),
+            onConfirm = { viewModel.onLogout() },
+            cancelText = stringResource(com.ddd.attendance.feature.core.R.string.cancel),
+            onCancel = { viewModel.showLogoutPopup(false) }
         )
     }
 }
@@ -124,6 +143,8 @@ private fun MemberProfileHeader(
 private fun MemberBottomSection(
     modifier: Modifier = Modifier,
     uiState: MemberProfileUiState,
+    onWithdrawClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -138,7 +159,9 @@ private fun MemberBottomSection(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp).clickable { /* TODO: 탈퇴하기 클릭 */ },
+                modifier = Modifier
+                    .padding(horizontal = 28.dp, vertical = 12.dp)
+                    .clickable { onWithdrawClick() },
                 text = "탈퇴하기",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
@@ -147,7 +170,9 @@ private fun MemberBottomSection(
             )
 
             Text(
-                modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp).clickable { /* TODO: 로그아웃 클릭 */ },
+                modifier = Modifier
+                    .padding(horizontal = 28.dp, vertical = 12.dp)
+                    .clickable { onLogoutClick() },
                 text = "로그아웃",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,

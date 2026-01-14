@@ -23,7 +23,10 @@ data class MemberProfileUiState(
     val team: String,
     val generation: String,
     val organization: String,
-    val appInfo: AppInfo
+    val appInfo: AppInfo,
+    val isShowContributorBottomSheet: Boolean = false,
+    val isShowWithdrawAccountPopup: Boolean = false,
+    val isShowLogoutPopup: Boolean = false
 )
 
 @HiltViewModel
@@ -63,5 +66,27 @@ class MemberProfileViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun showContributorBottomSheet(isShow: Boolean) {
+        _uiState.value = _uiState.value.copy(isShowContributorBottomSheet = isShow)
+    }
+
+    fun showWithdrawAccountPopup(isShow: Boolean) {
+        _uiState.value = _uiState.value.copy(isShowWithdrawAccountPopup = isShow)
+    }
+
+    fun showLogoutPopup(isShow: Boolean) {
+        _uiState.value = _uiState.value.copy(isShowLogoutPopup = isShow)
+    }
+
+    fun onWithdrawAccount() {
+        // TODO: 탈퇴 API 요청
+        showWithdrawAccountPopup(false)
+    }
+
+    fun onLogout() {
+        // TODO: 로그아웃 API 요청
+        showLogoutPopup(false)
     }
 }
