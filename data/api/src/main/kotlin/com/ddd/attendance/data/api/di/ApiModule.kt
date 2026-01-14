@@ -1,17 +1,20 @@
 package com.ddd.attendance.data.api.di
 
+import com.ddd.attendance.data.api.AdminMyPageApi
 import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.BuildConfig
 import com.ddd.attendance.data.api.MeApi
 import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.api.SchedulesApi
 import com.ddd.attendance.data.api.UsersApi
+import com.ddd.attendance.data.api.datasource.ApiAdminMyPageDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiMeDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiOnboardingDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiSchedulesDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiUsersDataSourceImpl
 import com.ddd.attendance.data.api.interceptor.AuthInterceptor
+import com.ddd.attendance.data.datasource.ApiAdminMyPageDataSource
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.ddd.attendance.data.datasource.ApiMeDataSource
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
@@ -102,6 +105,12 @@ object ApiModule {
 
     @Provides
     @Singleton
+    fun provideAdminMyPageService(retrofit: Retrofit): AdminMyPageApi {
+        return retrofit.create(AdminMyPageApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
 
     @Provides
@@ -119,5 +128,9 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideApiSchedulesDataSource(impl: ApiSchedulesDataSourceImpl): ApiSchedulesDataSource = impl
+
+    @Provides
+    @Singleton
+    fun provideApiAdminMyPageDataSource(impl: ApiAdminMyPageDataSourceImpl): ApiAdminMyPageDataSource = impl
 
 }

@@ -43,12 +43,13 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.ddd.attendance.domain.model.admin.AdminScheduleTeamAttendance
+import com.ddd.attendance.domain.model.admin.AdminTeam
 import com.ddd.attendance.feature.admin.attendance.AttendanceScreen
-import com.ddd.attendance.feature.admin.attendance.model.MemberAttendanceInfo
 import com.ddd.attendance.feature.admin.main.dropdown.EditPopupDropdown
 import com.ddd.attendance.feature.admin.main.dropdown.ScreenChangeDropDown
 import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
-import com.ddd.attendance.feature.admin.schedule.model.Schedule
+import com.ddd.attendance.feature.admin.schedule.model.ScheduleUiModel
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.core.popup.OneButtonTitleContentPopup
@@ -89,12 +90,12 @@ fun AdminScreen(
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
-        attendance = uiState.dummyAttendanceStatus.attendance,
-        late = uiState.dummyAttendanceStatus.late,
-        absent = uiState.dummyAttendanceStatus.absent,
-        memberAttendanceInfos = uiState.dummyMemberAttendanceInfos,
+        attendance = uiState.attendanceStatus.attendance,
+        late = uiState.attendanceStatus.late,
+        absent = uiState.attendanceStatus.absent,
+        memberAttendances = uiState.memberAttendances,
         editItems = uiState.dummySelectedEditPopupItemList,
-        teamList = uiState.dummyTeamList,
+        teamList = uiState.teams,
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
@@ -102,9 +103,9 @@ fun AdminScreen(
         isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
         isShowQrScanner = uiState.isShowQrScanner,
         selectedEditText = uiState.selectedEditText,
-        scheduleList = uiState.dummyScheduleList,
-        onTabClick = {
-            viewModel.onIntent(AdminIntent.TabChanged(it))
+        scheduleList = uiState.schedules,
+        onTabClick = { teamId, selectedIndex ->
+            viewModel.onIntent(AdminIntent.TabChanged(teamId, selectedIndex))
         },
         onEditClick = { selectedText ->
             viewModel.onIntent(AdminIntent.ShowEditPopup(selectedText))
@@ -136,8 +137,8 @@ fun AdminScreen(
         onDataClick = {
             viewModel.onIntent(AdminIntent.ShowScheduleBottomSheet)
         },
-        onScheduleItemClick = {
-            viewModel.onIntent(AdminIntent.SchedulePositionSelected(it))
+        onScheduleItemClick = { selectedScheduleId, month, day, index ->
+            viewModel.onIntent(AdminIntent.SchedulePositionSelected(selectedScheduleId, month, day, index))
         },
         onAbsentNotificationClick = {
             viewModel.onIntent(AdminIntent.ShowAbsentNotificationPopup)
@@ -159,10 +160,10 @@ internal fun Content(
     attendance: Int,
     late: Int,
     absent: Int,
-    memberAttendanceInfos: ImmutableList<MemberAttendanceInfo>,
-    scheduleList: ImmutableList<Schedule>,
+    memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
+    scheduleList: ImmutableList<ScheduleUiModel>,
     editItems: ImmutableList<String>,
-    teamList: ImmutableList<String>,
+    teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
     isShowScreenChangeDropDownVisible: Boolean,
@@ -170,7 +171,7 @@ internal fun Content(
     isShowAbsentNotificationPopup: Boolean,
     isShowQrScanner: Boolean,
     selectedEditText: String,
-    onTabClick: (Int) -> Unit,
+    onTabClick: (teamId: Int, selectedIndex: Int) -> Unit,
     onEditClick: (text: String) -> Unit,
     onEditConfirm: () -> Unit,
     onEditItemSelected: (String) -> Unit,
@@ -181,7 +182,7 @@ internal fun Content(
     onScreenChangeDropDownDismiss: () -> Unit,
     onScheduleBottomSheetDismiss: () -> Unit,
     onDataClick: () -> Unit,
-    onScheduleItemClick: (index: Int) -> Unit,
+    onScheduleItemClick: (selectedScheduleId: Long, month: Int, day: Int, index: Int) -> Unit,
     onAbsentNotificationClick: () -> Unit,
     onAbsentNotificationDismiss: () -> Unit,
     onQrScannerBottomSheetDismiss: () -> Unit,
@@ -219,10 +220,12 @@ internal fun Content(
                             attendance = attendance,
                             late = late,
                             absent = absent,
-                            memberAttendanceInfos = memberAttendanceInfos,
+                            memberAttendances = memberAttendances,
                             teamList = teamList,
                             selectedTeamIndex = selectedTeamIndex,
-                            onTabClick = { onTabClick(it) },
+                            onTabClick = { teamId, selectedIndex ->
+                                onTabClick(teamId, selectedIndex)
+                            },
                             onEditClick = {
                                 onEditClick(it)
                             },
@@ -263,7 +266,14 @@ internal fun Content(
             onConfirm = {
                 onScheduleBottomSheetDismiss()
             },
-            onScheduleItemClick = { onScheduleItemClick(it) }
+            onScheduleItemClick = {
+                onScheduleItemClick(
+                    scheduleList[it].id,
+                    scheduleList[it].month,
+                    scheduleList[it].day,
+                    it
+                )
+            }
         )
 
         OneButtonTitleContentPopup(
@@ -408,7 +418,7 @@ internal fun EditPopup(
 internal fun ScheduleBottomSheet(
     modifier: Modifier = Modifier,
     isShow: Boolean,
-    scheduleList: ImmutableList<Schedule>,
+    scheduleList: ImmutableList<ScheduleUiModel>,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     onScheduleItemClick: (index: Int) -> Unit
@@ -478,10 +488,10 @@ internal fun ScheduleBottomSheet(
                 ) {
                     itemsIndexed(scheduleList) { index, item ->
                         ScheduleCard(
-                            month = item.month,
-                            day = item.day,
-                            title = item.title,
-                            description = item.description,
+                            month = "${ item.month }월",
+                            day = "${ item.day }",
+                            title = item.name,
+                            description = item.desc,
                             isSelected = item.isSelected
                         ) {
                             onScheduleItemClick(index)

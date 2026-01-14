@@ -28,7 +28,7 @@ data class OnBoardingUiState(
     val name: String = "",
     val generationId: Int = -1,
     val jobRole: String = "",
-    val teamId: Int = 0,
+    val teamId: Int = 1,
     val managerRoles: ImmutableList<String> = persistentListOf(),
 
     val generationName: String = "",

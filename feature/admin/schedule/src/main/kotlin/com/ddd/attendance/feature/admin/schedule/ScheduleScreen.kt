@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ddd.attendance.feature.admin.schedule.model.Schedule
+import com.ddd.attendance.feature.admin.schedule.model.ScheduleUiModel
 import com.ddd.attendance.feature.designsystem.component.DddText
 import com.ddd.attendance.feature.designsystem.theme.BackgroundDefault
 import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
@@ -32,7 +32,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 fun ScheduleScreen(
     modifier: Modifier = Modifier,
-    scheduleList: ImmutableList<Schedule>
+    scheduleList: ImmutableList<ScheduleUiModel>
 ) {
     Content(
         scheduleList = scheduleList
@@ -42,7 +42,7 @@ fun ScheduleScreen(
 @Composable
 internal fun Content(
     modifier: Modifier = Modifier,
-    scheduleList: ImmutableList<Schedule>
+    scheduleList: ImmutableList<ScheduleUiModel>
 ) {
     Box() {
         Column(
@@ -56,18 +56,20 @@ internal fun Content(
                 style = Typography.titleMediumM
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (scheduleList.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                itemsIndexed(scheduleList) { index, item ->
-                    ScheduleCard(
-                        month = item.month,
-                        day = item.day,
-                        title = item.title,
-                        description = item.description
-                    )
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    itemsIndexed(scheduleList) { index, item ->
+                        ScheduleCard(
+                            month = "${ item.month }월",
+                            day = "${ item.day }",
+                            title = item.name,
+                            description = item.desc
+                        )
+                    }
                 }
             }
         }
