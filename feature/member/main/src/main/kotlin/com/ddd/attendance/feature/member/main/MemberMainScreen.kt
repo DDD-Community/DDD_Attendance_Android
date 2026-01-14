@@ -19,11 +19,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.ddd.attendance.feature.core.popup.OneButtonTitleContentPopup
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -44,6 +49,7 @@ fun MemberMainScreen(
     viewModel: MemberMainViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showAbsentAlertPopup by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -67,7 +73,8 @@ fun MemberMainScreen(
                 MemberMainAttendanceSection(
                     memberName = uiState.memberName,
                     activityPeriod = uiState.activityPeriod,
-                    attendanceStats = uiState.attendanceStats
+                    attendanceStats = uiState.attendanceStats,
+                    onAlertClick = { showAbsentAlertPopup = true }
                 )
 
                 MemberMainScheduleSection(
@@ -76,6 +83,13 @@ fun MemberMainScreen(
                 )
             }
         }
+
+        OneButtonTitleContentPopup(
+            isShow = showAbsentAlertPopup,
+            titleText = "주의해주세요!",
+            contentText = "2번 지각 시 노쇼비를 돌려받을 수 없습니다.",
+            onDismiss = { showAbsentAlertPopup = false }
+        )
     }
 }
 
@@ -83,7 +97,8 @@ fun MemberMainScreen(
 fun MemberMainAttendanceSection(
     memberName: String,
     activityPeriod: String,
-    attendanceStats: AttendanceStats
+    attendanceStats: AttendanceStats,
+    onAlertClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.padding(top = 20.dp)
@@ -148,7 +163,8 @@ fun MemberMainAttendanceSection(
                 label = "결석",
                 modifier = Modifier.weight(1f),
                 countColor = Color(0xFFFD1008),
-                showAlertIcon = true
+                showAlertIcon = true,
+                onAlertClick = onAlertClick
             )
         }
     }
@@ -171,15 +187,38 @@ fun MemberMainScheduleSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        scheduleItems.forEachIndexed { _, item ->
-            ScheduleItemComposable(
-                date = item.date,
-                title = item.title,
-                subtitle = item.subtitle,
-                status = item.status
-            )
+        if (scheduleItems.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_schedule_empty),
+                    contentDescription = "일정 없음",
+                    modifier = Modifier.size(120.dp)
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "아직 일정이 없어요.",
+                    fontSize = 16.sp,
+                    color = Color(0xFF6F6F6F)
+                )
+            }
+        } else {
+            scheduleItems.forEachIndexed { _, item ->
+                ScheduleItemComposable(
+                    date = item.date,
+                    title = item.title,
+                    subtitle = item.subtitle,
+                    status = item.status
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }
@@ -191,7 +230,8 @@ fun AttendanceCard(
     label: String,
     countColor: Color = Color.White,
     labelColor: Color = Color(0xFFEAEAEA),
-    showAlertIcon: Boolean = false
+    showAlertIcon: Boolean = false,
+    onAlertClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier,
@@ -219,7 +259,9 @@ fun AttendanceCard(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_alert),
                     contentDescription = "Alert",
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clickable { onAlertClick() },
                     tint = Color.Unspecified
                 )
             }
