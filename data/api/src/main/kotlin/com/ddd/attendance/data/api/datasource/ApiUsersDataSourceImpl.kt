@@ -20,7 +20,7 @@ class ApiUsersDataSourceImpl @Inject constructor(
         name: String,
         generationId: Int,
         jobRole: String,
-        teamId: Int,
+        teamId: Int?,
         managerRoles: List<String>,
         provider: String,
         token: String,
@@ -38,18 +38,38 @@ class ApiUsersDataSourceImpl @Inject constructor(
             Log.d(TAG, "InvitationCode: $invitationCode")
             Log.d(TAG, "========================")
 
-            val response = usersApi.users(
-                request = UserRequest(
-                    name = name,
-                    generationId = generationId,
-                    jobRole = jobRole,
-                    teamId = teamId,
-                    managerRoles = managerRoles,
-                    provider = provider,
-                    token = token,
-                    invitationCode = invitationCode
+            userPreferencesDataStore.saveUserRole("MEMBER")
+
+            val response = if (teamId != null) {
+                usersApi.users(
+                    request = UserRequest(
+                        name = name,
+                        generationId = generationId,
+                        jobRole = jobRole,
+                        teamId = teamId,
+                        managerRoles = managerRoles,
+                        provider = provider,
+                        token = token,
+                        invitationCode = invitationCode
+                    )
                 )
-            )
+            } else {
+                userPreferencesDataStore.saveUserRole("ADMIN")
+
+                usersApi.users(
+                    request = UserRequest(
+                        name = name,
+                        generationId = generationId,
+                        jobRole = jobRole,
+                        managerRoles = managerRoles,
+                        provider = provider,
+                        token = token,
+                        invitationCode = invitationCode
+                    )
+                )
+            }
+
+
 
             // 사용자 데이터 저장
             userPreferencesDataStore.saveLoginData(
@@ -116,6 +136,16 @@ class ApiUsersDataSourceImpl @Inject constructor(
             Result.failure(Exception("HTTP $errorCode: $errorBody"))
         } catch (e: Exception) {
             Log.e(TAG, "Get QR failed", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteUsersMe(token: String): Result<Unit> {
+        return try {
+            usersApi.deleteUsersMe(token = token)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "DeleteUsersMe failed", e)
             Result.failure(e)
         }
     }

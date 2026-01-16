@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.data)
     implementation(projects.data.api)
     implementation(projects.data.google)
+    implementation(projects.data.datastore)
     implementation(projects.domain)
     implementation(projects.feature.core)
     implementation(projects.feature.home)

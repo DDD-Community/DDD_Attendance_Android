@@ -1,15 +1,14 @@
 package com.ddd.attendance.domain.usecase
 
-import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class CompleteOnboardingAndLoginUseCase @Inject constructor(
+class DeleteUsersMeUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    operator fun invoke(): Flow<Login> = flow {
-        emit(userRepository.completeOnboardingAndLogin().getOrThrow())
+    operator fun invoke(): Flow<Unit> = flow {
+        emit(userRepository.deleteUsersMe().getOrThrow())
     }
 }

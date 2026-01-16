@@ -1,6 +1,5 @@
 package com.ddd.attendance.feature.member.profile
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -18,16 +17,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
-import com.ddd.attendance.feature.core.contributor.ContributorBottomSheet
-import com.ddd.attendance.feature.core.popup.TwoButtonTitleContentPopup
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -35,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.ddd.attendance.feature.core.contributor.ContributorBottomSheet
+import com.ddd.attendance.feature.core.popup.TwoButtonTitleContentPopup
 import com.ddd.attendance.feature.core.profile.ProfileCard
 import com.ddd.attendance.feature.core.profile.ProfileData
 
@@ -46,6 +46,24 @@ fun MemberProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                ProfileNavigationEvent.PopBackStack -> { navController.popBackStack() }
+                ProfileNavigationEvent.GoToLogin -> {
+                    /*navController.navigate("LOGIN") {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }*/
+                }
+
+                ProfileNavigationEvent.GoToOnboarding -> navController.navigate("ON_BOARDING")
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -55,7 +73,7 @@ fun MemberProfileScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             MemberProfileHeader(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { viewModel.popBackStack() },
                 onInfoClick = { viewModel.showContributorBottomSheet(true) }
             )
 
@@ -80,7 +98,12 @@ fun MemberProfileScreen(
         ContributorBottomSheet(
             isShow = uiState.isShowContributorBottomSheet,
             onFeedback = {
-                openUrl(context, "https://forms.gle/your-feedback-form")
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://forms.gle/a2idQmnxjbC5czfP7")
+                    )
+                )
             },
             onDismiss = { viewModel.showContributorBottomSheet(false) }
         )
@@ -200,18 +223,13 @@ private fun MemberBottomSection(
             textDecoration = TextDecoration.Underline,
             modifier = Modifier
                 .clickable {
-                    openUrl(context, uiState.appInfo.privacyPolicyUrl)
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(uiState.appInfo.privacyPolicyUrl)
+                        )
+                    )
                 }
         )
-    }
-}
-
-private fun openUrl(context: Context, url: String) {
-    try {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        // URL 열기 실패 시 처리
-        e.printStackTrace()
     }
 }
