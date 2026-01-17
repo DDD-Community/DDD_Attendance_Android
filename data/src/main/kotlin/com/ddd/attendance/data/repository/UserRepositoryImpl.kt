@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import kotlin.math.log
 
 class UserRepositoryImpl @Inject constructor(
     private val googleLoginDataSource: GoogleLoginDataSource,

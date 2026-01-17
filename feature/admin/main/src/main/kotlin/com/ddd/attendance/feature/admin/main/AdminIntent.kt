@@ -6,6 +6,7 @@ interface AdminIntent {
     data class ScreenUiTypeChanged(val type: AdminType): AdminIntent
     data class ShowEditPopup(val selectedText: String): AdminIntent
     data class SchedulePositionSelected(val selectedScheduleId: Long, val month: Int, val day: Int, val index: Int): AdminIntent
+    data class QrDetected(val qrCode: String): AdminIntent
     data object HideEditPopup: AdminIntent
     data object ShowDropDownScreenChange: AdminIntent
     data object HideDropDownScreenChange: AdminIntent

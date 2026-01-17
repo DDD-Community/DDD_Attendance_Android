@@ -20,4 +20,6 @@
     <string name="logout_confirm_title">로그아웃 하시겠습니까?</string>
     <string name="withdrawal_confirm_title">정말 탈퇴하시겠습니까?</string>
     <string name="withdrawal_warning_content">탈퇴시, 등록된 모든 출석 데이터가\n삭제됩니다.</string>
+    <string name="scan_qr_code">QR 코드를 스캔해 주세요</string>
+    <string name="attendance_complete">출석이 완료됐어요!</string>
 </resources>

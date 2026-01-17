@@ -17,6 +17,7 @@ data class AdminUiState(
     val isShowScheduleBottomSheet: Boolean = false,
     val isShowAbsentNotificationPopup: Boolean = false,
     val isShowQrScanner: Boolean = false,
+    val isAttendanceSuccess: Boolean = false,
     val selectedEditText: String = "출석",
     val selectedScheduleId: Long = 0,
     val teams: ImmutableList<AdminTeam> = persistentListOf(),

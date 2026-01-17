@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
+import com.ddd.attendance.domain.usecase.AttendancesChangeUseCase
+import com.ddd.attendance.domain.usecase.AttendancesUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleTeamAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminTeamUseCase
@@ -18,6 +20,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -35,7 +39,9 @@ class AdminViewModel @Inject constructor(
     private val getAdminScheduleTeamAttendanceUseCase: GetAdminScheduleTeamAttendanceUseCase,
     private val getAdminScheduleAttendanceUseCase: GetAdminScheduleAttendanceUseCase,
     private val getAdminTeamUseCase: GetAdminTeamUseCase,
-    private val getScheduleUseCase: GetScheduleUseCase
+    private val getScheduleUseCase: GetScheduleUseCase,
+    private val attendancesUseCase: AttendancesUseCase,
+    private val attendancesChangeUseCase: AttendancesChangeUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(AdminUiState())
     val uiState: StateFlow<AdminUiState> = _uiState.asStateFlow()
@@ -133,6 +139,20 @@ class AdminViewModel @Inject constructor(
     fun onIntent(intent: AdminIntent) {
         when(intent) {
             is AdminIntent.GoToProfile -> goToProfile()
+            is AdminIntent.QrDetected -> {
+                viewModelScope.launch {
+                    attendancesUseCase(qrCode = intent.qrCode)
+                        .onEach {
+                            _uiState.update { state ->
+                                state.copy(isAttendanceSuccess = state.isAttendanceSuccess)
+                            }
+                        }
+                        .catch {
+
+                        }
+                        .collect()
+                }
+            }
             else -> {
                 _uiState.update {
                     reduce(it, intent)
@@ -188,7 +208,7 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.ShowAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = true)
             is AdminIntent.HideAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = false)
             is AdminIntent.ShowQrScanner -> state.copy(isShowQrScanner = true)
-            is AdminIntent.HideQrScanner -> state.copy(isShowQrScanner = false)
+            is AdminIntent.HideQrScanner -> state.copy(isShowQrScanner = false, isAttendanceSuccess = false)
             else -> state
         }
     }

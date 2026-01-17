@@ -102,6 +102,7 @@ fun AdminScreen(
         isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
         isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
         isShowQrScanner = uiState.isShowQrScanner,
+        isAttendanceSuccess = uiState.isAttendanceSuccess,
         selectedEditText = uiState.selectedEditText,
         scheduleList = uiState.schedules,
         onTabClick = { teamId, selectedIndex ->
@@ -148,6 +149,9 @@ fun AdminScreen(
         },
         onQrScannerBottomSheetDismiss = {
             viewModel.onIntent(AdminIntent.HideQrScanner)
+        },
+        onQrDetected = { qrCode ->
+            viewModel.onIntent(AdminIntent.QrDetected(qrCode))
         }
     )
 }
@@ -170,6 +174,7 @@ internal fun Content(
     isShowScheduleBottomSheet: Boolean,
     isShowAbsentNotificationPopup: Boolean,
     isShowQrScanner: Boolean,
+    isAttendanceSuccess: Boolean,
     selectedEditText: String,
     onTabClick: (teamId: Int, selectedIndex: Int) -> Unit,
     onEditClick: (text: String) -> Unit,
@@ -186,6 +191,7 @@ internal fun Content(
     onAbsentNotificationClick: () -> Unit,
     onAbsentNotificationDismiss: () -> Unit,
     onQrScannerBottomSheetDismiss: () -> Unit,
+    onQrDetected: (qrCode: String) -> Unit
 ) {
     val headerText =
         if (uiType == AdminType.Attendance) {
@@ -287,7 +293,9 @@ internal fun Content(
         QrScanner(
             isShow = isShowQrScanner,
             onDismiss = onQrScannerBottomSheetDismiss,
+            isAttendanceSuccess = isAttendanceSuccess,
             onQrCodeDetected = {
+                onQrDetected(it)
                 Log.d("QrScanner-onQrCodeDetected", it)
             },
             onError = {
@@ -670,6 +678,7 @@ internal fun AbsentNotificationPopup(
 private fun QrScanner(
     modifier: Modifier = Modifier,
     isShow: Boolean,
+    isAttendanceSuccess: Boolean,
     onDismiss: () -> Unit,
     onQrCodeDetected: (String) -> Unit,
     onError: (String) -> Unit,
@@ -692,7 +701,8 @@ private fun QrScanner(
             QrScannerScreen(
                 onQrCodeDetected = onQrCodeDetected,
                 onResult = onResult,
-                onError = onError
+                onError = onError,
+                isAttendanceSuccess = isAttendanceSuccess
             )
 
             Box(
