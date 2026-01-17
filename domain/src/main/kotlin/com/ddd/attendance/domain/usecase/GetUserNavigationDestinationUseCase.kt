@@ -7,32 +7,27 @@ import javax.inject.Inject
 class GetUserNavigationDestinationUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    suspend operator fun invoke(): NavigationDestination {
-        return when {
-            hasTempOAuthToken() -> NavigationDestination.OnBoarding
-            !isUserLoggedIn() -> NavigationDestination.Login
-            !isOnboardingCompleted() -> NavigationDestination.OnBoarding
-            isManagerRole() -> NavigationDestination.Manager
-            else -> NavigationDestination.Member
+    suspend operator fun invoke(code: Int = 0): NavigationDestination {
+        return when(code) {
+            201 -> {
+                if (userRepository.getUserRole() == "MANAGER") {
+                    NavigationDestination.Manager
+                } else {
+                    NavigationDestination.Member
+                }
+            }
+            202 -> NavigationDestination.OnBoarding
+
+            else -> {
+                // Splash
+                if (userRepository.getUserRole() == "MANAGER") {
+                    NavigationDestination.Manager
+                } else if (userRepository.getUserRole() == "MEMBER") {
+                    NavigationDestination.Member
+                } else {
+                    NavigationDestination.Login
+                }
+            }
         }
-    }
-
-    private suspend fun hasTempOAuthToken(): Boolean {
-        return userRepository.hasTempOAuthToken()
-    }
-
-    private suspend fun isUserLoggedIn(): Boolean {
-        return userRepository.isUserLoggedIn()
-    }
-
-    private suspend fun isOnboardingCompleted(): Boolean {
-        // TODO: 실제 온보딩 상태 체크 로직 구현
-        // 현재는 로그인되어 있으면 온보딩 완료로 간주
-        return true
-    }
-
-    private suspend fun isManagerRole(): Boolean {
-        val role = userRepository.getUserRole()
-        return role?.uppercase() == "ADMIN" || role?.uppercase() == "MANAGER"
     }
 }

@@ -55,7 +55,7 @@ class GoogleLoginDataSourceImpl @Inject constructor(
         }
     }
 
-    private suspend fun signOut(): Result<Unit> {
+    override suspend fun logout(): Result<Unit> {
         return try {
             credentialManager.clearCredentialState(
                 androidx.credentials.ClearCredentialStateRequest()

@@ -118,6 +118,12 @@ class UserPreferencesDataStore @Inject constructor(
         }
     }
 
+    suspend fun saveUserRole(role: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_ROLE] = role
+        }
+    }
+
     suspend fun clearAll() {
         dataStore.edit { preferences ->
             preferences.clear()

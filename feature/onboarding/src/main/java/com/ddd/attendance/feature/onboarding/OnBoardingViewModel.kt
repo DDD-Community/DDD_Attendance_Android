@@ -9,6 +9,7 @@ import com.ddd.attendance.domain.usecase.CompleteOnboardingAndLoginUseCase
 import com.ddd.attendance.domain.usecase.GetAdminSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetMemberSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
+import com.ddd.attendance.domain.usecase.LoginUseCase
 import com.ddd.attendance.domain.usecase.UsersSaveUseCase
 import com.ddd.attendance.domain.usecase.VerifyCodeUseCase
 import com.ddd.attendance.feature.core.model.UserType
@@ -41,7 +42,8 @@ class OnBoardingViewModel @Inject constructor(
     private val usersSaveUseCase: UsersSaveUseCase,
     private val completeOnboardingAndLoginUseCase: CompleteOnboardingAndLoginUseCase,
     private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase,
-    private val userPreferencesDataStore: UserPreferencesDataStore
+    private val userPreferencesDataStore: UserPreferencesDataStore,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnBoardingUiState())
@@ -216,13 +218,18 @@ class OnBoardingViewModel @Inject constructor(
         viewModelScope.launch { _navigationEvent.emit(OnboardingNavigationEvent.PopBackStack) }
     }
 
-    private fun goToHome() {
+    private fun goToHome(statusCode: Int) {
         viewModelScope.launch {
-            val destination = getUserNavigationDestinationUseCase()
+            val destination = getUserNavigationDestinationUseCase(statusCode)
+
             val route = when (destination) {
-                is com.ddd.attendance.domain.model.NavigationDestination.Member -> "MEMBER_MAIN"
-                is com.ddd.attendance.domain.model.NavigationDestination.Manager -> "ADMIN_MAIN"
-                else -> "MEMBER_MAIN"
+                is com.ddd.attendance.domain.model.NavigationDestination.Member -> {
+                    "MEMBER_MAIN"
+                }
+                is com.ddd.attendance.domain.model.NavigationDestination.Manager -> {
+                    "ADMIN_MAIN"
+                }
+                else -> ""
             }
             _navigationEvent.emit(OnboardingNavigationEvent.GoToDestination(route))
         }
@@ -287,10 +294,12 @@ class OnBoardingViewModel @Inject constructor(
 
     fun submitOnboarding() {
         val state = _uiState.value
-        
+
         submitOnboardingFlow(state)
             .flatMapConcat { completeOnboardingAndLoginUseCase() }
-            .onEach { goToHome() }
+            .onEach {
+                goToHome(statusCode = it.statusCode)
+            }
             .catch { e -> _navigationEvent.emit(OnboardingNavigationEvent.FailOnBoarding(e.message.orEmpty())) }
             .launchIn(viewModelScope)
     }
@@ -319,7 +328,7 @@ class OnBoardingViewModel @Inject constructor(
             name = state.name,
             generationId = state.generationId,
             jobRole = state.jobRole,
-            teamId = state.teamId,
+            teamId = if (state.type == UserType.Member) state.teamId else null,
             managerRoles = state.managerRoles,
             provider = provider,
             token = token,
@@ -328,6 +337,7 @@ class OnBoardingViewModel @Inject constructor(
             emit(Unit)
         }
     }
+
 
     private fun Map<String, List<ItemSelect>>.toStepMap(): Map<OnBoardingStep, ImmutableList<SelectItemUiModel>> {
         return this.mapKeys { (key, _) ->

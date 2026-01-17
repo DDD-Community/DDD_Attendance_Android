@@ -8,7 +8,7 @@ interface ApiUsersDataSource {
         name: String,
         generationId: Int,
         jobRole: String,
-        teamId: Int,
+        teamId: Int?,
         managerRoles: List<String>,
         provider: String,
         token: String,
@@ -16,4 +16,6 @@ interface ApiUsersDataSource {
     ): Result<UsersResponse>
 
     suspend fun getQr(userId: Long): Result<QrResponse>
+
+    suspend fun deleteUsersMe(token: String): Result<Unit>
 }

@@ -6,9 +6,10 @@ import com.ddd.attendance.data.datasource.ApiSchedulesDataSource
 import com.ddd.attendance.data.datasource.ApiUsersDataSource
 import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.data.mapper.login.toDomain
 import com.ddd.attendance.data.mapper.schedule.toDomain
 import com.ddd.attendance.data.mapper.users.toDomain
-import com.ddd.attendance.domain.model.LoginType
+import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.model.Schedule
 import com.ddd.attendance.domain.model.users.Users
 import com.ddd.attendance.domain.repository.UserRepository
@@ -26,39 +27,12 @@ class UserRepositoryImpl @Inject constructor(
     private val apiSchedulesDataSource: ApiSchedulesDataSource,
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : UserRepository {
-    
-    override fun login(loginType: LoginType): Flow<Unit> = flow {
-        when (loginType) {
-            LoginType.GOOGLE -> {
-                val socialLoginResult = googleLoginDataSource.login()
-                if (socialLoginResult.isFailure) {
-                    throw IllegalStateException("Google login failed")
-                }
-
-                val idToken = socialLoginResult.getOrThrow()
-
-                // 온보딩 화면에서 사용할 수 있도록 임시 저장
-                userPreferencesDataStore.saveTempOAuthToken(
-                    token = idToken,
-                    provider = "GOOGLE"
-                )
-
-                // TODO: 온보딩 완료 후 API 호출하도록 이동
-//                 val apiResult = apiLoginDataSource.login(idToken)
-//                 if (apiResult.isFailure) {
-//                     throw IllegalStateException("API login failed")
-//                 }
-
-                emit(Unit)
-            }
-        }
-    }
 
     override fun usersSave(
         name: String,
         generationId: Int,
         jobRole: String,
-        teamId: Int,
+        teamId: Int?,
         managerRoles: List<String>,
         provider: String,
         token: String,
@@ -75,7 +49,62 @@ class UserRepositoryImpl @Inject constructor(
             invitationCode = invitationCode
         )
         val response = result.getOrThrow()
+
         emit(response.toDomain())
+    }
+
+    override suspend fun login(isAutoLogin: Boolean): Result<Login> {
+        return runCatching {
+            //로그인 버튼
+            val idToken = if (!isAutoLogin) {
+                val socialLoginResult = googleLoginDataSource.login()
+
+                if (socialLoginResult.isFailure) {
+                    throw IllegalStateException("Google login failed")
+                }
+
+                val idToken = socialLoginResult.getOrThrow()
+
+                userPreferencesDataStore.saveTempOAuthToken(token = idToken, provider = "GOOGLE")
+
+                idToken
+            } else {
+                //스플래시
+                userPreferencesDataStore.tempOauthToken.firstOrNull() ?: error("No temp OAuth token found")
+            }
+
+            val data = apiLoginDataSource.login(idToken).getOrThrow()
+            val result = data.response.body()?.toDomain(data.code)
+                ?: return Result.failure(IllegalStateException("Login response body is null"))
+
+            userPreferencesDataStore.saveUserRole(result.role)
+
+            result
+        }
+    }
+
+    //온보딩 직후
+    override suspend fun completeOnboardingAndLogin(): Result<Login> {
+        return runCatching {
+            val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
+                ?: error("No temp OAuth token found")
+
+            // 성공 시에만 임시 토큰 제거
+            //userPreferencesDataStore.clearTempOAuthData()
+
+            val data = apiLoginDataSource.login(tempToken).getOrThrow()
+            val result = data.response.body()?.toDomain(data.code)
+                ?: return Result.failure(IllegalStateException("Login response body is null"))
+
+            userPreferencesDataStore.saveUserRole(result.role)
+
+            result
+        }
+    }
+
+    override suspend fun deleteUsersMe(): Result<Unit> {
+        val token = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: error("No temp OAuth token found")
+        return apiUsersDataSource.deleteUsersMe(token).map { Unit }
     }
 
     override suspend fun isUserLoggedIn(): Boolean {
@@ -112,30 +141,6 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun getUserId(): Flow<Long> {
         return userPreferencesDataStore.userId.map { it ?: 0L }
-    }
-
-    override suspend fun completeOnboardingAndLogin(): Result<Unit> {
-        return try {
-            // 임시 저장된 OAuth 토큰 가져오기
-            val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
-
-            if (tempToken.isNullOrEmpty()) {
-                return Result.failure(IllegalStateException("No temp OAuth token found"))
-            }
-
-            // API 로그인 호출
-            val apiResult = apiLoginDataSource.login(tempToken)
-
-            if (apiResult.isSuccess) {
-                // 임시 토큰 삭제
-                userPreferencesDataStore.clearTempOAuthData()
-                Result.success(Unit)
-            } else {
-                apiResult
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
     }
 
     override fun getUserName(): Flow<String> {
@@ -183,5 +188,16 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun saveAccessToken(accessToken: String) {
         userPreferencesDataStore.saveAccessToken(accessToken)
+    }
+
+    override suspend fun saveUserRole(role: String) {
+        userPreferencesDataStore.saveUserRole(role)
+    }
+
+    override suspend fun deleteDataStoreWithdrawAccount(isLogout: Boolean) {
+        if (isLogout) {
+            googleLoginDataSource.logout()
+        }
+        userPreferencesDataStore.clearAll()
     }
 }

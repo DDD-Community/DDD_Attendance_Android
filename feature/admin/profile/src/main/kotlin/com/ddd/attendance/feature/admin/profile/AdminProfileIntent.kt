@@ -5,4 +5,7 @@ interface AdminProfileIntent {
     data class ShowWithdrawAccount(val isShow: Boolean): AdminProfileIntent
     data class ShowLogout(val isShow: Boolean): AdminProfileIntent
     data object PopBackStack: AdminProfileIntent
+    data object WithdrawAccount: AdminProfileIntent
+    data object Logout: AdminProfileIntent
+    data object ChangeGeneration: AdminProfileIntent
 }

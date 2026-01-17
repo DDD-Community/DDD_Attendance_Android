@@ -11,14 +11,14 @@ import com.ddd.attendance.domain.model.admin.AdminTeam
 
 fun AdminMeResponse.toDomain(): AdminMe {
     return AdminMe(
-        userId = userId,
-        name = name,
-        email = email,
-        generation = generation,
-        team = team,
-        jobRole = jobRole,
-        role = role,
-        managerRoles = managerRoles
+        userId = userId?: 0,
+        name = name.orEmpty(),
+        email = email.orEmpty(),
+        generation = generation.orEmpty(),
+        team = team.orEmpty(),
+        jobRole = jobRole.orEmpty(),
+        role = role.orEmpty(),
+        managerRoles = managerRoles.orEmpty()
     )
 }
 

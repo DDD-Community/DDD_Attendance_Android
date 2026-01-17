@@ -3,6 +3,7 @@ package com.ddd.attendance.feature.admin.profile
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,13 +62,24 @@ fun AdminProfileScreen(
         viewModel.navigationEvent.collect { event ->
             when (event) {
                 ProfileNavigationEvent.PopBackStack -> { navController.popBackStack() }
+                ProfileNavigationEvent.GoToLogin -> {
+                    navController.navigate("LOGIN") {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+
+                ProfileNavigationEvent.GoToOnboarding -> navController.navigate("ON_BOARDING")
             }
         }
     }
+
     Content(
         name = uiState.name,
         jobRole = uiState.jobRole,
-        team = uiState.name,
+        team = uiState.team,
         managerRoles = uiState.managerRoles,
         generation = uiState.generation,
         organization = uiState.organization,
@@ -89,6 +101,15 @@ fun AdminProfileScreen(
         onBackClick = {
             viewModel.onIntent(AdminProfileIntent.PopBackStack)
         },
+        onRequestWithDraw = {
+            viewModel.onIntent(AdminProfileIntent.WithdrawAccount)
+        },
+        onRequestLogout = {
+            viewModel.onIntent(AdminProfileIntent.Logout)
+        },
+        onChangeGeneration = {
+            viewModel.onIntent(AdminProfileIntent.ChangeGeneration)
+        }
     )
 }
 
@@ -110,7 +131,12 @@ private fun Content(
     onLogoutPopupEvent: (isShow: Boolean) -> Unit,
     onContributorBottomSheetEvent: (isShow: Boolean) -> Unit,
     onBackClick: () -> Unit,
+    onRequestWithDraw: () -> Unit,
+    onRequestLogout: () -> Unit,
+    onChangeGeneration: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -137,7 +163,8 @@ private fun Content(
                 team = team,
                 task = managerRoles.joinToString(),
                 generation = generation,
-                organization = organization
+                organization = organization,
+                onChangeGeneration = onChangeGeneration
             )
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -160,7 +187,12 @@ private fun Content(
         ContributorBottomSheet(
             isShow = isShowContributorBottomSheet,
             onFeedback = {
-
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://forms.gle/a2idQmnxjbC5czfP7")
+                    )
+                )
             },
             onDismiss = {
                 onContributorBottomSheetEvent(it)
@@ -172,9 +204,7 @@ private fun Content(
             titleText = stringResource(com.ddd.attendance.feature.core.R.string.withdrawal_confirm_title),
             contentText = stringResource(com.ddd.attendance.feature.core.R.string.withdrawal_warning_content),
             confirmText = stringResource(com.ddd.attendance.feature.core.R.string.withdraw_account),
-            onConfirm = {
-                //탈퇴 api 요청
-            },
+            onConfirm = onRequestWithDraw,
             cancelText = stringResource(com.ddd.attendance.feature.core.R.string.cancel),
             onCancel = {
                 onWithdrawAccountPopupEvent(false)
@@ -186,7 +216,7 @@ private fun Content(
             titleText = stringResource(com.ddd.attendance.feature.core.R.string.logout_confirm_title),
             confirmText = stringResource(com.ddd.attendance.feature.core.R.string.logout),
             onConfirm = {
-                //로그아웃 api 요청
+                onRequestLogout()
             },
             cancelText = stringResource(com.ddd.attendance.feature.core.R.string.cancel),
             onCancel = {
@@ -237,7 +267,8 @@ fun AdminProfileCard(
     team: String,
     task: String,
     generation: String,
-    organization: String
+    organization: String,
+    onChangeGeneration:() -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -282,7 +313,14 @@ fun AdminProfileCard(
                         .background(
                             color = Color(0xB20D82F9),
                             shape = RoundedCornerShape(16.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                onChangeGeneration()
+                            }
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
@@ -440,7 +478,12 @@ private fun AdminBottomSection(
             textDecoration = TextDecoration.Underline,
             modifier = Modifier
                 .clickable {
-                    openUrl(context, privacyPolicyUrl)
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(privacyPolicyUrl)
+                        )
+                    )
                 }
         )
     }
@@ -465,15 +508,5 @@ private fun ProfileInfoSection(
             style = Typography.titleMediumM,
             color = BackgroundSecondaryDark
         )
-    }
-}
-
-private fun openUrl(context: Context, url: String) {
-    try {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        // URL 열기 실패 시 처리
-        e.printStackTrace()
     }
 }

@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.NavigationDestination
-import com.ddd.attendance.domain.repository.UserRepository
 import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
+import com.ddd.attendance.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val loginUseCase: LoginUseCase,
     private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase
 ) : ViewModel() {
 
@@ -25,15 +25,18 @@ class LoginViewModel @Inject constructor(
     val navigationDestination: SharedFlow<NavigationDestination> = _navigationDestination.asSharedFlow()
 
     fun login(loginType: LoginType) {
-        userRepository
-            .login(loginType)
-            .onEach { checkAndNavigateToMember() }
-            .catch { /** TODO: 에러 처리 - exception을 사용해서 에러 상태 관리 */ }
+        loginUseCase(loginType = loginType, isAutoLogin = false)
+            .onEach {
+                checkAndNavigateToMember(it.statusCode)
+            }
+            .catch {
+
+            }
             .launchIn(viewModelScope)
     }
 
-    private suspend fun checkAndNavigateToMember() {
-        val destination = getUserNavigationDestinationUseCase()
+    private suspend fun checkAndNavigateToMember(code: Int) {
+        val destination = getUserNavigationDestinationUseCase(code)
         _navigationDestination.emit(destination)
     }
 }

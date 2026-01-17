@@ -2,6 +2,8 @@ package com.ddd.attendance.feature.admin.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
+import com.ddd.attendance.domain.usecase.DeleteUsersMeUseCase
 import com.ddd.attendance.domain.usecase.GetAdminMeUseCase
 import com.ddd.attendance.feature.core.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,7 +14,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,7 +24,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminProfileViewModel @Inject constructor(
-    private val getAdminMeUseCase: GetAdminMeUseCase
+    private val getAdminMeUseCase: GetAdminMeUseCase,
+    private val deleteUsersMeUseCase: DeleteUsersMeUseCase,
+    private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AdminProfileUiState())
     val uiState: StateFlow<AdminProfileUiState> = _uiState.asStateFlow()
@@ -55,6 +61,50 @@ class AdminProfileViewModel @Inject constructor(
     fun onIntent(intent: AdminProfileIntent) {
         when(intent) {
             is AdminProfileIntent.PopBackStack -> popBackStack()
+            is AdminProfileIntent.WithdrawAccount -> {
+                viewModelScope.launch {
+                    deleteUsersMeUseCase()
+                        .flatMapConcat {
+                            // 서버 탈퇴 성공 후
+                            deleteDataStoreWithdrawAccountUseCase(isLogout = false)
+                        }
+                        .onCompletion {
+                            _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
+                        }
+                        .catch {
+
+                        }
+                        .collect {}
+                }
+
+                _uiState.update {
+                    reduce(it, intent)
+                }
+            }
+
+            is AdminProfileIntent.Logout -> {
+                viewModelScope.launch {
+                    deleteDataStoreWithdrawAccountUseCase(isLogout = true)
+                        .onEach {
+                            _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
+                        }
+                        .catch {
+
+                        }
+                        .collect {
+
+                        }
+                }
+                _uiState.update {
+                    reduce(it, intent)
+                }
+            }
+
+            is AdminProfileIntent.ChangeGeneration -> {
+                viewModelScope.launch {
+                    _navigationEvent.emit(ProfileNavigationEvent.GoToOnboarding)
+                }
+            }
             else -> {
                 _uiState.update {
                     reduce(it, intent)
@@ -70,7 +120,9 @@ class AdminProfileViewModel @Inject constructor(
         return when (intent) {
             is AdminProfileIntent.ShowContributor -> state.copy(isShowContributorBottomSheet = intent.isShow)
             is AdminProfileIntent.ShowWithdrawAccount -> state.copy(isShowWithdrawAccountPopup = intent.isShow)
+            is AdminProfileIntent.WithdrawAccount -> state.copy(isShowWithdrawAccountPopup = false)
             is AdminProfileIntent.ShowLogout -> state.copy(isShowLogoutPopup = intent.isShow)
+            is AdminProfileIntent.Logout -> state.copy(isShowLogoutPopup = false)
             else -> state
         }
     }

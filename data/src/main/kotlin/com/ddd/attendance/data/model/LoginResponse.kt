@@ -1,4 +1,4 @@
-package com.ddd.attendance.data.api.model
+package com.ddd.attendance.data.model
 
 import kotlinx.serialization.Serializable
 
@@ -12,5 +12,6 @@ data class LoginResponse(
     val isNewUser: Boolean?,
     val accessToken: String?,
     val refreshToken: String?,
-    val oauthRefreshToken: String?
+    val oauthRefreshToken: String?,
+    val role: String?
 )

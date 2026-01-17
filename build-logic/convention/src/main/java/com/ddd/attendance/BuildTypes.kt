@@ -82,7 +82,8 @@ private fun BuildType.configureReleaseBuildType(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
     projectVersionName: String
 ){
-    isMinifyEnabled = true // 코드 난독화
+    /*isMinifyEnabled = true*/ // 코드 난독화
+    isMinifyEnabled = false
     buildConfigField("String", "APP_VERSION", "\"$projectVersionName\"")
     proguardFiles(
         commonExtension.getDefaultProguardFile("proguard-android-optimize.txt"),

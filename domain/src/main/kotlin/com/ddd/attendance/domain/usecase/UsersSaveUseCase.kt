@@ -12,7 +12,7 @@ class UsersSaveUseCase @Inject constructor(
         name: String,
         generationId: Int,
         jobRole: String,
-        teamId: Int,
+        teamId: Int?,
         managerRoles: List<String>,
         provider: String,
         token: String,
