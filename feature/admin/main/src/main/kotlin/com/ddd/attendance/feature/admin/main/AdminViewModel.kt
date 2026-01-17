@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -136,6 +137,38 @@ class AdminViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    private fun attendanceChange(
+        attendanceId: Long,
+        scheduleId: Long,
+        status: String,
+        userId: Long
+    ) {
+        val state = _uiState.value
+
+        viewModelScope.launch {
+            attendancesChangeUseCase(
+                attendanceId = attendanceId,
+                scheduleId = scheduleId,
+                status = status,
+                userId = userId
+            )
+                .flatMapConcat {
+                    getAdminScheduleTeamAttendanceUseCase(
+                        scheduleId = state.selectedScheduleId.toInt(),
+                        teamId = state.selectedTeamId
+                    )
+                }
+                .catch { e ->
+                    Log.e("AttendanceChange", "출석 상태 변경 실패", e)
+                    // 실패하면 롤백 가능
+                    _uiState.update { it.copy(memberAttendances = state.memberAttendances) }
+                }
+                .collect { latestList ->
+                    _uiState.update { it.copy(memberAttendances = latestList.toImmutableList()) }
+                }
+        }
+    }
+
     fun onIntent(intent: AdminIntent) {
         when(intent) {
             is AdminIntent.GoToProfile -> goToProfile()
@@ -191,13 +224,28 @@ class AdminViewModel @Inject constructor(
                 )
             }
 
-            is AdminIntent.ShowEditPopup -> state.copy(
-                isShowEditPopup = true,
-                selectedEditText = intent.selectedText
-            )
+            is AdminIntent.ShowEditPopup -> {
+                state.copy(
+                    isShowEditPopup = true,
+                    selectedUserId = intent.userId,
+                    selectedAttendanceId = intent.attendanceId,
+                    selectedEditText = intent.selectedEditText
+                )
+            }
 
             is AdminIntent.HideEditPopup -> {
-                Log.d("AdminViewModel-Data-Reduce", state.selectedEditText)
+                attendanceChange(
+                    attendanceId = state.selectedAttendanceId.toLong(),
+                    userId = state.selectedUserId.toLong(),
+                    scheduleId = state.selectedScheduleId,
+                    status = when(state.selectedEditText) {
+                        "출석" -> "ATTENDED"
+                        "지각" -> "LATE"
+                        "결석" -> "ABSENT"
+                        else -> "NONE"
+                    }
+                )
+
                 state.copy(isShowEditPopup = false)
             }
 

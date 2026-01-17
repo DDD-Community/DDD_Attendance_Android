@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.admin.attendance
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +34,6 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ddd.attendance.domain.model.admin.AdminScheduleTeamAttendance
 import com.ddd.attendance.domain.model.admin.AdminTeam
@@ -45,11 +45,9 @@ import com.ddd.attendance.feature.designsystem.theme.BackgroundSecondaryDark
 import com.ddd.attendance.feature.designsystem.theme.BorderDisabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonDisabled
 import com.ddd.attendance.feature.designsystem.theme.ButtonEnabled
-import com.ddd.attendance.feature.designsystem.theme.StatusCautionary
 import com.ddd.attendance.feature.designsystem.theme.TextDisabled
 import com.ddd.attendance.feature.designsystem.theme.TextPrimary
 import com.ddd.attendance.feature.designsystem.theme.TextSecondaryDark
-import com.ddd.attendance.feature.designsystem.theme.Transparent
 import com.ddd.attendance.feature.designsystem.theme.Typography
 import kotlinx.collections.immutable.ImmutableList
 
@@ -64,7 +62,7 @@ fun AttendanceScreen(
     teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int = 0,
     onTabClick:(teamId: Int, selectedIndex: Int) -> Unit,
-    onEditClick:(text: String) -> Unit,
+    onEditClick:(selectedEditText: String, attendanceId: Int, userId: Int) -> Unit,
     onDataClick: () -> Unit,
     onAbsentNotificationClick: () -> Unit
 ) {
@@ -96,7 +94,7 @@ internal fun Content(
     teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int,
     onTabClick:(teamId: Int, selectedIndex: Int) -> Unit,
-    onEditClick:(text: String) -> Unit,
+    onEditClick:(selectedEditText: String, attendanceId: Int, userId: Int) -> Unit,
     onDataClick: () -> Unit,
     onAbsentNotificationClick: () -> Unit
 ) {
@@ -234,19 +232,27 @@ fun TabItem(
 fun TeamCardList(
     memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
     selectedTeamName: String,
-    onEditClick:(text: String) -> Unit
+    onEditClick:(selectedEditText: String, attendanceId: Int, userId: Int) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         itemsIndexed(memberAttendances) { _, item ->
+
             CardItem(
                 name = item.userName,
                 team = selectedTeamName,
                 role = item.userInfo,
                 attendanceStatus = item.attendanceStatus
             ) {
-                onEditClick(it)
+                val name = MemberAttendanceType.displayNameOf(item.attendanceStatus)
+                Log.d("MemberAttendanceType-displayNameOf", "변환 전 : ${ item.attendanceStatus }, 변환 후 : $name")
+
+                onEditClick(
+                    name,
+                    item.attendanceId,
+                    item.userId
+                )
             }
         }
     }
@@ -259,16 +265,11 @@ fun CardItem(
     team: String,
     role: String,
     attendanceStatus: String,
-    onEditClick:(text: String) -> Unit
+    onEditClick: () -> Unit
 ) {
-    val memberAttendanceType = when(attendanceStatus) {
-        "ATTENDANCE" -> MemberAttendanceType.ATTENDANCE
-        "LATE" -> MemberAttendanceType.LATE
-        "ABSENT" -> MemberAttendanceType.ABSENT
-        else -> MemberAttendanceType.NONE
-    }
+    val memberType = MemberAttendanceType.fromType(attendanceStatus)
 
-    val isDisable = memberAttendanceType == MemberAttendanceType.ABSENT
+    val isDisable = memberType == MemberAttendanceType.ABSENT
 
     val borderModifier = if (isDisable) {
         Modifier.drawBehind {
@@ -334,37 +335,20 @@ fun CardItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val text = when(memberAttendanceType) {
-                    MemberAttendanceType.NONE -> ""
-                    MemberAttendanceType.ATTENDANCE -> stringResource(R.string.attendance)
-                    MemberAttendanceType.LATE -> stringResource(R.string.late)
-                    MemberAttendanceType.ABSENT -> stringResource(R.string.absent)
-                }
-
-                val iconRes = when (memberAttendanceType) {
-                    MemberAttendanceType.NONE -> null
-                    MemberAttendanceType.ATTENDANCE -> R.drawable.ic_attendance
-                    MemberAttendanceType.LATE -> R.drawable.ic_late
-                    MemberAttendanceType.ABSENT -> R.drawable.ic_absent
-                }
-
-                val textColor = when (memberAttendanceType) {
-                    MemberAttendanceType.NONE -> Transparent
-                    MemberAttendanceType.ATTENDANCE -> TextPrimary
-                    MemberAttendanceType.LATE -> StatusCautionary
-                    MemberAttendanceType.ABSENT -> BorderDisabled
-                }
+                // 텍스트
+                val text = memberType.displayName
 
                 if (text.isNotBlank()) {
                     DddText(
                         text = text,
                         style = Typography.bodyMediumM,
-                        color = textColor
+                        color = memberType.textColor
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                 }
 
-                iconRes?.let {
+                // 상태 아이콘
+                memberType.iconRes?.let {
                     Image(
                         modifier = Modifier.size(24.dp),
                         painter = painterResource(it),
@@ -373,6 +357,7 @@ fun CardItem(
                     Spacer(modifier = Modifier.width(12.dp))
                 }
 
+                // 수정 아이콘
                 Image(
                     modifier = Modifier
                         .size(18.dp)
@@ -380,7 +365,7 @@ fun CardItem(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
-                            onEditClick(text)
+                            onEditClick()
                         },
                     painter = painterResource(id = R.drawable.ic_edit_pencil),
                     contentDescription = "수정 아이콘",

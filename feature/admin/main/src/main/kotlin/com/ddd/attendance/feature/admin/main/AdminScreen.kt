@@ -108,8 +108,8 @@ fun AdminScreen(
         onTabClick = { teamId, selectedIndex ->
             viewModel.onIntent(AdminIntent.TabChanged(teamId, selectedIndex))
         },
-        onEditClick = { selectedText ->
-            viewModel.onIntent(AdminIntent.ShowEditPopup(selectedText))
+        onEditClick = { selectedEditText, attendanceId, userId ->
+            viewModel.onIntent(AdminIntent.ShowEditPopup(selectedEditText, attendanceId, userId))
         },
         onEditConfirm = {
             viewModel.onIntent(AdminIntent.HideEditPopup)
@@ -177,7 +177,7 @@ internal fun Content(
     isAttendanceSuccess: Boolean,
     selectedEditText: String,
     onTabClick: (teamId: Int, selectedIndex: Int) -> Unit,
-    onEditClick: (text: String) -> Unit,
+    onEditClick:(selectedEditText: String, attendanceId: Int, userId: Int) -> Unit,
     onEditConfirm: () -> Unit,
     onEditItemSelected: (String) -> Unit,
     onHeaderClick:() -> Unit,
@@ -232,8 +232,8 @@ internal fun Content(
                             onTabClick = { teamId, selectedIndex ->
                                 onTabClick(teamId, selectedIndex)
                             },
-                            onEditClick = {
-                                onEditClick(it)
+                            onEditClick = { selectedEditText, attendanceId, userId ->
+                                onEditClick(selectedEditText, attendanceId, userId)
                             },
                             onDataClick = onDataClick,
                             onAbsentNotificationClick = onAbsentNotificationClick

@@ -18,8 +18,14 @@ data class AdminUiState(
     val isShowAbsentNotificationPopup: Boolean = false,
     val isShowQrScanner: Boolean = false,
     val isAttendanceSuccess: Boolean = false,
-    val selectedEditText: String = "출석",
+
+    val selectedEditText: String = "",
+
     val selectedScheduleId: Long = 0,
+    val selectedStatus: String = "",
+    val selectedAttendanceId: Int = 0,
+    val selectedUserId: Int = 0,
+
     val teams: ImmutableList<AdminTeam> = persistentListOf(),
     val schedules: ImmutableList<ScheduleUiModel> = persistentListOf(),
     val memberAttendances: ImmutableList<AdminScheduleTeamAttendance> = persistentListOf(),
@@ -29,7 +35,6 @@ data class AdminUiState(
         persistentListOf(
             "출석",
             "지각",
-            "결석",
-            "발표"
+            "결석"
         ),
 )
