@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DeleteUsersMeUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    operator fun invoke(): Flow<Unit> = flow {
-        emit(userRepository.deleteUsersMe().getOrThrow())
+    operator fun invoke(): Flow<Unit> {
+        return userRepository.deleteUsersMe()
     }
 }

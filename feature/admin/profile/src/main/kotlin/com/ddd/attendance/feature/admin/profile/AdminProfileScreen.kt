@@ -72,6 +72,7 @@ fun AdminProfileScreen(
                 }
 
                 ProfileNavigationEvent.GoToOnboarding -> navController.navigate("ON_BOARDING")
+                is ProfileNavigationEvent.ShowError -> {}
             }
         }
     }

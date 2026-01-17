@@ -16,9 +16,10 @@ interface UserRepository {
         token: String,
         invitationCode: String
     ): Flow<Users>
-    suspend fun login(isAutoLogin: Boolean): Result<Login>
-    suspend fun completeOnboardingAndLogin(): Result<Login>
-    suspend fun deleteUsersMe(): Result<Unit>
+    fun login(isAutoLogin: Boolean): Flow<Login>
+    fun completeOnboardingAndLogin(): Flow<Login>
+    fun logout(): Flow<Unit>
+    fun deleteUsersMe(): Flow<Unit>
 
     suspend fun isUserLoggedIn(): Boolean
     suspend fun getUserRole(): String?

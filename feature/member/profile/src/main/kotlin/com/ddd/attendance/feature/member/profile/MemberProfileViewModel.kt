@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
 import com.ddd.attendance.domain.usecase.DeleteUsersMeUseCase
 import com.ddd.attendance.domain.usecase.GetUserInfoUseCase
+import com.ddd.attendance.domain.usecase.LogoutUseCase
 import com.ddd.attendance.feature.core.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,11 +14,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 data class AppInfo(
     val version: String,
@@ -41,6 +45,7 @@ data class MemberProfileUiState(
 class MemberProfileViewModel @Inject constructor(
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val deleteUsersMeUseCase: DeleteUsersMeUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
 ) : ViewModel() {
 
@@ -96,33 +101,37 @@ class MemberProfileViewModel @Inject constructor(
     fun onWithdrawAccount() {
         viewModelScope.launch {
             deleteUsersMeUseCase()
-                .flatMapConcat {
+                .onEach {
                     deleteDataStoreWithdrawAccountUseCase(isLogout = false)
-                }
-                .onCompletion { // 모든 Flow 정상 완료 시
                     _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
                 }
-                .catch { throwable ->
-
+                .catch {
+                    _navigationEvent.emit(
+                        ProfileNavigationEvent.ShowError(
+                            it.message ?: "회원탈퇴 실패"
+                        )
+                    )
                 }
-                .collect {}
+                .collect()
         }
-
         showWithdrawAccountPopup(false)
     }
 
     fun onLogout() {
         viewModelScope.launch {
-            deleteDataStoreWithdrawAccountUseCase(isLogout = true)
+            logoutUseCase()
                 .onEach {
+                    deleteDataStoreWithdrawAccountUseCase(isLogout = true)
                     _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
                 }
                 .catch {
-
+                    _navigationEvent.emit(
+                        ProfileNavigationEvent.ShowError(
+                            it.message ?: "로그아웃 실패"
+                        )
+                    )
                 }
-                .collect {
-
-                }
+                .collect()
         }
         showLogoutPopup(false)
     }

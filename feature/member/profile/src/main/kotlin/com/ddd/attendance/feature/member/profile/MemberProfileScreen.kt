@@ -51,15 +51,15 @@ fun MemberProfileScreen(
             when (event) {
                 ProfileNavigationEvent.PopBackStack -> { navController.popBackStack() }
                 ProfileNavigationEvent.GoToLogin -> {
-                    /*navController.navigate("LOGIN") {
+                    navController.navigate("LOGIN") {
                         popUpTo(navController.graph.id) {
                             inclusive = true
                         }
                         launchSingleTop = true
-                    }*/
+                    }
                 }
-
                 ProfileNavigationEvent.GoToOnboarding -> navController.navigate("ON_BOARDING")
+                is ProfileNavigationEvent.ShowError -> {}
             }
         }
     }

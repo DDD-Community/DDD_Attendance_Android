@@ -69,8 +69,6 @@ class ApiUsersDataSourceImpl @Inject constructor(
                 )
             }
 
-
-
             // 사용자 데이터 저장
             userPreferencesDataStore.saveLoginData(
                 userId = response.userId ?: 0,

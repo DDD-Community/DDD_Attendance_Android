@@ -1,12 +1,13 @@
 package com.ddd.attendance.domain.usecase
 
 import com.ddd.attendance.domain.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DeleteDataStoreWithdrawAccountUseCase @Inject constructor(
+class LogoutUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    suspend operator fun invoke(isLogout: Boolean) {
-        userRepository.deleteDataStoreWithdrawAccount(isLogout)
+    operator fun invoke(): Flow<Unit> {
+        return userRepository.logout()
     }
 }

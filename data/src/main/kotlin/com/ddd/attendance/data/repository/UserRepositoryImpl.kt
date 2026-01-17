@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlin.math.log
 
 class UserRepositoryImpl @Inject constructor(
     private val googleLoginDataSource: GoogleLoginDataSource,
@@ -53,58 +54,58 @@ class UserRepositoryImpl @Inject constructor(
         emit(response.toDomain())
     }
 
-    override suspend fun login(isAutoLogin: Boolean): Result<Login> {
-        return runCatching {
-            //로그인 버튼
-            val idToken = if (!isAutoLogin) {
-                val socialLoginResult = googleLoginDataSource.login()
-
-                if (socialLoginResult.isFailure) {
-                    throw IllegalStateException("Google login failed")
-                }
-
-                val idToken = socialLoginResult.getOrThrow()
-
-                userPreferencesDataStore.saveTempOAuthToken(token = idToken, provider = "GOOGLE")
-
-                idToken
-            } else {
-                //스플래시
-                userPreferencesDataStore.tempOauthToken.firstOrNull() ?: error("No temp OAuth token found")
-            }
-
-            val data = apiLoginDataSource.login(idToken).getOrThrow()
-            val result = data.response.body()?.toDomain(data.code)
-                ?: return Result.failure(IllegalStateException("Login response body is null"))
-
-            userPreferencesDataStore.saveUserRole(result.role)
-
-            result
+    override fun login(isAutoLogin: Boolean): Flow<Login> = flow {
+        val idToken = if (!isAutoLogin) { //로그인 화면
+            val token = googleLoginDataSource.login().getOrThrow()
+            userPreferencesDataStore.saveTempOAuthToken(token, "GOOGLE")
+            token
+        } else { //스플래시 화면
+            userPreferencesDataStore.tempOauthToken.firstOrNull()
+                ?: throw IllegalStateException("No temp OAuth token found")
         }
+
+        val (code, response) = apiLoginDataSource.login(idToken).getOrThrow()
+
+        val login = response.body()?.toDomain(code)
+            ?: throw IllegalStateException("Login response body is null")
+
+        userPreferencesDataStore.saveUserRole(login.role)
+
+        emit(login)
     }
 
     //온보딩 직후
-    override suspend fun completeOnboardingAndLogin(): Result<Login> {
-        return runCatching {
-            val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
-                ?: error("No temp OAuth token found")
+    override fun completeOnboardingAndLogin(): Flow<Login> = flow {
+        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
+            ?: throw IllegalStateException("No temp OAuth token found")
 
-            // 성공 시에만 임시 토큰 제거
-            //userPreferencesDataStore.clearTempOAuthData()
+        // 성공 시에만 임시 토큰 제거
+        // userPreferencesDataStore.clearTempOAuthData()
 
-            val data = apiLoginDataSource.login(tempToken).getOrThrow()
-            val result = data.response.body()?.toDomain(data.code)
-                ?: return Result.failure(IllegalStateException("Login response body is null"))
+        val data = apiLoginDataSource.login(tempToken).getOrThrow()
 
-            userPreferencesDataStore.saveUserRole(result.role)
+        val result = data.response.body()
+            ?.toDomain(data.code)
+            ?: throw IllegalStateException("Login response body is null")
 
-            result
-        }
+        userPreferencesDataStore.saveUserRole(result.role)
+
+        emit(result)
     }
 
-    override suspend fun deleteUsersMe(): Result<Unit> {
-        val token = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: error("No temp OAuth token found")
-        return apiUsersDataSource.deleteUsersMe(token).map { Unit }
+    override fun logout(): Flow<Unit> = flow {
+        apiLoginDataSource.logout()
+            .onFailure { throw it }
+            .onSuccess { emit(Unit) }
+    }
+
+    override fun deleteUsersMe(): Flow<Unit> = flow {
+        val token = userPreferencesDataStore.tempOauthToken.firstOrNull()
+            ?: throw IllegalStateException("No temp OAuth token found")
+
+        apiUsersDataSource.deleteUsersMe(token)
+            .onFailure { throw it }
+            .onSuccess { emit(Unit) }
     }
 
     override suspend fun isUserLoggedIn(): Boolean {

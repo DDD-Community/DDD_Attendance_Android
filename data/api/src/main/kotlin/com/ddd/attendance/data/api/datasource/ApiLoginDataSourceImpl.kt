@@ -71,6 +71,19 @@ class ApiLoginDataSourceImpl @Inject constructor(
         }
     }
 
+
+    override suspend fun logout(): Result<Unit> {
+        return try {
+            val response = authenticationApi.logout()
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     companion object {
         private const val TAG = "ApiLoginDataSource"
     }

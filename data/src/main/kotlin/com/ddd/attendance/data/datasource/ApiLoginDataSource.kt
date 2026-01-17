@@ -5,4 +5,5 @@ import com.ddd.attendance.data.model.LoginResponse
 
 interface ApiLoginDataSource {
     suspend fun login(idToken: String): Result<CodeResult<LoginResponse>>
+    suspend fun logout(): Result<Unit>
 }

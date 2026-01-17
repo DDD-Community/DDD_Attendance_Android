@@ -9,7 +9,7 @@ import javax.inject.Inject
 class CompleteOnboardingAndLoginUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    operator fun invoke(): Flow<Login> = flow {
-        emit(userRepository.completeOnboardingAndLogin().getOrThrow())
+    operator fun invoke(): Flow<Login> {
+        return userRepository.completeOnboardingAndLogin()
     }
 }

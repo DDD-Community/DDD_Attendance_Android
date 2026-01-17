@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
 import com.ddd.attendance.domain.usecase.DeleteUsersMeUseCase
 import com.ddd.attendance.domain.usecase.GetAdminMeUseCase
+import com.ddd.attendance.domain.usecase.LogoutUseCase
 import com.ddd.attendance.feature.core.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class AdminProfileViewModel @Inject constructor(
     private val getAdminMeUseCase: GetAdminMeUseCase,
     private val deleteUsersMeUseCase: DeleteUsersMeUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AdminProfileUiState())
@@ -64,19 +67,19 @@ class AdminProfileViewModel @Inject constructor(
             is AdminProfileIntent.WithdrawAccount -> {
                 viewModelScope.launch {
                     deleteUsersMeUseCase()
-                        .flatMapConcat {
-                            // 서버 탈퇴 성공 후
+                        .onEach {
                             deleteDataStoreWithdrawAccountUseCase(isLogout = false)
-                        }
-                        .onCompletion {
                             _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
                         }
                         .catch {
-
+                            _navigationEvent.emit(
+                                ProfileNavigationEvent.ShowError(
+                                    it.message ?: "회원탈퇴 실패"
+                                )
+                            )
                         }
-                        .collect {}
+                        .collect()
                 }
-
                 _uiState.update {
                     reduce(it, intent)
                 }
@@ -84,17 +87,19 @@ class AdminProfileViewModel @Inject constructor(
 
             is AdminProfileIntent.Logout -> {
                 viewModelScope.launch {
-                    deleteDataStoreWithdrawAccountUseCase(isLogout = true)
+                    logoutUseCase()
                         .onEach {
+                            deleteDataStoreWithdrawAccountUseCase(isLogout = true)
                             _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
-                        }
-                        .catch {
-
-                        }
-                        .collect {
-
-                        }
+                        }.catch {
+                            _navigationEvent.emit(
+                                ProfileNavigationEvent.ShowError(
+                                    it.message ?: "로그아웃 실패"
+                                )
+                            )
+                        }.collect()
                 }
+
                 _uiState.update {
                     reduce(it, intent)
                 }
