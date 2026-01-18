@@ -86,7 +86,9 @@ fun MemberProfileScreen(
                     generation = uiState.generation,
                     organization = uiState.organization
                 )
-            )
+            ) {
+                viewModel.goToOnboarding()
+            }
 
             MemberBottomSection(
                 uiState = uiState,

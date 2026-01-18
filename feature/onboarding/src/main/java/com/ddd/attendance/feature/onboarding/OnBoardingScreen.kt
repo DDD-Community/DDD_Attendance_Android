@@ -43,6 +43,7 @@ import kotlinx.collections.immutable.toPersistentList
 fun OnBoardingScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
+    onRestart:() -> Unit,
     viewModel: OnBoardingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -58,6 +59,9 @@ fun OnBoardingScreen(
                 }
                 is OnboardingNavigationEvent.FailOnBoarding -> {
                     Log.d("OnBoardingScreen", event.message)
+                }
+                is OnboardingNavigationEvent.RestartApp -> {
+                    onRestart()
                 }
             }
         }

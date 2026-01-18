@@ -3,13 +3,11 @@ package com.ddd.attendance.data.api.model.users
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserRequest(
+data class UserMeRequest(
     val name: String,
     val generationId: Int,
     val jobRole: String,
-    val teamId: Int? = null,
-    val managerRoles: List<String>? = null,
-    val provider: String,
-    val token: String,
+    val teamId: Int,
+    val managerRoles: List<String>,
     val invitationCode: String
 )

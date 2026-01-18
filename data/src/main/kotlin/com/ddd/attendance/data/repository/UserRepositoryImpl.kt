@@ -8,15 +8,19 @@ import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import com.ddd.attendance.data.mapper.login.toDomain
 import com.ddd.attendance.data.mapper.schedule.toDomain
+import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.mapper.users.toDomain
 import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.model.Schedule
 import com.ddd.attendance.domain.model.users.Users
+import com.ddd.attendance.domain.model.users.UsersMe
 import com.ddd.attendance.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -28,7 +32,7 @@ class UserRepositoryImpl @Inject constructor(
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : UserRepository {
 
-    override fun usersSave(
+    override fun users(
         name: String,
         generationId: Int,
         jobRole: String,
@@ -38,20 +42,44 @@ class UserRepositoryImpl @Inject constructor(
         token: String,
         invitationCode: String
     ): Flow<Users>  = flow {
-        val result = apiUsersDataSource.users(
-            name = name,
-            generationId = generationId,
-            jobRole = jobRole,
-            teamId = teamId,
-            managerRoles = managerRoles,
-            provider = provider,
-            token = token,
-            invitationCode = invitationCode
+        emit(
+            apiUsersDataSource.users(
+                name = name,
+                generationId = generationId,
+                jobRole = jobRole,
+                teamId = teamId,
+                managerRoles = managerRoles,
+                provider = provider,
+                token = token,
+                invitationCode = invitationCode
+            ).toDomain()
         )
+    }.catch { throwable ->
+        if (throwable is HttpException) {
+            throw throwable.toDomainException()
+        } else {
+            throw throwable
+        }
+    }
 
-        val response = result.getOrThrow()
-
-        emit(response.toDomain())
+    override fun usersMe(
+        name: String,
+        generationId: Int,
+        jobRole: String,
+        teamId: Int,
+        managerRoles: List<String>,
+        invitationCode: String
+    ): Flow<UsersMe> = flow {
+        emit(
+            apiUsersDataSource.usersMe(
+                name = name,
+                generationId = generationId,
+                jobRole = jobRole,
+                teamId = teamId,
+                managerRoles = managerRoles,
+                invitationCode = invitationCode
+            ).toDomain()
+        )
     }
 
     override fun login(isAutoLogin: Boolean): Flow<Login> = flow {

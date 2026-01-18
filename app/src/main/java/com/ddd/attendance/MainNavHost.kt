@@ -22,10 +22,12 @@ import com.ddd.attendance.ui.theme.DddBackgroundDark
 
 @Composable
 internal fun MainNavHost(
+    modifier: Modifier = Modifier,
     navigator: MainNavigator,
     padding: PaddingValues,
     onShowErrorSnackBar: (throwable: Throwable?) -> Unit,
-    modifier: Modifier = Modifier,
+    onRestart: () -> Unit
+
 ) {
     Box(
         modifier = modifier
@@ -42,7 +44,10 @@ internal fun MainNavHost(
             }
 
             composable(route = ScreenName.ON_BOARDING.name) {
-                OnBoardingScreen(navController = navigator.navController)
+                OnBoardingScreen(
+                    navController = navigator.navController,
+                    onRestart = onRestart
+                )
             }
 
             composable(route = ScreenName.HOME.name) {

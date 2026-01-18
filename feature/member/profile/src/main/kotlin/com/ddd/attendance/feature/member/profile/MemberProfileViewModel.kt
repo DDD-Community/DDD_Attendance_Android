@@ -135,4 +135,8 @@ class MemberProfileViewModel @Inject constructor(
     fun popBackStack() {
         viewModelScope.launch { _navigationEvent.emit(ProfileNavigationEvent.PopBackStack) }
     }
+
+    fun goToOnboarding() {
+        viewModelScope.launch { _navigationEvent.emit(ProfileNavigationEvent.GoToOnboarding) }
+    }
 }

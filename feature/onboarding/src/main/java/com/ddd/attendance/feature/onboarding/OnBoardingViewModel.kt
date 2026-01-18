@@ -1,16 +1,17 @@
 package com.ddd.attendance.feature.onboarding
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.model.onboarding.ItemSelect
 import com.ddd.attendance.domain.usecase.CompleteOnboardingAndLoginUseCase
 import com.ddd.attendance.domain.usecase.GetAdminSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetMemberSelectListUseCase
 import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import com.ddd.attendance.domain.usecase.LoginUseCase
-import com.ddd.attendance.domain.usecase.UsersSaveUseCase
+import com.ddd.attendance.domain.usecase.UsersMeUseCase
+import com.ddd.attendance.domain.usecase.UsersUseCase
 import com.ddd.attendance.domain.usecase.VerifyCodeUseCase
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
@@ -25,7 +26,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -39,7 +41,8 @@ class OnBoardingViewModel @Inject constructor(
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val getAdminSelectListUseCase: GetAdminSelectListUseCase,
     private val getMemberSelectListUseCase: GetMemberSelectListUseCase,
-    private val usersSaveUseCase: UsersSaveUseCase,
+    private val usersUseCase: UsersUseCase,
+    private val usersMeUseCase: UsersMeUseCase,
     private val completeOnboardingAndLoginUseCase: CompleteOnboardingAndLoginUseCase,
     private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase,
     private val userPreferencesDataStore: UserPreferencesDataStore,
@@ -295,49 +298,72 @@ class OnBoardingViewModel @Inject constructor(
     fun submitOnboarding() {
         val state = _uiState.value
 
-        submitOnboardingFlow(state)
-            .flatMapConcat { completeOnboardingAndLoginUseCase() }
-            .onEach {
-                goToHome(statusCode = it.statusCode)
+        onboardingPipeline(state)
+            .flatMapConcat { login ->
+                // 최종 로그인 처리
+                completeOnboardingAndLoginUseCase()
             }
-            .catch { e -> _navigationEvent.emit(OnboardingNavigationEvent.FailOnBoarding(e.message.orEmpty())) }
+            .onEach { login ->
+                goToHome(statusCode = login.statusCode)
+            }
+            .catch { e ->
+                _navigationEvent.emit(
+                    OnboardingNavigationEvent.FailOnBoarding(
+                        e.message.orEmpty()
+                    )
+                )
+            }
             .launchIn(viewModelScope)
     }
 
-    private fun submitOnboardingFlow(
-        state: OnBoardingUiState
+    private fun onboardingPipeline(state: OnBoardingUiState): Flow<Unit> {
+        val tokenFlow = userPreferencesDataStore.tempOauthToken
+        val providerFlow = userPreferencesDataStore.tempOauthProvider
+
+        return tokenFlow.combine(providerFlow) { token, provider ->
+            token.orEmpty() to provider.orEmpty()
+        }
+            .flatMapConcat { (token, provider) ->
+                submitUserFlow(state, token, provider)
+            }
+    }
+
+    private fun submitUserFlow(
+        state: OnBoardingUiState,
+        token: String,
+        provider: String
     ): Flow<Unit> = flow {
-        val token = userPreferencesDataStore.tempOauthToken.first().orEmpty()
-        val provider = userPreferencesDataStore.tempOauthProvider.first().orEmpty()
+        try {
+            // 회원가입/온보딩 시도
+            usersUseCase(
+                name = state.name,
+                generationId = state.generationId,
+                jobRole = state.jobRole,
+                teamId = if (state.type == UserType.Member) state.teamId else null,
+                managerRoles = state.managerRoles,
+                provider = provider,
+                token = token,
+                invitationCode = state.inputInvitePinCode
+            ).collect()
 
-        Log.d(
-            "submitOnboardingFlow",
-            """
-                name = ${state.name}
-                generationId = ${state.generationId}
-                jobRole = ${state.jobRole}
-                teamId = ${state.teamId}
-                managerRoles = ${state.managerRoles}
-                provider = $provider
-                token = $token
-                invitationCode = ${state.inputInvitePinCode}
-                """.trimIndent()
-        )
+            emit(Unit)
 
-        usersSaveUseCase(
-            name = state.name,
-            generationId = state.generationId,
-            jobRole = state.jobRole,
-            teamId = if (state.type == UserType.Member) state.teamId else null,
-            managerRoles = state.managerRoles,
-            provider = provider,
-            token = token,
-            invitationCode = state.inputInvitePinCode
-        ).collect {
+        } catch (e: UsersException.BadRequest) {
+            // 이미 가입되어 있을 때 usersMeUseCase 호출 후 앱 재실행
+            usersMeUseCase(
+                name = state.name,
+                generationId = state.generationId,
+                jobRole = state.jobRole,
+                teamId = state.teamId,
+                managerRoles = state.managerRoles,
+                invitationCode = state.inputInvitePinCode
+            ).collect()
+
+            _navigationEvent.emit(OnboardingNavigationEvent.RestartApp)
+
             emit(Unit)
         }
     }
-
 
     private fun Map<String, List<ItemSelect>>.toStepMap(): Map<OnBoardingStep, ImmutableList<SelectItemUiModel>> {
         return this.mapKeys { (key, _) ->

@@ -3,10 +3,11 @@ package com.ddd.attendance.domain.repository
 import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.model.Schedule
 import com.ddd.attendance.domain.model.users.Users
+import com.ddd.attendance.domain.model.users.UsersMe
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    fun usersSave(
+    fun users(
         name: String,
         generationId: Int,
         jobRole: String,
@@ -16,6 +17,16 @@ interface UserRepository {
         token: String,
         invitationCode: String
     ): Flow<Users>
+
+    fun usersMe(
+        name: String,
+        generationId: Int,
+        jobRole: String,
+        teamId: Int,
+        managerRoles: List<String>,
+        invitationCode: String
+    ): Flow<UsersMe>
+
     fun login(isAutoLogin: Boolean): Flow<Login>
     fun completeOnboardingAndLogin(): Flow<Login>
     fun logout(): Flow<Unit>
