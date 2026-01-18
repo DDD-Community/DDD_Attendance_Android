@@ -4,13 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
+import com.ddd.attendance.domain.usecase.AttendanceStatusUseCase
 import com.ddd.attendance.domain.usecase.AttendancesChangeUseCase
 import com.ddd.attendance.domain.usecase.AttendancesUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleTeamAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminTeamUseCase
 import com.ddd.attendance.domain.usecase.GetScheduleUseCase
-import com.ddd.attendance.feature.admin.attendance.model.AttendanceStatus
+import com.ddd.attendance.feature.admin.attendance.model.AttendanceBoardStatus
 import com.ddd.attendance.feature.admin.schedule.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
@@ -42,7 +43,8 @@ class AdminViewModel @Inject constructor(
     private val getAdminTeamUseCase: GetAdminTeamUseCase,
     private val getScheduleUseCase: GetScheduleUseCase,
     private val attendancesUseCase: AttendancesUseCase,
-    private val attendancesChangeUseCase: AttendancesChangeUseCase
+    private val attendancesChangeUseCase: AttendancesChangeUseCase,
+    private val attendanceStatusUseCase: AttendanceStatusUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(AdminUiState())
     val uiState: StateFlow<AdminUiState> = _uiState.asStateFlow()
@@ -55,6 +57,20 @@ class AdminViewModel @Inject constructor(
         observeTeams()
         observeScheduleAttendances()
         observeScheduleTeamAttendances()
+        observeAttendanceStatus()
+    }
+
+    private fun observeAttendanceStatus() {
+        attendanceStatusUseCase()
+            .onEach { list ->
+
+                _uiState.update { state ->
+                    state.copy(
+                        attendanceStatusList = list.toPersistentList()
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun observeScheduleTeamAttendances() {
@@ -88,7 +104,7 @@ class AdminViewModel @Inject constructor(
             .onEach { item ->
                 _uiState.update { state ->
                     state.copy(
-                        attendanceStatus = AttendanceStatus(
+                        attendanceBoardStatus = AttendanceBoardStatus(
                             attendance = item.attended,
                             late = item.late,
                             absent = item.absent

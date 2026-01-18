@@ -1,6 +1,8 @@
 package com.ddd.attendance.data.repository
 
 import com.ddd.attendance.data.datasource.ApiAttendanceDataSource
+import com.ddd.attendance.data.mapper.attendance.toAttendanceStatusDomain
+import com.ddd.attendance.domain.model.attendance.AttendanceStatus
 import com.ddd.attendance.domain.repository.AttendanceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -29,5 +31,11 @@ class AttendanceRepositoryImpl @Inject constructor(
         apiAttendanceDataSource.attendances(qrCode = qrCode)
             .onFailure { throw it }
             .onSuccess { emit(Unit) }
+    }
+
+    override fun attendancesStatus(): Flow<List<AttendanceStatus>> = flow {
+        apiAttendanceDataSource.attendancesStatus()
+            .onFailure { throw it }
+            .onSuccess { emit(it.toAttendanceStatusDomain()) }
     }
 }

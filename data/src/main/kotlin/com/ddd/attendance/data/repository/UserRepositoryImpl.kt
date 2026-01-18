@@ -48,6 +48,7 @@ class UserRepositoryImpl @Inject constructor(
             token = token,
             invitationCode = invitationCode
         )
+
         val response = result.getOrThrow()
 
         emit(response.toDomain())

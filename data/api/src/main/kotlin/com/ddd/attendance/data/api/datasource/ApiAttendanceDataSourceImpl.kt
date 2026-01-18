@@ -4,6 +4,7 @@ import com.ddd.attendance.data.api.AttendanceApi
 import com.ddd.attendance.data.api.model.attendance.AttendanceChangeRequest
 import com.ddd.attendance.data.api.model.attendance.AttendanceRequest
 import com.ddd.attendance.data.datasource.ApiAttendanceDataSource
+import com.ddd.attendance.data.model.AttendanceStatusResponse
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -48,6 +49,15 @@ class ApiAttendanceDataSourceImpl @Inject constructor(
                 throw HttpException(response)
             }
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun attendancesStatus(): Result<List<AttendanceStatusResponse>> {
+        return try {
+            val response = attendanceApi.attendancesStatus()
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.domain.model.admin.AdminScheduleTeamAttendance
 import com.ddd.attendance.domain.model.admin.AdminTeam
+import com.ddd.attendance.domain.model.attendance.AttendanceStatus
 import com.ddd.attendance.feature.admin.attendance.AttendanceScreen
 import com.ddd.attendance.feature.admin.main.dropdown.EditPopupDropdown
 import com.ddd.attendance.feature.admin.main.dropdown.ScreenChangeDropDown
@@ -90,11 +91,11 @@ fun AdminScreen(
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
-        attendance = uiState.attendanceStatus.attendance,
-        late = uiState.attendanceStatus.late,
-        absent = uiState.attendanceStatus.absent,
+        attendance = uiState.attendanceBoardStatus.attendance,
+        late = uiState.attendanceBoardStatus.late,
+        absent = uiState.attendanceBoardStatus.absent,
         memberAttendances = uiState.memberAttendances,
-        editItems = uiState.dummySelectedEditPopupItemList,
+        editItems = uiState.attendanceStatusList,
         teamList = uiState.teams,
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
@@ -166,7 +167,7 @@ internal fun Content(
     absent: Int,
     memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
     scheduleList: ImmutableList<ScheduleUiModel>,
-    editItems: ImmutableList<String>,
+    editItems: ImmutableList<AttendanceStatus>,
     teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
@@ -314,7 +315,7 @@ internal fun EditPopup(
     isShow: Boolean,
     title: String,
     selectedText: String,
-    items: ImmutableList<String>,
+    items: ImmutableList<AttendanceStatus>,
     onConfirm: () -> Unit,
     onItemSelected: (String) -> Unit
 ) {
