@@ -12,6 +12,7 @@ import com.ddd.attendance.data.mapper.users.toDomain
 import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.model.Schedule
 import com.ddd.attendance.domain.model.users.Users
+import com.ddd.attendance.domain.model.users.UsersMe
 import com.ddd.attendance.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -28,7 +29,7 @@ class UserRepositoryImpl @Inject constructor(
     private val userPreferencesDataStore: UserPreferencesDataStore
 ) : UserRepository {
 
-    override fun usersSave(
+    override fun users(
         name: String,
         generationId: Int,
         jobRole: String,
@@ -38,7 +39,7 @@ class UserRepositoryImpl @Inject constructor(
         token: String,
         invitationCode: String
     ): Flow<Users>  = flow {
-        val result = apiUsersDataSource.users(
+        apiUsersDataSource.users(
             name = name,
             generationId = generationId,
             jobRole = jobRole,
@@ -47,64 +48,79 @@ class UserRepositoryImpl @Inject constructor(
             provider = provider,
             token = token,
             invitationCode = invitationCode
-        )
-        val response = result.getOrThrow()
-
-        emit(response.toDomain())
-    }
-
-    override suspend fun login(isAutoLogin: Boolean): Result<Login> {
-        return runCatching {
-            //로그인 버튼
-            val idToken = if (!isAutoLogin) {
-                val socialLoginResult = googleLoginDataSource.login()
-
-                if (socialLoginResult.isFailure) {
-                    throw IllegalStateException("Google login failed")
-                }
-
-                val idToken = socialLoginResult.getOrThrow()
-
-                userPreferencesDataStore.saveTempOAuthToken(token = idToken, provider = "GOOGLE")
-
-                idToken
-            } else {
-                //스플래시
-                userPreferencesDataStore.tempOauthToken.firstOrNull() ?: error("No temp OAuth token found")
-            }
-
-            val data = apiLoginDataSource.login(idToken).getOrThrow()
-            val result = data.response.body()?.toDomain(data.code)
-                ?: return Result.failure(IllegalStateException("Login response body is null"))
-
-            userPreferencesDataStore.saveUserRole(result.role)
-
-            result
+        ).onSuccess {
+            emit(it.toDomain())
+        }.onFailure {
+            throw it
         }
     }
 
-    //온보딩 직후
-    override suspend fun completeOnboardingAndLogin(): Result<Login> {
-        return runCatching {
-            val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
-                ?: error("No temp OAuth token found")
-
-            // 성공 시에만 임시 토큰 제거
-            //userPreferencesDataStore.clearTempOAuthData()
-
-            val data = apiLoginDataSource.login(tempToken).getOrThrow()
-            val result = data.response.body()?.toDomain(data.code)
-                ?: return Result.failure(IllegalStateException("Login response body is null"))
-
-            userPreferencesDataStore.saveUserRole(result.role)
-
-            result
+    override fun usersMe(
+        name: String,
+        generationId: Int,
+        jobRole: String,
+        teamId: Int,
+        managerRoles: List<String>,
+        invitationCode: String
+    ): Flow<UsersMe> = flow {
+        apiUsersDataSource.usersMe(
+            name = name,
+            generationId = generationId,
+            jobRole = jobRole,
+            teamId = teamId,
+            managerRoles = managerRoles,
+            invitationCode = invitationCode
+        ).onSuccess {
+            emit(it.toDomain())
+        }.onFailure {
+            throw it
         }
     }
 
-    override suspend fun deleteUsersMe(): Result<Unit> {
-        val token = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: error("No temp OAuth token found")
-        return apiUsersDataSource.deleteUsersMe(token).map { Unit }
+    override fun login(isAutoLogin: Boolean): Flow<Login> = flow {
+        val idToken = if (!isAutoLogin) {
+            // 로그인 화면
+            val token = googleLoginDataSource.login().getOrThrow()
+            userPreferencesDataStore.saveTempOAuthToken(token, "GOOGLE")
+            token
+        } else {
+            // 스플래시 화면
+            userPreferencesDataStore.tempOauthToken.firstOrNull()?: throw IllegalStateException("No temp OAuth token found")
+        }
+
+        val (code, response) = apiLoginDataSource.login(idToken).getOrThrow()
+
+        val login = response.body()?.toDomain(code) ?: throw IllegalStateException("Login response body is null")
+
+        userPreferencesDataStore.saveUserRole(login.role)
+
+        emit(login)
+    }
+
+    override fun completeOnboardingAndLogin(): Flow<Login> = flow {
+        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: throw IllegalStateException("No temp OAuth token found")
+
+        val (code, response) = apiLoginDataSource.login(tempToken).getOrThrow()
+
+        val login = response.body()?.toDomain(code) ?: throw IllegalStateException("Login response body is null")
+
+        userPreferencesDataStore.saveUserRole(login.role)
+
+        emit(login)
+    }
+
+    override fun logout(): Flow<Unit> = flow {
+        apiLoginDataSource.logout()
+
+        emit(Unit)
+    }
+
+    override fun deleteUsersMe(): Flow<Unit> = flow {
+        val token = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: throw IllegalStateException("No temp OAuth token found")
+
+        apiUsersDataSource.deleteUsersMe(token)
+
+        emit(Unit)
     }
 
     override suspend fun isUserLoggedIn(): Boolean {
@@ -125,10 +141,18 @@ class UserRepositoryImpl @Inject constructor(
         return apiMeDataSource.getMe()
     }
 
-    override suspend fun getSchedules(): Result<List<Schedule>> {
-        return apiMeDataSource.getSchedules().mapCatching { schedules ->
-            schedules.map { it.toDomain() }
-        }
+    override fun getSchedules(): Flow<List<Schedule>> = flow {
+        apiMeDataSource.getSchedules()
+            .onSuccess {
+                emit(
+                    it.map { data ->
+                        data.toDomain()
+                    }
+                )
+            }
+            .onFailure {
+                throw it
+            }
     }
 
     override suspend fun getQr(userId: Long): Result<Unit> {

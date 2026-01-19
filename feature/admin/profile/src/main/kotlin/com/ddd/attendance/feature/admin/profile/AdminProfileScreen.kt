@@ -1,9 +1,7 @@
 package com.ddd.attendance.feature.admin.profile
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -72,6 +70,7 @@ fun AdminProfileScreen(
                 }
 
                 ProfileNavigationEvent.GoToOnboarding -> navController.navigate("ON_BOARDING")
+                is ProfileNavigationEvent.ShowError -> {}
             }
         }
     }

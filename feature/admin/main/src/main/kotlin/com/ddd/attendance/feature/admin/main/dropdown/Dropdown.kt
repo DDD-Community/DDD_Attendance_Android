@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.ddd.attendance.domain.model.attendance.AttendanceStatus
 import com.ddd.attendance.feature.admin.main.AdminType
 import com.ddd.attendance.feature.admin.main.R
 import com.ddd.attendance.feature.designsystem.component.DddText
@@ -35,7 +36,7 @@ internal fun EditPopupDropdown(
     anchorWidth: Dp,
     anchorHeightPx: Int,
     expanded: Boolean,
-    items: List<String>,
+    items: List<AttendanceStatus>,
     onDismiss: () -> Unit,
     onItemSelected: (String) -> Unit
 ) {
@@ -60,19 +61,19 @@ internal fun EditPopupDropdown(
             shadowElevation = 4.dp
         ) {
             Column {
-                items.forEachIndexed { index, text ->
+                items.forEachIndexed { index, item ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(44.dp)
                             .clickable {
-                                onItemSelected(text)
+                                onItemSelected(item.code)
                             }
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         DddText(
-                            text = text,
+                            text = item.code,
                             style = Typography.bodySmallB,
                             color = BackgroundSecondaryDark
                         )

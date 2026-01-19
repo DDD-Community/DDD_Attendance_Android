@@ -5,6 +5,7 @@ import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.model.LoginRequest
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.model.CodeResult
 import com.ddd.attendance.data.model.LoginResponse
 import retrofit2.HttpException
@@ -55,18 +56,25 @@ class ApiLoginDataSourceImpl @Inject constructor(
             )
 
         } catch (e: HttpException) {
-            val errorCode = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-
-            Log.e(TAG, "=== HTTP ERROR ===")
-            Log.e(TAG, "Status Code: $errorCode")
-            Log.e(TAG, "Error Body: $errorBody")
-            Log.e(TAG, "Message: ${e.message}")
-            Log.e(TAG, "==================")
-
-            Result.failure(Exception("HTTP $errorCode: $errorBody"))
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Log.e(TAG, "Login failed", e)
+            Result.failure(e)
+        }
+    }
+
+
+    override suspend fun logout(): Result<Unit> {
+        return try {
+            val response = authenticationApi.logout()
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+            Result.success(Unit)
+
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }

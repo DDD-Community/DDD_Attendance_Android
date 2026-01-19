@@ -4,11 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
+import com.ddd.attendance.domain.model.UsersException
+import com.ddd.attendance.domain.usecase.AttendanceStatusUseCase
+import com.ddd.attendance.domain.usecase.AttendancesChangeUseCase
+import com.ddd.attendance.domain.usecase.AttendancesUseCase
+import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleTeamAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminTeamUseCase
 import com.ddd.attendance.domain.usecase.GetScheduleUseCase
-import com.ddd.attendance.feature.admin.attendance.model.AttendanceStatus
+import com.ddd.attendance.domain.usecase.LogoutUseCase
+import com.ddd.attendance.feature.admin.attendance.model.AttendanceBoardStatus
 import com.ddd.attendance.feature.admin.schedule.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
@@ -18,8 +24,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -34,20 +44,73 @@ import javax.inject.Inject
 class AdminViewModel @Inject constructor(
     private val getAdminScheduleTeamAttendanceUseCase: GetAdminScheduleTeamAttendanceUseCase,
     private val getAdminScheduleAttendanceUseCase: GetAdminScheduleAttendanceUseCase,
+    private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
     private val getAdminTeamUseCase: GetAdminTeamUseCase,
-    private val getScheduleUseCase: GetScheduleUseCase
+    private val getScheduleUseCase: GetScheduleUseCase,
+    private val attendancesUseCase: AttendancesUseCase,
+    private val attendancesChangeUseCase: AttendancesChangeUseCase,
+    private val attendanceStatusUseCase: AttendanceStatusUseCase,
+    private val logoutUseCase: LogoutUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(AdminUiState())
     val uiState: StateFlow<AdminUiState> = _uiState.asStateFlow()
 
-    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    private val _navigationEvent = MutableSharedFlow<AdminNavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
-        observeSchedules()
-        observeTeams()
-        observeScheduleAttendances()
         observeScheduleTeamAttendances()
+        observeScheduleAttendances()
+        observeAllData()
+    }
+
+    private fun observeAllData() {
+        viewModelScope.launch {
+            combine(
+                attendanceStatusUseCase().map { it.toPersistentList() },
+                getScheduleUseCase().map { schedules ->
+                    val today = LocalDate.now()
+                    val selectedScheduleId = schedules.findNextSchedule(today)?.id
+                        ?: schedules.firstOrNull()?.id ?: 0
+                    val nextScheduleDate = schedules.findNextSchedule(today)
+                        ?.toFormattedDate(today.year)
+                        .orEmpty()
+
+                    Triple(
+                        schedules.toUi().toPersistentList(),
+                        selectedScheduleId,
+                        nextScheduleDate
+                    )
+                },
+                getAdminTeamUseCase().map { it.toPersistentList() }
+            ) { attendanceStatusList, schedulesData, teams ->
+                val (schedules, selectedScheduleId, nextScheduleDate) = schedulesData
+
+                val state = _uiState.value
+
+                val currentSelectedTeamId =
+                    if (state.selectedTeamId != 0) {
+                        state.selectedTeamId // 이미 선택된 팀이 있으면 그대로 사용
+                    } else teams[0].teamId // 선택된 팀이 없으면 첫 번째 팀으로 초기화
+
+                state.copy(
+                    attendanceStatusList = attendanceStatusList,
+                    schedules = schedules,
+                    nextScheduleDate = nextScheduleDate,
+                    selectedTeamId = currentSelectedTeamId,
+                    selectedScheduleId = selectedScheduleId,
+                    teams = teams.toPersistentList(),
+                    memberAttendances = state.memberAttendances,
+                    attendanceBoardStatus = state.attendanceBoardStatus
+                )
+            }
+                .catch { throwable ->
+                    if (throwable is UsersException.Unauthorized) {
+                        onLogout()
+                    }
+                }
+                .collect { _uiState.value = it }
+        }
     }
 
     private fun observeScheduleTeamAttendances() {
@@ -66,6 +129,10 @@ class AdminViewModel @Inject constructor(
                         memberAttendances = attendances.toPersistentList()
                     )
                 }
+            }.catch { throwable ->
+                if (throwable is UsersException.Unauthorized) {
+                    onLogout()
+                }
             }
             .launchIn(viewModelScope)
     }
@@ -74,65 +141,90 @@ class AdminViewModel @Inject constructor(
         uiState
             .map { it.selectedScheduleId }
             .distinctUntilChanged()
-            .filter { it > 0 } // 초기값 방어 (중요)
+            .filter { it > 0 }
             .flatMapLatest { scheduleId ->
                 getAdminScheduleAttendanceUseCase(scheduleId.toInt())
             }
             .onEach { item ->
                 _uiState.update { state ->
                     state.copy(
-                        attendanceStatus = AttendanceStatus(
+                        attendanceBoardStatus = AttendanceBoardStatus(
                             attendance = item.attended,
                             late = item.late,
                             absent = item.absent
                         )
                     )
                 }
-            }
-            .launchIn(viewModelScope)
-    }
-
-    private fun observeSchedules() {
-        getScheduleUseCase()
-            .onEach { schedules ->
-                val today = LocalDate.now()
-
-                val scheduleId = schedules.findNextSchedule(today)?.id?: 0
-
-                val nextScheduleDate = schedules
-                    .findNextSchedule(today)
-                    ?.toFormattedDate(today.year)
-                    .orEmpty()
-
-                _uiState.update { state ->
-                    state.copy(
-                        schedules = schedules.toUi().toPersistentList(),
-                        nextScheduleDate = nextScheduleDate,
-                        selectedScheduleId = scheduleId
-                    )
+            }.catch { throwable ->
+                if (throwable is UsersException.Unauthorized) {
+                    onLogout()
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    private fun observeTeams() {
-        getAdminTeamUseCase()
-            .onEach { teams ->
-                _uiState.update { state ->
-                    // selectedTeamId가 이미 세팅되어 있으면 그대로 사용
-                    val currentSelectedTeamId = state.selectedTeamId.takeIf { it != 0 } ?: teams[0].teamId
-                    state.copy(
-                        selectedTeamId = currentSelectedTeamId,
-                        teams = teams.toPersistentList()
+    private fun attendanceChange(
+        attendanceId: Long,
+        scheduleId: Long,
+        status: String,
+        userId: Long
+    ) {
+        val state = _uiState.value
+
+        viewModelScope.launch {
+            attendancesChangeUseCase(
+                attendanceId = attendanceId,
+                scheduleId = scheduleId,
+                status = status,
+                userId = userId
+            )
+                .flatMapConcat {
+                    getAdminScheduleTeamAttendanceUseCase(
+                        scheduleId = state.selectedScheduleId.toInt(),
+                        teamId = state.selectedTeamId
                     )
                 }
-            }
-            .launchIn(viewModelScope)
+                .onEach {
+                    observeScheduleAttendances()
+                }
+                .catch { e ->
+                    Log.e("AttendanceChange", "출석 상태 변경 실패", e)
+                    _uiState.update { it.copy(memberAttendances = state.memberAttendances) }
+                }
+                .collect { latestList ->
+                    _uiState.update { it.copy(memberAttendances = latestList.toImmutableList()) }
+                }
+        }
+    }
+
+    private fun onLogout() {
+        viewModelScope.launch {
+            logoutUseCase()
+                .onEach {
+                    deleteDataStoreWithdrawAccountUseCase(isLogout = true)
+                    _navigationEvent.emit(AdminNavigationEvent.GoToLogin)
+                }
+                .collect()
+        }
     }
 
     fun onIntent(intent: AdminIntent) {
         when(intent) {
             is AdminIntent.GoToProfile -> goToProfile()
+            is AdminIntent.QrDetected -> {
+                viewModelScope.launch {
+                    attendancesUseCase(qrCode = intent.qrCode)
+                        .onEach {
+                            _uiState.update { state ->
+                                state.copy(isAttendanceSuccess = state.isAttendanceSuccess)
+                            }
+                        }
+                        .catch {
+
+                        }
+                        .collect()
+                }
+            }
             else -> {
                 _uiState.update {
                     reduce(it, intent)
@@ -171,13 +263,28 @@ class AdminViewModel @Inject constructor(
                 )
             }
 
-            is AdminIntent.ShowEditPopup -> state.copy(
-                isShowEditPopup = true,
-                selectedEditText = intent.selectedText
-            )
+            is AdminIntent.ShowEditPopup -> {
+                state.copy(
+                    isShowEditPopup = true,
+                    selectedUserId = intent.userId,
+                    selectedAttendanceId = intent.attendanceId,
+                    selectedEditText = intent.selectedEditText
+                )
+            }
 
             is AdminIntent.HideEditPopup -> {
-                Log.d("AdminViewModel-Data-Reduce", state.selectedEditText)
+                attendanceChange(
+                    attendanceId = state.selectedAttendanceId.toLong(),
+                    userId = state.selectedUserId.toLong(),
+                    scheduleId = state.selectedScheduleId,
+                    status = when(state.selectedEditText) {
+                        "출석" -> "ATTENDED"
+                        "지각" -> "LATE"
+                        "결석" -> "ABSENT"
+                        else -> "NONE"
+                    }
+                )
+
                 state.copy(isShowEditPopup = false)
             }
 
@@ -188,13 +295,13 @@ class AdminViewModel @Inject constructor(
             is AdminIntent.ShowAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = true)
             is AdminIntent.HideAbsentNotificationPopup -> state.copy(isShowAbsentNotificationPopup = false)
             is AdminIntent.ShowQrScanner -> state.copy(isShowQrScanner = true)
-            is AdminIntent.HideQrScanner -> state.copy(isShowQrScanner = false)
+            is AdminIntent.HideQrScanner -> state.copy(isShowQrScanner = false, isAttendanceSuccess = false)
             else -> state
         }
     }
 
     private fun goToProfile() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToProfile) }
+        viewModelScope.launch { _navigationEvent.emit(AdminNavigationEvent.GoToProfile) }
     }
 
     private fun Schedule.toFormattedDate(year: Int): String =

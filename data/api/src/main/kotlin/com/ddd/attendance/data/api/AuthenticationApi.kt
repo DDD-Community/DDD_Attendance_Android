@@ -10,4 +10,7 @@ interface AuthenticationApi {
 
     @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
+    @POST("api/auth/logout")
+    suspend fun logout(): Response<Unit>
 }

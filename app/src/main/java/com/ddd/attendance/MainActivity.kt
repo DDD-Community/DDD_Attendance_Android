@@ -1,5 +1,6 @@
 package com.ddd.attendance
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -29,7 +30,13 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             DddAttendanceAndroidTheme(darkTheme = true) {
-                MainScreen()
+                MainScreen(
+                    onRestart = {
+                        val intent = packageManager.getLaunchIntentForPackage(packageName)
+                        intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(intent)
+                    }
+                )
             }
         }
     }

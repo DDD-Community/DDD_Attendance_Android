@@ -1,4 +1,4 @@
-package com.ddd.attendance.data.model
+package com.ddd.attendance.data.model.user
 
 import kotlinx.serialization.Serializable
 

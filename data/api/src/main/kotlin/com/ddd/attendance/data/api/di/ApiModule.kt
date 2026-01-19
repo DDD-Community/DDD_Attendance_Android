@@ -1,6 +1,7 @@
 package com.ddd.attendance.data.api.di
 
 import com.ddd.attendance.data.api.AdminMyPageApi
+import com.ddd.attendance.data.api.AttendanceApi
 import com.ddd.attendance.data.api.AuthenticationApi
 import com.ddd.attendance.data.api.BuildConfig
 import com.ddd.attendance.data.api.MeApi
@@ -8,6 +9,7 @@ import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.api.SchedulesApi
 import com.ddd.attendance.data.api.UsersApi
 import com.ddd.attendance.data.api.datasource.ApiAdminMyPageDataSourceImpl
+import com.ddd.attendance.data.api.datasource.ApiAttendanceDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiMeDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiOnboardingDataSourceImpl
@@ -15,6 +17,7 @@ import com.ddd.attendance.data.api.datasource.ApiSchedulesDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiUsersDataSourceImpl
 import com.ddd.attendance.data.api.interceptor.AuthInterceptor
 import com.ddd.attendance.data.datasource.ApiAdminMyPageDataSource
+import com.ddd.attendance.data.datasource.ApiAttendanceDataSource
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.ddd.attendance.data.datasource.ApiMeDataSource
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
@@ -111,6 +114,12 @@ object ApiModule {
 
     @Provides
     @Singleton
+    fun provideAttendanceService(retrofit: Retrofit): AttendanceApi {
+        return retrofit.create(AttendanceApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
 
     @Provides
@@ -132,5 +141,9 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideApiAdminMyPageDataSource(impl: ApiAdminMyPageDataSourceImpl): ApiAdminMyPageDataSource = impl
+
+    @Provides
+    @Singleton
+    fun provideApiAttendanceDataSource(impl: ApiAttendanceDataSourceImpl): ApiAttendanceDataSource = impl
 
 }

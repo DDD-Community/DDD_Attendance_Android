@@ -4,6 +4,7 @@ import android.util.Log
 import com.ddd.attendance.data.api.SchedulesApi
 import com.ddd.attendance.data.datasource.ApiSchedulesDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.model.ActivityScheduleResponse
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -37,16 +38,7 @@ class ApiSchedulesDataSourceImpl @Inject constructor(
 
             Result.success(response)
         } catch (e: HttpException) {
-            val errorCode = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-
-            Log.e(TAG, "=== HTTP ERROR ===")
-            Log.e(TAG, "Status Code: $errorCode")
-            Log.e(TAG, "Error Body: $errorBody")
-            Log.e(TAG, "Message: ${e.message}")
-            Log.e(TAG, "==================")
-
-            Result.failure(Exception("HTTP $errorCode: $errorBody"))
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Log.e(TAG, "Get Schedules failed", e)
             Result.failure(e)

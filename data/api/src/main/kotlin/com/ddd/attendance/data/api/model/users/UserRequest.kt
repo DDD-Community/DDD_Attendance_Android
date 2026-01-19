@@ -8,7 +8,7 @@ data class UserRequest(
     val generationId: Int,
     val jobRole: String,
     val teamId: Int? = null,
-    val managerRoles: List<String> = emptyList(),
+    val managerRoles: List<String>? = null,
     val provider: String,
     val token: String,
     val invitationCode: String

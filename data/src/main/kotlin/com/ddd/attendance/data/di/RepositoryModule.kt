@@ -1,9 +1,11 @@
 package com.ddd.attendance.data.di
 
 import com.ddd.attendance.data.repository.AdminMyPageRepositoryImpl
+import com.ddd.attendance.data.repository.AttendanceRepositoryImpl
 import com.ddd.attendance.data.repository.OnboardingRepositoryImpl
 import com.ddd.attendance.data.repository.UserRepositoryImpl
 import com.ddd.attendance.domain.repository.AdminMyPageRepository
+import com.ddd.attendance.domain.repository.AttendanceRepository
 import com.ddd.attendance.domain.repository.OnboardingRepository
 import com.ddd.attendance.domain.repository.UserRepository
 import dagger.Binds
@@ -27,4 +29,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAdminMyPageRepository(adminMyPageRepositoryImpl: AdminMyPageRepositoryImpl): AdminMyPageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAttendanceRepository(attendanceRepository: AttendanceRepositoryImpl): AttendanceRepository
 }

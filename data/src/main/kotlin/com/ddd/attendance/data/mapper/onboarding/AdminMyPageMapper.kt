@@ -18,7 +18,7 @@ fun AdminMeResponse.toDomain(): AdminMe {
         team = team.orEmpty(),
         jobRole = jobRole.orEmpty(),
         role = role.orEmpty(),
-        managerRoles = managerRoles.orEmpty()
+        managerRoles = managerRoles.orEmpty().toChangeManagerRoles()
     )
 }
 
@@ -48,5 +48,19 @@ fun List<AdminTeamResponse>.toAdminTeamDomain(): List<AdminTeam> {
             teamId = response.teamId,
             name = response.name
         )
+    }
+}
+
+fun List<String>.toChangeManagerRoles(): List<String> {
+    return mapNotNull { role ->
+        when(role) {
+            "ATTENDANCE_CHECK" -> "출석 체크"
+            "SNS_MANAGEMENT" -> "SNS 관리"
+            "LOCATION_RENTAL" -> "장소 대관"
+            "PHOTO" -> "사진 촬영"
+            "SCHEDULE_REMINDER" -> "일정 리마인드"
+            "TEAM_MANAGING" -> "팀매니징"
+            else -> ""
+        }
     }
 }

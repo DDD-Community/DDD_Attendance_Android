@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ddd.attendance.domain.model.admin.AdminScheduleTeamAttendance
 import com.ddd.attendance.domain.model.admin.AdminTeam
+import com.ddd.attendance.domain.model.attendance.AttendanceStatus
 import com.ddd.attendance.feature.admin.attendance.AttendanceScreen
 import com.ddd.attendance.feature.admin.main.dropdown.EditPopupDropdown
 import com.ddd.attendance.feature.admin.main.dropdown.ScreenChangeDropDown
@@ -81,8 +82,16 @@ fun AdminScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                NavigationEvent.PopBackStack -> { navController.popBackStack() }
-                NavigationEvent.GoToProfile -> { navController.navigate("ADMIN_PROFILE") }
+                AdminNavigationEvent.PopBackStack -> { navController.popBackStack() }
+                AdminNavigationEvent.GoToProfile -> { navController.navigate("ADMIN_PROFILE") }
+                AdminNavigationEvent.GoToLogin -> {
+                    navController.navigate("LOGIN") {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
             }
         }
     }
@@ -90,11 +99,11 @@ fun AdminScreen(
     Content(
         uiType = uiState.uiType,
         nextScheduleDate = uiState.nextScheduleDate,
-        attendance = uiState.attendanceStatus.attendance,
-        late = uiState.attendanceStatus.late,
-        absent = uiState.attendanceStatus.absent,
+        attendance = uiState.attendanceBoardStatus.attendance,
+        late = uiState.attendanceBoardStatus.late,
+        absent = uiState.attendanceBoardStatus.absent,
         memberAttendances = uiState.memberAttendances,
-        editItems = uiState.dummySelectedEditPopupItemList,
+        editItems = uiState.attendanceStatusList,
         teamList = uiState.teams,
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
@@ -102,13 +111,14 @@ fun AdminScreen(
         isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
         isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
         isShowQrScanner = uiState.isShowQrScanner,
+        isAttendanceSuccess = uiState.isAttendanceSuccess,
         selectedEditText = uiState.selectedEditText,
         scheduleList = uiState.schedules,
         onTabClick = { teamId, selectedIndex ->
             viewModel.onIntent(AdminIntent.TabChanged(teamId, selectedIndex))
         },
-        onEditClick = { selectedText ->
-            viewModel.onIntent(AdminIntent.ShowEditPopup(selectedText))
+        onEditClick = { selectedEditText, attendanceId, userId ->
+            viewModel.onIntent(AdminIntent.ShowEditPopup(selectedEditText, attendanceId, userId))
         },
         onEditConfirm = {
             viewModel.onIntent(AdminIntent.HideEditPopup)
@@ -148,6 +158,9 @@ fun AdminScreen(
         },
         onQrScannerBottomSheetDismiss = {
             viewModel.onIntent(AdminIntent.HideQrScanner)
+        },
+        onQrDetected = { qrCode ->
+            viewModel.onIntent(AdminIntent.QrDetected(qrCode))
         }
     )
 }
@@ -162,7 +175,7 @@ internal fun Content(
     absent: Int,
     memberAttendances: ImmutableList<AdminScheduleTeamAttendance>,
     scheduleList: ImmutableList<ScheduleUiModel>,
-    editItems: ImmutableList<String>,
+    editItems: ImmutableList<AttendanceStatus>,
     teamList: ImmutableList<AdminTeam>,
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
@@ -170,9 +183,10 @@ internal fun Content(
     isShowScheduleBottomSheet: Boolean,
     isShowAbsentNotificationPopup: Boolean,
     isShowQrScanner: Boolean,
+    isAttendanceSuccess: Boolean,
     selectedEditText: String,
     onTabClick: (teamId: Int, selectedIndex: Int) -> Unit,
-    onEditClick: (text: String) -> Unit,
+    onEditClick:(selectedEditText: String, attendanceId: Int, userId: Int) -> Unit,
     onEditConfirm: () -> Unit,
     onEditItemSelected: (String) -> Unit,
     onHeaderClick:() -> Unit,
@@ -186,6 +200,7 @@ internal fun Content(
     onAbsentNotificationClick: () -> Unit,
     onAbsentNotificationDismiss: () -> Unit,
     onQrScannerBottomSheetDismiss: () -> Unit,
+    onQrDetected: (qrCode: String) -> Unit
 ) {
     val headerText =
         if (uiType == AdminType.Attendance) {
@@ -226,8 +241,8 @@ internal fun Content(
                             onTabClick = { teamId, selectedIndex ->
                                 onTabClick(teamId, selectedIndex)
                             },
-                            onEditClick = {
-                                onEditClick(it)
+                            onEditClick = { selectedEditText, attendanceId, userId ->
+                                onEditClick(selectedEditText, attendanceId, userId)
                             },
                             onDataClick = onDataClick,
                             onAbsentNotificationClick = onAbsentNotificationClick
@@ -287,7 +302,9 @@ internal fun Content(
         QrScanner(
             isShow = isShowQrScanner,
             onDismiss = onQrScannerBottomSheetDismiss,
+            isAttendanceSuccess = isAttendanceSuccess,
             onQrCodeDetected = {
+                onQrDetected(it)
                 Log.d("QrScanner-onQrCodeDetected", it)
             },
             onError = {
@@ -306,7 +323,7 @@ internal fun EditPopup(
     isShow: Boolean,
     title: String,
     selectedText: String,
-    items: ImmutableList<String>,
+    items: ImmutableList<AttendanceStatus>,
     onConfirm: () -> Unit,
     onItemSelected: (String) -> Unit
 ) {
@@ -670,6 +687,7 @@ internal fun AbsentNotificationPopup(
 private fun QrScanner(
     modifier: Modifier = Modifier,
     isShow: Boolean,
+    isAttendanceSuccess: Boolean,
     onDismiss: () -> Unit,
     onQrCodeDetected: (String) -> Unit,
     onError: (String) -> Unit,
@@ -692,7 +710,8 @@ private fun QrScanner(
             QrScannerScreen(
                 onQrCodeDetected = onQrCodeDetected,
                 onResult = onResult,
-                onError = onError
+                onError = onError,
+                isAttendanceSuccess = isAttendanceSuccess
             )
 
             Box(
