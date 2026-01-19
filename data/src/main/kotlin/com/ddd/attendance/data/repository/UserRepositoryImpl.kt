@@ -8,7 +8,6 @@ import com.ddd.attendance.data.datasource.GoogleLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import com.ddd.attendance.data.mapper.login.toDomain
 import com.ddd.attendance.data.mapper.schedule.toDomain
-import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.mapper.users.toDomain
 import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.model.Schedule
@@ -16,11 +15,9 @@ import com.ddd.attendance.domain.model.users.Users
 import com.ddd.attendance.domain.model.users.UsersMe
 import com.ddd.attendance.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import retrofit2.HttpException
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(

@@ -1,6 +1,5 @@
 package com.ddd.attendance.data.api.datasource
 
-import android.util.Log
 import com.ddd.attendance.data.api.AttendanceApi
 import com.ddd.attendance.data.api.model.attendance.AttendanceChangeRequest
 import com.ddd.attendance.data.api.model.attendance.AttendanceRequest

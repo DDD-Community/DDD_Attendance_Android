@@ -1,6 +1,5 @@
 package com.ddd.attendance.data.api.datasource
 
-import android.util.Log
 import com.ddd.attendance.data.api.AdminMyPageApi
 import com.ddd.attendance.data.datasource.ApiAdminMyPageDataSource
 import com.ddd.attendance.data.mapper.toDomainException

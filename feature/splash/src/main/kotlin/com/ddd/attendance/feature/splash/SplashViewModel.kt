@@ -1,12 +1,9 @@
 package com.ddd.attendance.feature.splash
 
-import android.net.http.HttpException
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.NavigationDestination
-import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
 import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import com.ddd.attendance.domain.usecase.LoginUseCase
@@ -17,7 +14,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject

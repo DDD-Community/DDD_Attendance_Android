@@ -59,70 +59,112 @@ class AdminViewModel @Inject constructor(
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
+        observeScheduleTeamAttendances()
+        observeScheduleAttendances()
+        observeAllData()
+    }
+
+    private fun observeAllData() {
         viewModelScope.launch {
-            val schedulesFlow = getScheduleUseCase()
-                .map { schedules ->
+            // combine으로 attendanceStatus + schedules + teams를 합침
+            combine(
+                attendanceStatusUseCase().map { it.toPersistentList() },
+                getScheduleUseCase().map { schedules ->
                     val today = LocalDate.now()
-                    val scheduleId = schedules.findNextSchedule(today)?.id ?: 0
-                    val nextScheduleDate = schedules.findNextSchedule(today)?.toFormattedDate(today.year).orEmpty()
+                    val selectedScheduleId = schedules.findNextSchedule(today)?.id
+                        ?: schedules.firstOrNull()?.id ?: 0
+                    val nextScheduleDate = schedules.findNextSchedule(today)
+                        ?.toFormattedDate(today.year)
+                        .orEmpty()
+
                     Triple(
                         schedules.toUi().toPersistentList(),
-                        scheduleId,
+                        selectedScheduleId,
                         nextScheduleDate
                     )
-                }
-
-            val teamsFlow = getAdminTeamUseCase()
-            val attendanceStatusFlow = attendanceStatusUseCase()
-
-            val selectedScheduleIdFlow = uiState.map { it.selectedScheduleId }
-            val selectedTeamIdFlow = uiState.map { it.selectedTeamId }
-
-            val scheduleAttendancesFlow = combine(selectedScheduleIdFlow, selectedTeamIdFlow) { scheduleId, teamId ->
-                scheduleId to teamId
-            }.distinctUntilChanged()
-                .filter { (scheduleId, teamId) -> scheduleId > 0 && teamId > 0 }
-                .flatMapLatest { (scheduleId, teamId) ->
-                    getAdminScheduleTeamAttendanceUseCase(scheduleId.toInt(), teamId)
-                }
-
-            val scheduleBoardFlow = selectedScheduleIdFlow
-                .distinctUntilChanged()
-                .filter { it > 0 }
-                .flatMapLatest { scheduleId ->
-                    getAdminScheduleAttendanceUseCase(scheduleId.toInt())
-                }
-
-            // 모든 Flow combine
-            combine(
-                schedulesFlow,
-                teamsFlow,
-                attendanceStatusFlow,
-                scheduleAttendancesFlow,
-                scheduleBoardFlow
-            ) { schedulesData, teams, attendanceStatus, memberAttendances, attendanceBoardStatus ->
+                },
+                getAdminTeamUseCase().map { it.toPersistentList() }
+            ) { attendanceStatusList, schedulesData, teams ->
                 val (schedules, selectedScheduleId, nextScheduleDate) = schedulesData
-                _uiState.value.copy(
+
+                val state = _uiState.value
+
+                val currentSelectedTeamId =
+                    if (state.selectedTeamId != 0) {
+                        state.selectedTeamId // 이미 선택된 팀이 있으면 그대로 사용
+                    } else teams[0].teamId // 선택된 팀이 없으면 첫 번째 팀으로 초기화
+
+
+                // 새로운 UI State 구성
+                state.copy(
+                    attendanceStatusList = attendanceStatusList,
                     schedules = schedules,
                     nextScheduleDate = nextScheduleDate,
+                    selectedTeamId = currentSelectedTeamId,
                     selectedScheduleId = selectedScheduleId,
                     teams = teams.toPersistentList(),
-                    attendanceStatusList = attendanceStatus.toPersistentList(),
-                    memberAttendances = memberAttendances.toPersistentList(),
-                    attendanceBoardStatus = AttendanceBoardStatus(
-                        attendance = attendanceBoardStatus.attended,
-                        late = attendanceBoardStatus.late,
-                        absent = attendanceBoardStatus.absent
-                    )
+                    // 다른 필드들은 기존 값 유지
+                    memberAttendances = state.memberAttendances,
+                    attendanceBoardStatus = state.attendanceBoardStatus
                 )
+            }
+                .catch { throwable ->
+                    if (throwable is UsersException.Unauthorized) {
+                        onLogout()
+                    }
+                }
+                .collect { _uiState.value = it }
+        }
+    }
+
+    private fun observeScheduleTeamAttendances() {
+        uiState
+            .map { it.selectedScheduleId to it.selectedTeamId }
+            .distinctUntilChanged()
+            .filter { (scheduleId, teamId) ->
+                scheduleId > 0 && teamId > 0
+            }
+            .flatMapLatest { (scheduleId, teamId) ->
+                getAdminScheduleTeamAttendanceUseCase(scheduleId.toInt(), teamId)
+            }
+            .onEach { attendances ->
+                _uiState.update { state ->
+                    state.copy(
+                        memberAttendances = attendances.toPersistentList()
+                    )
+                }
             }.catch { throwable ->
                 if (throwable is UsersException.Unauthorized) {
                     onLogout()
                 }
-            }.collect {
-                _uiState.value = it
             }
-        }
+            .launchIn(viewModelScope)
+    }
+
+    private fun observeScheduleAttendances() {
+        uiState
+            .map { it.selectedScheduleId }
+            .distinctUntilChanged()
+            .filter { it > 0 } // 초기값 방어 (중요)
+            .flatMapLatest { scheduleId ->
+                getAdminScheduleAttendanceUseCase(scheduleId.toInt())
+            }
+            .onEach { item ->
+                _uiState.update { state ->
+                    state.copy(
+                        attendanceBoardStatus = AttendanceBoardStatus(
+                            attendance = item.attended,
+                            late = item.late,
+                            absent = item.absent
+                        )
+                    )
+                }
+            }.catch { throwable ->
+                if (throwable is UsersException.Unauthorized) {
+                    onLogout()
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun attendanceChange(
