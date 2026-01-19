@@ -66,7 +66,6 @@ class AdminViewModel @Inject constructor(
 
     private fun observeAllData() {
         viewModelScope.launch {
-            // combine으로 attendanceStatus + schedules + teams를 합침
             combine(
                 attendanceStatusUseCase().map { it.toPersistentList() },
                 getScheduleUseCase().map { schedules ->
@@ -94,8 +93,6 @@ class AdminViewModel @Inject constructor(
                         state.selectedTeamId // 이미 선택된 팀이 있으면 그대로 사용
                     } else teams[0].teamId // 선택된 팀이 없으면 첫 번째 팀으로 초기화
 
-
-                // 새로운 UI State 구성
                 state.copy(
                     attendanceStatusList = attendanceStatusList,
                     schedules = schedules,
@@ -103,7 +100,6 @@ class AdminViewModel @Inject constructor(
                     selectedTeamId = currentSelectedTeamId,
                     selectedScheduleId = selectedScheduleId,
                     teams = teams.toPersistentList(),
-                    // 다른 필드들은 기존 값 유지
                     memberAttendances = state.memberAttendances,
                     attendanceBoardStatus = state.attendanceBoardStatus
                 )
@@ -145,7 +141,7 @@ class AdminViewModel @Inject constructor(
         uiState
             .map { it.selectedScheduleId }
             .distinctUntilChanged()
-            .filter { it > 0 } // 초기값 방어 (중요)
+            .filter { it > 0 }
             .flatMapLatest { scheduleId ->
                 getAdminScheduleAttendanceUseCase(scheduleId.toInt())
             }
@@ -190,7 +186,6 @@ class AdminViewModel @Inject constructor(
                 }
                 .catch { e ->
                     Log.e("AttendanceChange", "출석 상태 변경 실패", e)
-                    // 실패하면 롤백 가능
                     _uiState.update { it.copy(memberAttendances = state.memberAttendances) }
                 }
                 .collect { latestList ->
