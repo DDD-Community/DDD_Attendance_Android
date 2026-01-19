@@ -184,6 +184,9 @@ class AdminViewModel @Inject constructor(
                         teamId = state.selectedTeamId
                     )
                 }
+                .onEach {
+                    observeScheduleAttendances()
+                }
                 .catch { e ->
                     Log.e("AttendanceChange", "출석 상태 변경 실패", e)
                     _uiState.update { it.copy(memberAttendances = state.memberAttendances) }
