@@ -1,10 +1,13 @@
 package com.ddd.attendance.data.api.datasource
 
+import android.util.Log
 import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
+import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.model.JobRoleResponse
 import com.ddd.attendance.data.model.TeamResponse
 import com.ddd.attendance.data.model.VerifyCodeResponse
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +19,8 @@ class ApiOnboardingDataSourceImpl @Inject constructor(
         return try {
             val data = onBoardingApi.verifyCode(code)
             Result.success(data)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -25,6 +30,8 @@ class ApiOnboardingDataSourceImpl @Inject constructor(
         return try {
             val data = onBoardingApi.getTeams(id)
             Result.success(data)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -34,6 +41,8 @@ class ApiOnboardingDataSourceImpl @Inject constructor(
         return try {
             val data = onBoardingApi.getJobs()
             Result.success(data)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -43,8 +52,14 @@ class ApiOnboardingDataSourceImpl @Inject constructor(
         return try {
             val data = onBoardingApi.getRole()
             Result.success(data)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    companion object {
+        private const val TAG = "ApiOnboardingDataSource"
     }
 }

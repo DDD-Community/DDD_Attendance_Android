@@ -4,13 +4,16 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
+import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.usecase.AttendanceStatusUseCase
 import com.ddd.attendance.domain.usecase.AttendancesChangeUseCase
 import com.ddd.attendance.domain.usecase.AttendancesUseCase
+import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleTeamAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminTeamUseCase
 import com.ddd.attendance.domain.usecase.GetScheduleUseCase
+import com.ddd.attendance.domain.usecase.LogoutUseCase
 import com.ddd.attendance.feature.admin.attendance.model.AttendanceBoardStatus
 import com.ddd.attendance.feature.admin.schedule.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +26,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapConcat
@@ -40,117 +44,85 @@ import javax.inject.Inject
 class AdminViewModel @Inject constructor(
     private val getAdminScheduleTeamAttendanceUseCase: GetAdminScheduleTeamAttendanceUseCase,
     private val getAdminScheduleAttendanceUseCase: GetAdminScheduleAttendanceUseCase,
+    private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
     private val getAdminTeamUseCase: GetAdminTeamUseCase,
     private val getScheduleUseCase: GetScheduleUseCase,
     private val attendancesUseCase: AttendancesUseCase,
     private val attendancesChangeUseCase: AttendancesChangeUseCase,
-    private val attendanceStatusUseCase: AttendanceStatusUseCase
+    private val attendanceStatusUseCase: AttendanceStatusUseCase,
+    private val logoutUseCase: LogoutUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(AdminUiState())
     val uiState: StateFlow<AdminUiState> = _uiState.asStateFlow()
 
-    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    private val _navigationEvent = MutableSharedFlow<AdminNavigationEvent>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
-        observeSchedules()
-        observeTeams()
-        observeScheduleAttendances()
-        observeScheduleTeamAttendances()
-        observeAttendanceStatus()
-    }
-
-    private fun observeAttendanceStatus() {
-        attendanceStatusUseCase()
-            .onEach { list ->
-
-                _uiState.update { state ->
-                    state.copy(
-                        attendanceStatusList = list.toPersistentList()
+        viewModelScope.launch {
+            val schedulesFlow = getScheduleUseCase()
+                .map { schedules ->
+                    val today = LocalDate.now()
+                    val scheduleId = schedules.findNextSchedule(today)?.id ?: 0
+                    val nextScheduleDate = schedules.findNextSchedule(today)?.toFormattedDate(today.year).orEmpty()
+                    Triple(
+                        schedules.toUi().toPersistentList(),
+                        scheduleId,
+                        nextScheduleDate
                     )
                 }
-            }
-            .launchIn(viewModelScope)
-    }
 
-    private fun observeScheduleTeamAttendances() {
-        uiState
-            .map { it.selectedScheduleId to it.selectedTeamId }
-            .distinctUntilChanged()
-            .filter { (scheduleId, teamId) ->
-                scheduleId > 0 && teamId > 0
-            }
-            .flatMapLatest { (scheduleId, teamId) ->
-                getAdminScheduleTeamAttendanceUseCase(scheduleId.toInt(), teamId)
-            }
-            .onEach { attendances ->
-                _uiState.update { state ->
-                    state.copy(
-                        memberAttendances = attendances.toPersistentList()
-                    )
+            val teamsFlow = getAdminTeamUseCase()
+            val attendanceStatusFlow = attendanceStatusUseCase()
+
+            val selectedScheduleIdFlow = uiState.map { it.selectedScheduleId }
+            val selectedTeamIdFlow = uiState.map { it.selectedTeamId }
+
+            val scheduleAttendancesFlow = combine(selectedScheduleIdFlow, selectedTeamIdFlow) { scheduleId, teamId ->
+                scheduleId to teamId
+            }.distinctUntilChanged()
+                .filter { (scheduleId, teamId) -> scheduleId > 0 && teamId > 0 }
+                .flatMapLatest { (scheduleId, teamId) ->
+                    getAdminScheduleTeamAttendanceUseCase(scheduleId.toInt(), teamId)
                 }
-            }
-            .launchIn(viewModelScope)
-    }
 
-    private fun observeScheduleAttendances() {
-        uiState
-            .map { it.selectedScheduleId }
-            .distinctUntilChanged()
-            .filter { it > 0 } // 초기값 방어 (중요)
-            .flatMapLatest { scheduleId ->
-                getAdminScheduleAttendanceUseCase(scheduleId.toInt())
-            }
-            .onEach { item ->
-                _uiState.update { state ->
-                    state.copy(
-                        attendanceBoardStatus = AttendanceBoardStatus(
-                            attendance = item.attended,
-                            late = item.late,
-                            absent = item.absent
-                        )
-                    )
+            val scheduleBoardFlow = selectedScheduleIdFlow
+                .distinctUntilChanged()
+                .filter { it > 0 }
+                .flatMapLatest { scheduleId ->
+                    getAdminScheduleAttendanceUseCase(scheduleId.toInt())
                 }
-            }
-            .launchIn(viewModelScope)
-    }
 
-    private fun observeSchedules() {
-        getScheduleUseCase()
-            .onEach { schedules ->
-                val today = LocalDate.now()
-
-                val scheduleId = schedules.findNextSchedule(today)?.id?: 0
-
-                val nextScheduleDate = schedules
-                    .findNextSchedule(today)
-                    ?.toFormattedDate(today.year)
-                    .orEmpty()
-
-                _uiState.update { state ->
-                    state.copy(
-                        schedules = schedules.toUi().toPersistentList(),
-                        nextScheduleDate = nextScheduleDate,
-                        selectedScheduleId = scheduleId
+            // 모든 Flow combine
+            combine(
+                schedulesFlow,
+                teamsFlow,
+                attendanceStatusFlow,
+                scheduleAttendancesFlow,
+                scheduleBoardFlow
+            ) { schedulesData, teams, attendanceStatus, memberAttendances, attendanceBoardStatus ->
+                val (schedules, selectedScheduleId, nextScheduleDate) = schedulesData
+                _uiState.value.copy(
+                    schedules = schedules,
+                    nextScheduleDate = nextScheduleDate,
+                    selectedScheduleId = selectedScheduleId,
+                    teams = teams.toPersistentList(),
+                    attendanceStatusList = attendanceStatus.toPersistentList(),
+                    memberAttendances = memberAttendances.toPersistentList(),
+                    attendanceBoardStatus = AttendanceBoardStatus(
+                        attendance = attendanceBoardStatus.attended,
+                        late = attendanceBoardStatus.late,
+                        absent = attendanceBoardStatus.absent
                     )
+                )
+            }.catch { throwable ->
+                if (throwable is UsersException.Unauthorized) {
+                    onLogout()
                 }
+            }.collect {
+                _uiState.value = it
             }
-            .launchIn(viewModelScope)
-    }
-
-    private fun observeTeams() {
-        getAdminTeamUseCase()
-            .onEach { teams ->
-                _uiState.update { state ->
-                    // selectedTeamId가 이미 세팅되어 있으면 그대로 사용
-                    val currentSelectedTeamId = state.selectedTeamId.takeIf { it != 0 } ?: teams[0].teamId
-                    state.copy(
-                        selectedTeamId = currentSelectedTeamId,
-                        teams = teams.toPersistentList()
-                    )
-                }
-            }
-            .launchIn(viewModelScope)
+        }
     }
 
     private fun attendanceChange(
@@ -182,6 +154,17 @@ class AdminViewModel @Inject constructor(
                 .collect { latestList ->
                     _uiState.update { it.copy(memberAttendances = latestList.toImmutableList()) }
                 }
+        }
+    }
+
+    private fun onLogout() {
+        viewModelScope.launch {
+            logoutUseCase()
+                .onEach {
+                    deleteDataStoreWithdrawAccountUseCase(isLogout = true)
+                    _navigationEvent.emit(AdminNavigationEvent.GoToLogin)
+                }
+                .collect()
         }
     }
 
@@ -278,7 +261,7 @@ class AdminViewModel @Inject constructor(
     }
 
     private fun goToProfile() {
-        viewModelScope.launch { _navigationEvent.emit(NavigationEvent.GoToProfile) }
+        viewModelScope.launch { _navigationEvent.emit(AdminNavigationEvent.GoToProfile) }
     }
 
     private fun Schedule.toFormattedDate(year: Int): String =

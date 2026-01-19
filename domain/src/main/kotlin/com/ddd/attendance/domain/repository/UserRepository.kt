@@ -31,12 +31,12 @@ interface UserRepository {
     fun completeOnboardingAndLogin(): Flow<Login>
     fun logout(): Flow<Unit>
     fun deleteUsersMe(): Flow<Unit>
+    fun getSchedules(): Flow<List<Schedule>>
 
     suspend fun isUserLoggedIn(): Boolean
     suspend fun getUserRole(): String?
     suspend fun hasTempOAuthToken(): Boolean
     suspend fun getMe(): Result<Unit>
-    suspend fun getSchedules(): Result<List<Schedule>>
     suspend fun getQr(userId: Long): Result<Unit>
 
     fun getQrBase64(): Flow<String>

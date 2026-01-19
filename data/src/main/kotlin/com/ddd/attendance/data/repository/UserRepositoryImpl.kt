@@ -42,23 +42,19 @@ class UserRepositoryImpl @Inject constructor(
         token: String,
         invitationCode: String
     ): Flow<Users>  = flow {
-        emit(
-            apiUsersDataSource.users(
-                name = name,
-                generationId = generationId,
-                jobRole = jobRole,
-                teamId = teamId,
-                managerRoles = managerRoles,
-                provider = provider,
-                token = token,
-                invitationCode = invitationCode
-            ).toDomain()
-        )
-    }.catch { throwable ->
-        if (throwable is HttpException) {
-            throw throwable.toDomainException()
-        } else {
-            throw throwable
+        apiUsersDataSource.users(
+            name = name,
+            generationId = generationId,
+            jobRole = jobRole,
+            teamId = teamId,
+            managerRoles = managerRoles,
+            provider = provider,
+            token = token,
+            invitationCode = invitationCode
+        ).onSuccess {
+            emit(it.toDomain())
+        }.onFailure {
+            throw it
         }
     }
 
@@ -70,70 +66,64 @@ class UserRepositoryImpl @Inject constructor(
         managerRoles: List<String>,
         invitationCode: String
     ): Flow<UsersMe> = flow {
-        emit(
-            apiUsersDataSource.usersMe(
-                name = name,
-                generationId = generationId,
-                jobRole = jobRole,
-                teamId = teamId,
-                managerRoles = managerRoles,
-                invitationCode = invitationCode
-            ).toDomain()
-        )
+        apiUsersDataSource.usersMe(
+            name = name,
+            generationId = generationId,
+            jobRole = jobRole,
+            teamId = teamId,
+            managerRoles = managerRoles,
+            invitationCode = invitationCode
+        ).onSuccess {
+            emit(it.toDomain())
+        }.onFailure {
+            throw it
+        }
     }
 
     override fun login(isAutoLogin: Boolean): Flow<Login> = flow {
-        val idToken = if (!isAutoLogin) { //로그인 화면
+        val idToken = if (!isAutoLogin) {
+            // 로그인 화면
             val token = googleLoginDataSource.login().getOrThrow()
             userPreferencesDataStore.saveTempOAuthToken(token, "GOOGLE")
             token
-        } else { //스플래시 화면
-            userPreferencesDataStore.tempOauthToken.firstOrNull()
-                ?: throw IllegalStateException("No temp OAuth token found")
+        } else {
+            // 스플래시 화면
+            userPreferencesDataStore.tempOauthToken.firstOrNull()?: throw IllegalStateException("No temp OAuth token found")
         }
 
         val (code, response) = apiLoginDataSource.login(idToken).getOrThrow()
 
-        val login = response.body()?.toDomain(code)
-            ?: throw IllegalStateException("Login response body is null")
+        val login = response.body()?.toDomain(code) ?: throw IllegalStateException("Login response body is null")
 
         userPreferencesDataStore.saveUserRole(login.role)
 
         emit(login)
     }
 
-    //온보딩 직후
     override fun completeOnboardingAndLogin(): Flow<Login> = flow {
-        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull()
-            ?: throw IllegalStateException("No temp OAuth token found")
+        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: throw IllegalStateException("No temp OAuth token found")
 
-        // 성공 시에만 임시 토큰 제거
-        // userPreferencesDataStore.clearTempOAuthData()
+        val (code, response) = apiLoginDataSource.login(tempToken).getOrThrow()
 
-        val data = apiLoginDataSource.login(tempToken).getOrThrow()
+        val login = response.body()?.toDomain(code) ?: throw IllegalStateException("Login response body is null")
 
-        val result = data.response.body()
-            ?.toDomain(data.code)
-            ?: throw IllegalStateException("Login response body is null")
+        userPreferencesDataStore.saveUserRole(login.role)
 
-        userPreferencesDataStore.saveUserRole(result.role)
-
-        emit(result)
+        emit(login)
     }
 
     override fun logout(): Flow<Unit> = flow {
         apiLoginDataSource.logout()
-            .onFailure { throw it }
-            .onSuccess { emit(Unit) }
+
+        emit(Unit)
     }
 
     override fun deleteUsersMe(): Flow<Unit> = flow {
-        val token = userPreferencesDataStore.tempOauthToken.firstOrNull()
-            ?: throw IllegalStateException("No temp OAuth token found")
+        val token = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: throw IllegalStateException("No temp OAuth token found")
 
         apiUsersDataSource.deleteUsersMe(token)
-            .onFailure { throw it }
-            .onSuccess { emit(Unit) }
+
+        emit(Unit)
     }
 
     override suspend fun isUserLoggedIn(): Boolean {
@@ -154,10 +144,18 @@ class UserRepositoryImpl @Inject constructor(
         return apiMeDataSource.getMe()
     }
 
-    override suspend fun getSchedules(): Result<List<Schedule>> {
-        return apiMeDataSource.getSchedules().mapCatching { schedules ->
-            schedules.map { it.toDomain() }
-        }
+    override fun getSchedules(): Flow<List<Schedule>> = flow {
+        apiMeDataSource.getSchedules()
+            .onSuccess {
+                emit(
+                    it.map { data ->
+                        data.toDomain()
+                    }
+                )
+            }
+            .onFailure {
+                throw it
+            }
     }
 
     override suspend fun getQr(userId: Long): Result<Unit> {

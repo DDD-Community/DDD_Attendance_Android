@@ -76,6 +76,14 @@ internal fun MainNavHost(
                     },
                     onNavigateToAttendance = {
                         navigator.navController.navigate(ScreenName.MEMBER_ATTENDANCE.name)
+                    },
+                    onLogout = {
+                        navigator.navController.navigate("LOGIN") {
+                            popUpTo(navigator.navController.graph.id) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

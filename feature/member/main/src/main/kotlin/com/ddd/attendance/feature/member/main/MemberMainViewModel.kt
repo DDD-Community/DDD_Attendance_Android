@@ -3,12 +3,24 @@ package com.ddd.attendance.feature.member.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
+import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.repository.UserRepository
+import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
+import com.ddd.attendance.domain.usecase.GetScheduleUseCase
 import com.ddd.attendance.domain.usecase.GetUserInfoUseCase
+import com.ddd.attendance.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,7 +48,10 @@ data class MemberMainUiState(
 @HiltViewModel
 class MemberMainViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getScheduleUseCase: GetScheduleUseCase,
+    private val logoutUseCase: LogoutUseCase,
+    private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -80,6 +95,9 @@ class MemberMainViewModel @Inject constructor(
 
     val uiState: StateFlow<MemberMainUiState> = _uiState.asStateFlow()
 
+    private val _navigationEvent = MutableSharedFlow<MemberNavigationEvent>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
+
     init {
         // 임시 accessToken 저장 (테스트용)
 //        viewModelScope.launch {
@@ -90,35 +108,48 @@ class MemberMainViewModel @Inject constructor(
 
     private fun loadUserData() {
         viewModelScope.launch {
-            // 먼저 me API를 호출하여 사용자 데이터를 최신 상태로 업데이트
+
             userRepository.getMe()
 
-            // 활동 스케줄 데이터 가져오기 (활동 기간 계산)
             userRepository.fetchActivitySchedules()
 
-            // 스케줄 데이터 가져오기
-            val schedulesResult = userRepository.getSchedules()
-            val scheduleItems = schedulesResult.getOrNull()?.let { schedules ->
-                schedules.map { it.toScheduleItem() }
-            } ?: emptyList()
+            val schedulesFlow = getScheduleUseCase()
+                .map { list -> list.map { it.toScheduleItem() } }
 
-            // 활동 기간 가져오기
-            userRepository.getActivityPeriod().collect { activityPeriod ->
-                // API 호출 후 DataStore에서 데이터를 가져와서 UI 업데이트
-                getUserInfoUseCase().collect { userInfo ->
-                    _uiState.value = _uiState.value.copy(
-                        memberName = userInfo.name,
-                        generationNumber = extractGenerationNumber(userInfo.generation),
-                        activityPeriod = activityPeriod.ifEmpty { _uiState.value.activityPeriod },
-                        attendanceStats = AttendanceStats(
-                            attendance = userInfo.attendanceCount,
-                            late = userInfo.lateCount,
-                            absent = userInfo.absentCount
-                        ),
-                        scheduleItems = _uiState.value.scheduleItems + scheduleItems
-                    )
+            val activityPeriodFlow = userRepository.getActivityPeriod()
+            val userInfoFlow = getUserInfoUseCase()
+
+            combine(schedulesFlow, activityPeriodFlow, userInfoFlow) { scheduleItems, activityPeriod, userInfo ->
+                _uiState.value.copy(
+                    memberName = userInfo.name,
+                    generationNumber = extractGenerationNumber(userInfo.generation),
+                    activityPeriod = activityPeriod.ifEmpty { _uiState.value.activityPeriod },
+                    attendanceStats = AttendanceStats(
+                        attendance = userInfo.attendanceCount,
+                        late = userInfo.lateCount,
+                        absent = userInfo.absentCount
+                    ),
+                    scheduleItems = _uiState.value.scheduleItems + scheduleItems
+                )
+
+            }.catch { throwable ->
+                if (throwable is UsersException.Unauthorized) {
+                    onLogout()
                 }
+            }.collect { updatedState ->
+                _uiState.value = updatedState
             }
+        }
+    }
+
+    private fun onLogout() {
+        viewModelScope.launch {
+            logoutUseCase()
+                .onEach {
+                    deleteDataStoreWithdrawAccountUseCase(isLogout = true)
+                    _navigationEvent.emit(MemberNavigationEvent.GoToLogin)
+                }
+                .collect()
         }
     }
 

@@ -4,6 +4,7 @@ import android.util.Log
 import com.ddd.attendance.data.api.MeApi
 import com.ddd.attendance.data.datasource.ApiMeDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
+import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.model.ScheduleResponse
 import kotlinx.coroutines.flow.firstOrNull
 import retrofit2.HttpException
@@ -60,16 +61,7 @@ class ApiMeDataSourceImpl @Inject constructor(
 
             Result.success(Unit)
         } catch (e: HttpException) {
-            val errorCode = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-
-            Log.e(TAG, "=== HTTP ERROR ===")
-            Log.e(TAG, "Status Code: $errorCode")
-            Log.e(TAG, "Error Body: $errorBody")
-            Log.e(TAG, "Message: ${e.message}")
-            Log.e(TAG, "==================")
-
-            Result.failure(Exception("HTTP $errorCode: $errorBody"))
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Log.e(TAG, "Get Me failed", e)
             Result.failure(e)
@@ -86,16 +78,7 @@ class ApiMeDataSourceImpl @Inject constructor(
 
             Result.success(response)
         } catch (e: HttpException) {
-            val errorCode = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-
-            Log.e(TAG, "=== HTTP ERROR ===")
-            Log.e(TAG, "Status Code: $errorCode")
-            Log.e(TAG, "Error Body: $errorBody")
-            Log.e(TAG, "Message: ${e.message}")
-            Log.e(TAG, "==================")
-
-            Result.failure(Exception("HTTP $errorCode: $errorBody"))
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Log.e(TAG, "Get Me Schedules failed", e)
             Result.failure(e)

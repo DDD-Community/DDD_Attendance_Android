@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,12 +44,21 @@ import com.ddd.attendance.feature.core.popup.OneButtonTitleContentPopup
 @Composable
 fun MemberMainScreen(
     modifier: Modifier = Modifier,
+    onLogout:() -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToAttendance: () -> Unit,
     viewModel: MemberMainViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showAbsentAlertPopup by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                MemberNavigationEvent.GoToLogin -> { onLogout() }
+            }
+        }
+    }
 
     Box(
         modifier = modifier

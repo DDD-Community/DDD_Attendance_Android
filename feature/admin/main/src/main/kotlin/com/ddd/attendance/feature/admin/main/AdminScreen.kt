@@ -82,8 +82,16 @@ fun AdminScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                NavigationEvent.PopBackStack -> { navController.popBackStack() }
-                NavigationEvent.GoToProfile -> { navController.navigate("ADMIN_PROFILE") }
+                AdminNavigationEvent.PopBackStack -> { navController.popBackStack() }
+                AdminNavigationEvent.GoToProfile -> { navController.navigate("ADMIN_PROFILE") }
+                AdminNavigationEvent.GoToLogin -> {
+                    navController.navigate("LOGIN") {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
             }
         }
     }

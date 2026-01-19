@@ -9,8 +9,7 @@ import javax.inject.Inject
 class GetScheduleUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    operator fun invoke(): Flow<List<Schedule>> = flow {
-        val schedules = userRepository.getSchedules()
-        emit(schedules.getOrThrow())
+    operator fun invoke(): Flow<List<Schedule>> {
+        return userRepository.getSchedules()
     }
 }

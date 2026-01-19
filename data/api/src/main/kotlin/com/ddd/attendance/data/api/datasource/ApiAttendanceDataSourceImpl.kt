@@ -1,9 +1,11 @@
 package com.ddd.attendance.data.api.datasource
 
+import android.util.Log
 import com.ddd.attendance.data.api.AttendanceApi
 import com.ddd.attendance.data.api.model.attendance.AttendanceChangeRequest
 import com.ddd.attendance.data.api.model.attendance.AttendanceRequest
 import com.ddd.attendance.data.datasource.ApiAttendanceDataSource
+import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.model.AttendanceStatusResponse
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -32,6 +34,8 @@ class ApiAttendanceDataSourceImpl @Inject constructor(
                 throw HttpException(response)
             }
             Result.success(Unit)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -49,6 +53,8 @@ class ApiAttendanceDataSourceImpl @Inject constructor(
                 throw HttpException(response)
             }
             Result.success(Unit)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -58,8 +64,14 @@ class ApiAttendanceDataSourceImpl @Inject constructor(
         return try {
             val response = attendanceApi.attendancesStatus()
             Result.success(response)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    companion object {
+        private const val TAG = "ApiAttendanceDataSource"
     }
 }

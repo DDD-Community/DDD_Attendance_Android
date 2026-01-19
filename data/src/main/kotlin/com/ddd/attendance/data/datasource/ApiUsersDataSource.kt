@@ -14,7 +14,7 @@ interface ApiUsersDataSource {
         provider: String,
         token: String,
         invitationCode: String
-    ): UsersResponse
+    ): Result<UsersResponse>
 
     suspend fun usersMe(
         name: String,
@@ -23,7 +23,7 @@ interface ApiUsersDataSource {
         teamId: Int,
         managerRoles: List<String>,
         invitationCode: String
-    ): UsersMeResponse
+    ): Result<UsersMeResponse>
 
     suspend fun getQr(userId: Long): Result<QrResponse>
 
