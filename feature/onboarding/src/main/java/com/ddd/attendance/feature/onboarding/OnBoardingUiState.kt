@@ -21,7 +21,6 @@ import kotlinx.collections.immutable.persistentListOf
 data class OnBoardingUiState(
     // 사용자 타입 관련
     val type: UserType = UserType.MEMBER,
-    val onBoardingUserType: OnboardingUserType = OnboardingUserType.MEMBER,
     val entryPoint: OnboardingEntryPoint = OnboardingEntryPoint.SIGN_UP,
 
     // 단계 관련

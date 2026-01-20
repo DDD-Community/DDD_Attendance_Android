@@ -1,5 +1,8 @@
 package com.ddd.attendance.feature.member.attendance
 
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -61,8 +64,10 @@ fun MemberAttendanceScreen(
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
                 ) {
+
+                    uiState.qrCodeBase64
                     QrCodeImage(
-                        text = uiState.qrCodeBase64,
+                        qrCodeBase64 = uiState.qrCodeBase64,
                         size = 240.dp
                     )
                 }

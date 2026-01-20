@@ -212,7 +212,7 @@ class AdminViewModel @Inject constructor(
                             }
                         }
                         .catch {
-
+                            _navigationEvent.emit(AdminNavigationEvent.OnQrApiErrorMessage(it))
                         }
                         .collect()
                 }

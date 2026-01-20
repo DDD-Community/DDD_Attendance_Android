@@ -1,6 +1,8 @@
 package com.ddd.attendance.feature.core.qr.composable
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,33 +34,43 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun QrCodeImage(
-    text: String,
+    text: String = "",
     modifier: Modifier = Modifier,
-    size: Dp = 200.dp
+    size: Dp = 200.dp,
+    qrCodeBase64: String? = null // ⭐ 추가
 ) {
-    var qrBitmap by remember(text) { mutableStateOf<Bitmap?>(null) }
-    var isLoading by remember(text) { mutableStateOf(true) }
-    var errorMessage by remember(text) { mutableStateOf<String?>(null) }
-    
+    var qrBitmap by remember(text, qrCodeBase64) { mutableStateOf<Bitmap?>(null) }
+    var isLoading by remember(text, qrCodeBase64) { mutableStateOf(true) }
+    var errorMessage by remember(text, qrCodeBase64) { mutableStateOf<String?>(null) }
+
     val generator = QrCodeGenerator()
-    
-    LaunchedEffect(text) {
+
+    LaunchedEffect(text, qrCodeBase64) {
         isLoading = true
         errorMessage = null
-        
-        withContext(Dispatchers.IO) {
-            generator.generateQrCode(text, size.value.toInt(), size.value.toInt())
-                .onSuccess { bitmap ->
-                    qrBitmap = bitmap
-                    isLoading = false
+
+        try {
+            withContext(Dispatchers.IO) {
+                // ✅ 1. Base64 QR 이미지가 있으면 그걸 사용
+                if (!qrCodeBase64.isNullOrBlank()) {
+                    qrBitmap = base64ToBitmap(qrCodeBase64)
+                } else {
+                    // ✅ 2. 기존 QR 생성 로직 그대로
+                    generator.generateQrCode(
+                        text,
+                        size.value.toInt(),
+                        size.value.toInt()
+                    ).getOrThrow()
+                        .also { qrBitmap = it }
                 }
-                .onFailure { throwable ->
-                    errorMessage = throwable.message ?: "QR 코드 생성 실패"
-                    isLoading = false
-                }
+            }
+        } catch (e: Exception) {
+            errorMessage = e.message ?: "QR 처리 실패"
+        } finally {
+            isLoading = false
         }
     }
-    
+
     Box(
         modifier = modifier.size(size),
         contentAlignment = Alignment.Center
@@ -81,6 +93,7 @@ fun QrCodeImage(
                     )
                 }
             }
+
             errorMessage != null -> {
                 BasicText(
                     text = errorMessage!!,
@@ -90,13 +103,19 @@ fun QrCodeImage(
                     )
                 )
             }
+
             qrBitmap != null -> {
                 Image(
                     bitmap = qrBitmap!!.asImageBitmap(),
-                    contentDescription = "QR Code for: $text",
+                    contentDescription = "QR Code",
                     modifier = Modifier.fillMaxSize()
                 )
             }
         }
     }
+}
+
+fun base64ToBitmap(base64: String): Bitmap {
+    val decodedBytes = Base64.decode(base64, Base64.DEFAULT)
+    return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
 }

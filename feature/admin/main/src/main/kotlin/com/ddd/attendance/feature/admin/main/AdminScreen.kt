@@ -75,6 +75,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun AdminScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
+    onQrApiErrorMessage:(throwable: Throwable) -> Unit,
     viewModel: AdminViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -82,6 +83,9 @@ fun AdminScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
+                is AdminNavigationEvent.OnQrApiErrorMessage -> {
+                    onQrApiErrorMessage(event.throwable)
+                }
                 AdminNavigationEvent.PopBackStack -> { navController.popBackStack() }
                 AdminNavigationEvent.GoToProfile -> { navController.navigate("ADMIN_PROFILE") }
                 AdminNavigationEvent.GoToLogin -> {

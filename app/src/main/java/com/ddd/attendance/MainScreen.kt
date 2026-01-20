@@ -1,5 +1,6 @@
 package com.ddd.attendance
 
+import android.net.http.HttpException
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -9,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import com.ddd.attendance.app.R
+import com.ddd.attendance.domain.model.UsersException
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 
@@ -25,12 +27,13 @@ internal fun MainScreen(
 
     val onShowErrorSnackBar: (throwable: Throwable?) -> Unit = { throwable ->
         coroutineScope.launch {
-            snackBarHostState.showSnackbar(
-                when (throwable) {
-                    is UnknownHostException -> localContextResource.getString(R.string.error_message_network)
-                    else -> localContextResource.getString(R.string.error_message_unknown)
-                }
-            )
+            val message = when (throwable) {
+                is UsersException -> throwable.errorMessage
+                is UnknownHostException -> localContextResource.getString(R.string.error_message_network)
+                else -> localContextResource.getString(R.string.error_message_unknown)
+            }
+
+            snackBarHostState.showSnackbar(message)
         }
     }
 
