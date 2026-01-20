@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.ddd.attendance.feature.admin.main.AdminScreen
 import com.ddd.attendance.feature.admin.profile.AdminProfileScreen
 import com.ddd.attendance.feature.home.HomeScreen
@@ -43,9 +45,21 @@ internal fun MainNavHost(
                 SplashScreen(navController = navigator.navController)
             }
 
-            composable(route = ScreenName.ON_BOARDING.name) {
+            composable(
+                route = "${ScreenName.ON_BOARDING.name}?isProfileEdit={isProfileEdit}",
+                arguments = listOf(
+                    navArgument("isProfileEdit") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) { backStackEntry ->
+
+                val isProfileEdit = backStackEntry.arguments?.getBoolean("isProfileEdit") ?: false
+
                 OnBoardingScreen(
                     navController = navigator.navController,
+                    isProfileEdit = isProfileEdit,
                     onRestart = onRestart
                 )
             }

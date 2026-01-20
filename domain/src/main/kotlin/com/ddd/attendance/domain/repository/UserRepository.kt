@@ -22,7 +22,7 @@ interface UserRepository {
         name: String,
         generationId: Int,
         jobRole: String,
-        teamId: Int,
+        teamId: Int?,
         managerRoles: List<String>,
         invitationCode: String
     ): Flow<UsersMe>

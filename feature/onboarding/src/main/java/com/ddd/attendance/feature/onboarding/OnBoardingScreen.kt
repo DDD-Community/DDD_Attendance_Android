@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.ddd.attendance.domain.model.onboarding.OnboardingEntryPoint
 import com.ddd.attendance.feature.designsystem.component.DddLargeSizeButton
 import com.ddd.attendance.feature.onboarding.invite.InviteScreen
 import com.ddd.attendance.feature.onboarding.invite.PinCodeStatus
@@ -43,6 +44,7 @@ import kotlinx.collections.immutable.toPersistentList
 fun OnBoardingScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
+    isProfileEdit: Boolean,
     onRestart:() -> Unit,
     viewModel: OnBoardingViewModel = hiltViewModel()
 ) {
@@ -66,6 +68,17 @@ fun OnBoardingScreen(
             }
         }
     }
+
+    LaunchedEffect(isProfileEdit) {
+        viewModel.onIntent(
+            OnBoardingIntent.Initialize(
+                entryPoint =
+                    if (isProfileEdit) OnboardingEntryPoint.PROFILE_EDIT
+                    else OnboardingEntryPoint.SIGN_UP
+            )
+        )
+    }
+
 
     Content(
         modifier = modifier,
