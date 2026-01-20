@@ -1,6 +1,5 @@
 package com.ddd.attendance
 
-import android.net.http.HttpException
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState

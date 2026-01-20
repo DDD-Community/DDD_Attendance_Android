@@ -34,10 +34,10 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun QrCodeImage(
-    text: String = "",
+    text: String? = null,
     modifier: Modifier = Modifier,
     size: Dp = 200.dp,
-    qrCodeBase64: String? = null // ⭐ 추가
+    qrCodeBase64: String? = null
 ) {
     var qrBitmap by remember(text, qrCodeBase64) { mutableStateOf<Bitmap?>(null) }
     var isLoading by remember(text, qrCodeBase64) { mutableStateOf(true) }
@@ -51,11 +51,11 @@ fun QrCodeImage(
 
         try {
             withContext(Dispatchers.IO) {
-                // ✅ 1. Base64 QR 이미지가 있으면 그걸 사용
+                // Base64 QR 이미지가 있으면 그대로 사용
                 if (!qrCodeBase64.isNullOrBlank()) {
                     qrBitmap = base64ToBitmap(qrCodeBase64)
                 } else {
-                    // ✅ 2. 기존 QR 생성 로직 그대로
+                    // 기존 QR 생성 로직 그대로
                     generator.generateQrCode(
                         text,
                         size.value.toInt(),
