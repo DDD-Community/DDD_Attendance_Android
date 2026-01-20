@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface OnboardingRepository {
     fun verifyCode(code: String): Flow<VerifyCode>
-    fun getAdminSelectList(): Flow<Map<String, List<ItemSelect>>>
+    fun getAdminSelectList(id: Int): Flow<Map<String, List<ItemSelect>>>
     fun getMemberSelectList(id: Int): Flow<Map<String, List<ItemSelect>>>
 }

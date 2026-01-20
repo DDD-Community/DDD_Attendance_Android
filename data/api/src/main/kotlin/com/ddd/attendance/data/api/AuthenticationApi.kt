@@ -1,6 +1,6 @@
 package com.ddd.attendance.data.api
 
-import com.ddd.attendance.data.api.model.LoginRequest
+import com.ddd.attendance.data.api.model.auth.LoginRequest
 import com.ddd.attendance.data.model.LoginResponse
 import retrofit2.Response
 import retrofit2.http.Body

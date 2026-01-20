@@ -2,7 +2,7 @@ package com.ddd.attendance.data.api.datasource
 
 import android.util.Log
 import com.ddd.attendance.data.api.AuthenticationApi
-import com.ddd.attendance.data.api.model.LoginRequest
+import com.ddd.attendance.data.api.model.auth.LoginRequest
 import com.ddd.attendance.data.datasource.ApiLoginDataSource
 import com.ddd.attendance.data.datastore.UserPreferencesDataStore
 import com.ddd.attendance.data.mapper.toDomainException

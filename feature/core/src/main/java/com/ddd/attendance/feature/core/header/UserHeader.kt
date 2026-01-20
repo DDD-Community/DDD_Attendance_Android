@@ -32,8 +32,8 @@ fun UserHeader(
     onProfileClick: () -> Unit = {}
 ) {
     val isAdmin = when(type) {
-        UserType.Admin -> true
-        UserType.Member -> false
+        UserType.ADMIN -> true
+        UserType.MEMBER -> false
     }
 
     Row(

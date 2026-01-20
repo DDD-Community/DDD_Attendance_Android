@@ -1,6 +1,6 @@
 package com.ddd.attendance.data.api
 
-import com.ddd.attendance.data.api.model.MeResponse
+import com.ddd.attendance.data.api.model.me.MeResponse
 import com.ddd.attendance.data.model.AttendanceResponse
 import com.ddd.attendance.data.model.ScheduleResponse
 import retrofit2.http.GET

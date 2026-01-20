@@ -216,7 +216,7 @@ internal fun Content(
         ) {
             UserHeader(
                 modifier = modifier,
-                type = UserType.Admin,
+                type = UserType.ADMIN,
                 text = headerText,
                 onClick = onHeaderClick,
                 onQrClick = onHeaderQrClick,

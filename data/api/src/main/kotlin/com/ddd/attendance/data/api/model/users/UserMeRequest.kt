@@ -7,7 +7,7 @@ data class UserMeRequest(
     val name: String,
     val generationId: Int,
     val jobRole: String,
-    val teamId: Int,
-    val managerRoles: List<String>,
+    val teamId: Int? = null,
+    val managerRoles: List<String>? = null,
     val invitationCode: String
 )

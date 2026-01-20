@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetAdminSelectListUseCase @Inject constructor(
     private val onboardingRepository: OnboardingRepository
 ) {
-    operator fun invoke(): Flow<Map<String, List<ItemSelect>>> {
-        return onboardingRepository.getAdminSelectList()
+    operator fun invoke(id: Int): Flow<Map<String, List<ItemSelect>>> {
+        return onboardingRepository.getAdminSelectList(id)
     }
 }

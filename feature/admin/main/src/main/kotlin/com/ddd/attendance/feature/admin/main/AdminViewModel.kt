@@ -106,7 +106,7 @@ class AdminViewModel @Inject constructor(
             }
                 .catch { throwable ->
                     if (throwable is UsersException.Unauthorized) {
-                        onLogout()
+                        /*onLogout()*/
                     }
                 }
                 .collect { _uiState.value = it }
@@ -129,10 +129,6 @@ class AdminViewModel @Inject constructor(
                         memberAttendances = attendances.toPersistentList()
                     )
                 }
-            }.catch { throwable ->
-                if (throwable is UsersException.Unauthorized) {
-                    onLogout()
-                }
             }
             .launchIn(viewModelScope)
     }
@@ -154,10 +150,6 @@ class AdminViewModel @Inject constructor(
                             absent = item.absent
                         )
                     )
-                }
-            }.catch { throwable ->
-                if (throwable is UsersException.Unauthorized) {
-                    onLogout()
                 }
             }
             .launchIn(viewModelScope)

@@ -1,4 +1,4 @@
-package com.ddd.attendance.data.api.model
+package com.ddd.attendance.data.api.model.me
 
 import kotlinx.serialization.Serializable
 

@@ -46,15 +46,13 @@ class ApiUsersDataSourceImpl @Inject constructor(
                 """.trimIndent()
             )
 
-            saveUserRole(teamId)
-
-            val response = if (teamId != null) {
+            val response = if (teamId == null || teamId == 0) {
                 usersApi.users(
-                    createMemberRequest(
+                    UserRequest(
+                        managerRoles = managerRoles,
                         name = name,
                         generationId = generationId,
                         jobRole = jobRole,
-                        teamId = teamId,
                         provider = provider,
                         token = token,
                         invitationCode = invitationCode
@@ -62,11 +60,12 @@ class ApiUsersDataSourceImpl @Inject constructor(
                 )
             } else {
                 usersApi.users(
-                    createAdminRequest(
+                    UserRequest(
+                        teamId = teamId,
+                        managerRoles = managerRoles,
                         name = name,
                         generationId = generationId,
                         jobRole = jobRole,
-                        managerRoles = managerRoles,
                         provider = provider,
                         token = token,
                         invitationCode = invitationCode
@@ -88,21 +87,33 @@ class ApiUsersDataSourceImpl @Inject constructor(
         name: String,
         generationId: Int,
         jobRole: String,
-        teamId: Int,
+        teamId: Int?,
         managerRoles: List<String>,
         invitationCode: String
     ): Result<UsersMeResponse> {
         return try {
-            val response = usersApi.usersMe(
-                request = UserMeRequest(
-                    name = name,
-                    generationId = generationId,
-                    jobRole = jobRole,
-                    teamId = teamId,
-                    managerRoles = managerRoles,
-                    invitationCode = invitationCode
+            val response = if (teamId == null || teamId == 0) {
+                usersApi.usersMe(
+                    UserMeRequest(
+                        name = name,
+                        generationId = generationId,
+                        jobRole = jobRole,
+                        managerRoles = managerRoles,
+                        invitationCode = invitationCode
+                    )
                 )
-            )
+            } else {
+                usersApi.usersMe(
+                    UserMeRequest(
+                        name = name,
+                        generationId = generationId,
+                        jobRole = jobRole,
+                        teamId = teamId,
+                        managerRoles = managerRoles,
+                        invitationCode = invitationCode
+                    )
+                )
+            }
 
             Result.success(response)
         } catch (e: HttpException) {
@@ -151,50 +162,5 @@ class ApiUsersDataSourceImpl @Inject constructor(
 
     companion object {
         private const val TAG = "ApiUsersDataSource"
-    }
-
-    private fun createMemberRequest(
-        name: String,
-        generationId: Int,
-        jobRole: String,
-        teamId: Int,
-        provider: String,
-        token: String,
-        invitationCode: String
-    ): UserRequest {
-        return UserRequest(
-            name = name,
-            generationId = generationId,
-            jobRole = jobRole,
-            teamId = teamId,
-            provider = provider,
-            token = token,
-            invitationCode = invitationCode
-        )
-    }
-
-    private fun createAdminRequest(
-        name: String,
-        generationId: Int,
-        jobRole: String,
-        managerRoles: List<String>,
-        provider: String,
-        token: String,
-        invitationCode: String
-    ): UserRequest {
-        return UserRequest(
-            name = name,
-            generationId = generationId,
-            jobRole = jobRole,
-            managerRoles = managerRoles,
-            provider = provider,
-            token = token,
-            invitationCode = invitationCode
-        )
-    }
-
-    private suspend fun saveUserRole(teamId: Int?) {
-        val role = if (teamId == null) "ADMIN" else "MEMBER"
-        userPreferencesDataStore.saveUserRole(role)
     }
 }
