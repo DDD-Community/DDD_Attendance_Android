@@ -74,7 +74,9 @@ internal fun MainNavHost(
 
             composable(route = ScreenName.ADMIN_MAIN.name) {
                 AdminScreen(
-                    navController = navigator.navController)
+                    navController = navigator.navController,
+                    onQrApiErrorMessage = { onShowErrorSnackBar(it) }
+                )
             }
 
             composable(route = ScreenName.ADMIN_PROFILE.name) {
