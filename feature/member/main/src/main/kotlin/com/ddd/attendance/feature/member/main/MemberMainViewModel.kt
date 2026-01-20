@@ -63,32 +63,7 @@ class MemberMainViewModel @Inject constructor(
                 absent = 1
             ),
             generationNumber = 12,
-            scheduleItems = listOf(
-                ScheduleItem(
-                    date = "12월\n99",
-                    title = "오리엔테이션",
-                    subtitle = "커리큘럼에 대한 설명 문구 작성",
-                    status = "ATTENDANCE"
-                ),
-                ScheduleItem(
-                    date = "12월\n9",
-                    title = "부스팅 데이1",
-                    subtitle = "커리큘럼에 대한 설명문구 작성",
-                    status = "LATE"
-                ),
-                ScheduleItem(
-                    date = "12월\n99",
-                    title = "직군 모임1",
-                    subtitle = "커리큘럼에 대한 설명 문구 작성",
-                    status = "ABSENT"
-                ),
-                ScheduleItem(
-                    date = "12월\n99",
-                    title = "오리엔테이션",
-                    subtitle = "커리큘럼에 대한 설명 문구 작성",
-                    status = ""
-                )
-            )
+            scheduleItems = emptyList(),
         )
     )
 
@@ -98,10 +73,6 @@ class MemberMainViewModel @Inject constructor(
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
-        // 임시 accessToken 저장 (테스트용)
-//        viewModelScope.launch {
-//            userRepository.saveAccessToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2OCIsImlhdCI6MTc2ODI5MTU5MCwiZXhwIjoxNzY4Mjk1MTkwLCJyb2xlIjoiTUVNQkVSIn0.cUND7w8m8ZWlHpMt2D3EfSQaoY3F3DAAOeEQs22bLdk")
-//        }
         loadUserData()
     }
 
@@ -128,7 +99,7 @@ class MemberMainViewModel @Inject constructor(
                         late = userInfo.lateCount,
                         absent = userInfo.absentCount
                     ),
-                    scheduleItems = _uiState.value.scheduleItems + scheduleItems
+                    scheduleItems = scheduleItems
                 )
 
             }.catch { throwable ->
