@@ -84,7 +84,8 @@ fun QrScannerScreen(
         // 딤처리 오버레이와 스캔 영역
         QrScanOverlay(
             modifier = Modifier.fillMaxSize(),
-            isAttendanceSuccess = isAttendanceSuccess
+            isAttendanceSuccess = isAttendanceSuccess,
+            isActive = qrThrottle.isActive
         )
     }
     
@@ -101,7 +102,8 @@ fun QrScannerScreen(
 @Composable
 private fun QrScanOverlay(
     modifier: Modifier = Modifier,
-    isAttendanceSuccess: Boolean
+    isAttendanceSuccess: Boolean,
+    isActive: Boolean,
 ) {
     val scanAreaSize = 200.dp
     val cornerRadius = 40.dp
@@ -137,14 +139,13 @@ private fun QrScanOverlay(
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx),
                 blendMode = BlendMode.Clear
             )
-
-            // 테두리
+            
             drawRoundRect(
-                color = if (isAttendanceSuccess) BorderEnabled else Transparent,
+                color = if (isActive) BorderEnabled else Transparent,
                 topLeft = androidx.compose.ui.geometry.Offset(scanLeft, scanTop),
                 size = androidx.compose.ui.geometry.Size(scanAreaSizePx, scanAreaSizePx),
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx),
-                style = if (isAttendanceSuccess) Stroke(width = 4.dp.toPx()) else Stroke(width = 0.dp.toPx())
+                style = if (isActive) Stroke(width = 4.dp.toPx()) else Stroke(width = 0.dp.toPx())
             )
         }
 
