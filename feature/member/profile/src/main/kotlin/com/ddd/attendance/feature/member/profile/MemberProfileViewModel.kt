@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -100,15 +99,7 @@ class MemberProfileViewModel @Inject constructor(
                 .onEach {
                     deleteDataStoreWithdrawAccountUseCase(isLogout = false)
                     _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
-                }
-                .catch {
-                    _navigationEvent.emit(
-                        ProfileNavigationEvent.ShowError(
-                            it.message ?: "회원탈퇴 실패"
-                        )
-                    )
-                }
-                .collect()
+                }.collect()
         }
         showWithdrawAccountPopup(false)
     }
@@ -119,15 +110,7 @@ class MemberProfileViewModel @Inject constructor(
                 .onEach {
                     deleteDataStoreWithdrawAccountUseCase(isLogout = true)
                     _navigationEvent.emit(ProfileNavigationEvent.GoToLogin)
-                }
-                .catch {
-                    _navigationEvent.emit(
-                        ProfileNavigationEvent.ShowError(
-                            it.message ?: "로그아웃 실패"
-                        )
-                    )
-                }
-                .collect()
+                }.collect()
         }
         showLogoutPopup(false)
     }

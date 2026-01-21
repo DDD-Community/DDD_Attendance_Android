@@ -295,17 +295,12 @@ class OnBoardingViewModel @Inject constructor(
             verifyCodeUseCase(state.inputInvitePinCode)
                 .catch {
                     onIntent(
-                        OnBoardingIntent.VerifyPinCodeResult(
-                            status = PinCodeStatus.Fail
-                        )
+                        OnBoardingIntent.VerifyPinCodeResult(status = PinCodeStatus.Fail)
                     )
                 }
                 .collect {
                     onIntent(
-                        OnBoardingIntent.VerifyPinCodeResult(
-                            status = PinCodeStatus.Success,
-                            data = it,
-                        )
+                        OnBoardingIntent.VerifyPinCodeResult(status = PinCodeStatus.Success, data = it,)
                     )
                 }
         }

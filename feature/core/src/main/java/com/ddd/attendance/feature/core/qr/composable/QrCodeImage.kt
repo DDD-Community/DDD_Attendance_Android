@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun QrCodeImage(
-    text: String? = null,
+    text: String = "",
     modifier: Modifier = Modifier,
     size: Dp = 200.dp,
     qrCodeBase64: String? = null

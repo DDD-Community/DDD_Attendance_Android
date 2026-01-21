@@ -78,35 +78,46 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override fun login(isAutoLogin: Boolean): Flow<Login> = flow {
-        val idToken = if (!isAutoLogin) {
-            // 로그인 화면
-            val token = googleLoginDataSource.login().getOrThrow()
-            userPreferencesDataStore.saveTempOAuthToken(token, "GOOGLE")
-            token
-        } else {
-            // 스플래시 화면
-            userPreferencesDataStore.tempOauthToken.firstOrNull()?: throw IllegalStateException("No temp OAuth token found")
+        val idToken =
+            if (!isAutoLogin) {
+                googleLoginDataSource.login().getOrNull()?.also {
+                    userPreferencesDataStore.saveTempOAuthToken(it, "GOOGLE")
+                }
+            } else userPreferencesDataStore.tempOauthToken.firstOrNull()
+
+        if (idToken == null) {
+            return@flow
         }
 
-        val (code, response) = apiLoginDataSource.login(idToken).getOrThrow()
+        apiLoginDataSource.login(idToken)
+            .onSuccess { codeResult ->
+                val login = codeResult.response.body()?.toDomain(statusCode = codeResult.code)
 
-        val login = response.body()?.toDomain(code) ?: throw IllegalStateException("Login response body is null")
-
-        userPreferencesDataStore.saveUserRole(login.role)
-
-        emit(login)
+                login?.let {
+                    userPreferencesDataStore.saveUserRole(it.role)
+                    emit(it)
+                }
+            }
+            .onFailure {
+                throw it
+            }
     }
 
     override fun completeOnboardingAndLogin(): Flow<Login> = flow {
-        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: throw IllegalStateException("No temp OAuth token found")
+        // 토큰 없으면 emit 없이 종료
+        val tempToken = userPreferencesDataStore.tempOauthToken.firstOrNull() ?: return@flow
 
-        val (code, response) = apiLoginDataSource.login(tempToken).getOrThrow()
+        apiLoginDataSource.login(tempToken)
+            .onSuccess { codeResult ->
+                val login = codeResult.response.body()?.toDomain(statusCode = codeResult.code)
 
-        val login = response.body()?.toDomain(code) ?: throw IllegalStateException("Login response body is null")
-
-        userPreferencesDataStore.saveUserRole(login.role)
-
-        emit(login)
+                login?.let {
+                    userPreferencesDataStore.saveUserRole(it.role)
+                    emit(it)
+                }
+            }.onFailure {
+                throw it
+            }
     }
 
     override fun logout(): Flow<Unit> = flow {

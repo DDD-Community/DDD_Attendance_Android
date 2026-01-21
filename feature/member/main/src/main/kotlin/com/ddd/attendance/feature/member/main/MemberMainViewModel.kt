@@ -3,7 +3,6 @@ package com.ddd.attendance.feature.member.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
-import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.repository.UserRepository
 import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
 import com.ddd.attendance.domain.usecase.GetScheduleUseCase
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -101,11 +99,6 @@ class MemberMainViewModel @Inject constructor(
                     ),
                     scheduleItems = scheduleItems
                 )
-
-            }.catch { throwable ->
-                if (throwable is UsersException.Unauthorized) {
-                    onLogout()
-                }
             }.collect { updatedState ->
                 _uiState.value = updatedState
             }

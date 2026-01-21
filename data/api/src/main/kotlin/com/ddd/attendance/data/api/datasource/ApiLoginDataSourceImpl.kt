@@ -28,24 +28,23 @@ class ApiLoginDataSourceImpl @Inject constructor(
             Log.d(TAG, "========================")
 
             val response = authenticationApi.login(request)
-
-            val result = response.body()?: return Result.failure(IllegalStateException("Login response body is null"))
+            val result = response.body()
 
             // 로그인 데이터 저장 (generation, team, jobRole, role은 users API에서 받아옴)
             userPreferencesDataStore.saveLoginData(
-                userId = result.userId?: 0,
-                name = result.name ?: "",
-                email = result.email ?: "",
+                userId = result?.userId?: 0,
+                name = result?.name ?: "",
+                email = result?.email ?: "",
                 generation = "",
                 team = "",
                 jobRole = "",
                 role = "",
-                accessToken = result.accessToken ?: "",
-                refreshToken = result.refreshToken ?: ""
+                accessToken = result?.accessToken ?: "",
+                refreshToken = result?.refreshToken ?: ""
             )
 
-            Log.d(TAG, "Login successful - User ID: ${result.userId}, Name: ${result.name}, Email: ${result.email}")
-            Log.d(TAG, "isNewUser: ${result.isNewUser}, Provider: ${result.oauthProvider}")
+            Log.d(TAG, "Login successful - User ID: ${result?.userId}, Name: ${result?.name}, Email: ${result?.email}")
+            Log.d(TAG, "isNewUser: ${result?.isNewUser}, Provider: ${result?.oauthProvider}")
             Log.d(TAG, "Access Token saved to DataStore")
 
 

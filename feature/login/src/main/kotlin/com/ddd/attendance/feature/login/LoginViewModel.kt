@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -28,9 +27,6 @@ class LoginViewModel @Inject constructor(
         loginUseCase(loginType = loginType, isAutoLogin = false)
             .onEach {
                 checkAndNavigateToMember(it.statusCode)
-            }
-            .catch {
-
             }
             .launchIn(viewModelScope)
     }

@@ -1,10 +1,8 @@
 package com.ddd.attendance.feature.admin.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
-import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.usecase.AttendanceStatusUseCase
 import com.ddd.attendance.domain.usecase.AttendancesChangeUseCase
 import com.ddd.attendance.domain.usecase.AttendancesUseCase
@@ -104,11 +102,6 @@ class AdminViewModel @Inject constructor(
                     attendanceBoardStatus = state.attendanceBoardStatus
                 )
             }
-                .catch { throwable ->
-                    if (throwable is UsersException.Unauthorized) {
-                        /*onLogout()*/
-                    }
-                }
                 .collect { _uiState.value = it }
         }
     }
@@ -180,7 +173,7 @@ class AdminViewModel @Inject constructor(
                     observeScheduleAttendances()
                 }
                 .catch { e ->
-                    Log.e("AttendanceChange", "출석 상태 변경 실패", e)
+                    // 에러 발생 시 이전 상태로 롤백
                     _uiState.update { it.copy(memberAttendances = state.memberAttendances) }
                 }
                 .collect { latestList ->
