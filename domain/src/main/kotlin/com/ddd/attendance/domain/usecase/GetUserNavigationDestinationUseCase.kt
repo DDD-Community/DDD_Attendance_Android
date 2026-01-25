@@ -18,16 +18,7 @@ class GetUserNavigationDestinationUseCase @Inject constructor(
             }
             202 -> NavigationDestination.OnBoarding
 
-            else -> {
-                // Splash
-                if (userRepository.getUserRole() == "MANAGER") {
-                    NavigationDestination.Manager
-                } else if (userRepository.getUserRole() == "MEMBER") {
-                    NavigationDestination.Member
-                } else {
-                    NavigationDestination.Login
-                }
-            }
+            else -> NavigationDestination.Login
         }
     }
 }

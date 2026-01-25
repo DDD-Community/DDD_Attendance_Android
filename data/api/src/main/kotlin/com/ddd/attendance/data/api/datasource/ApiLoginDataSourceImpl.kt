@@ -47,7 +47,6 @@ class ApiLoginDataSourceImpl @Inject constructor(
             Log.d(TAG, "isNewUser: ${result?.isNewUser}, Provider: ${result?.oauthProvider}")
             Log.d(TAG, "Access Token saved to DataStore")
 
-
             Result.success(
                 value = CodeResult(
                     code = response.code(),
@@ -57,7 +56,6 @@ class ApiLoginDataSourceImpl @Inject constructor(
         } catch (e: HttpException) {
             Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
-            Log.e(TAG, "Login failed", e)
             Result.failure(e)
         }
     }

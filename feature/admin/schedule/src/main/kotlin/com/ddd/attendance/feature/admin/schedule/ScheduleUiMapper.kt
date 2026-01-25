@@ -8,7 +8,7 @@ fun List<Schedule>.toUi(): List<ScheduleUiModel> =
         ScheduleUiModel(
             id = schedule.id,
             month = schedule.month,
-            day = schedule.month,
+            day = schedule.day,
             name = schedule.name,
             desc = schedule.desc,
             isSelected = false

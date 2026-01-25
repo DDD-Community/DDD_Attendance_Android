@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.admin.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
@@ -67,6 +68,7 @@ class AdminViewModel @Inject constructor(
             combine(
                 attendanceStatusUseCase().map { it.toPersistentList() },
                 getScheduleUseCase().map { schedules ->
+
                     val today = LocalDate.now()
                     val selectedScheduleId = schedules.findNextSchedule(today)?.id
                         ?: schedules.firstOrNull()?.id ?: 0
@@ -82,6 +84,7 @@ class AdminViewModel @Inject constructor(
                 },
                 getAdminTeamUseCase().map { it.toPersistentList() }
             ) { attendanceStatusList, schedulesData, teams ->
+
                 val (schedules, selectedScheduleId, nextScheduleDate) = schedulesData
 
                 val state = _uiState.value

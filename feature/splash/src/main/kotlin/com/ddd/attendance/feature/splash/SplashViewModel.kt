@@ -1,9 +1,12 @@
 package com.ddd.attendance.feature.splash
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.NavigationDestination
+import com.ddd.attendance.domain.model.UsersException
+import com.ddd.attendance.domain.repository.UserRepository
 import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import com.ddd.attendance.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,12 +14,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
+    private val userRepository: UserRepository,
     private val getUserNavigationDestinationUseCase: GetUserNavigationDestinationUseCase,
     private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
@@ -31,21 +37,20 @@ class SplashViewModel @Inject constructor(
         viewModelScope.launch {
             delay(2000) // 2초 후 적절한 화면으로 이동
 
-            val destination = getUserNavigationDestinationUseCase()
-
-            when (destination) {
-                NavigationDestination.Manager, NavigationDestination.Member -> {
-                    loginUseCase(
-                        loginType = LoginType.GOOGLE,
-                        isAutoLogin = true
-                    ).onEach {
-
-                    }.collect {
-
+            loginUseCase(
+                loginType = LoginType.GOOGLE,
+                isAutoLogin = true
+            ).onEach {
+                val destination = getUserNavigationDestinationUseCase(code = it.statusCode)
+                _navigationDestination.emit(destination)
+            }.catch {
+                when(it) {
+                    is UsersException -> {
+                        Log.e("startSplashAfterPermission", "UsersException: ${it.errorMessage}")
+                        _navigationDestination.emit(NavigationDestination.Login)
                     }
-                } else -> {}
-            }
-            _navigationDestination.emit(destination)
+                }
+            }.collect()
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.admin.schedule
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,32 +45,30 @@ internal fun Content(
     modifier: Modifier = Modifier,
     scheduleList: ImmutableList<ScheduleUiModel>
 ) {
-    Box() {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-        ) {
-            Spacer(modifier = Modifier.height(12.dp))
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+    ) {
+        Spacer(modifier = Modifier.height(12.dp))
 
-            DddText(
-                text = stringResource(R.string.schedule_13th),
-                style = Typography.titleMediumM
-            )
+        DddText(
+            text = stringResource(R.string.schedule_13th),
+            style = Typography.titleMediumM
+        )
 
-            if (scheduleList.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(16.dp))
+        if (scheduleList.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    itemsIndexed(scheduleList) { index, item ->
-                        ScheduleCard(
-                            month = "${ item.month }월",
-                            day = "${ item.day }",
-                            title = item.name,
-                            description = item.desc
-                        )
-                    }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                itemsIndexed(scheduleList) { index, item ->
+                    ScheduleCard(
+                        month = "${ item.month }월",
+                        day = "${ item.day }",
+                        title = item.name,
+                        description = item.desc
+                    )
                 }
             }
         }

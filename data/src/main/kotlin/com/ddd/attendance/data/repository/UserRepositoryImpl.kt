@@ -11,6 +11,7 @@ import com.ddd.attendance.data.mapper.schedule.toDomain
 import com.ddd.attendance.data.mapper.users.toDomain
 import com.ddd.attendance.domain.model.Login
 import com.ddd.attendance.domain.model.Schedule
+import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.model.users.Users
 import com.ddd.attendance.domain.model.users.UsersMe
 import com.ddd.attendance.domain.repository.UserRepository
@@ -83,24 +84,27 @@ class UserRepositoryImpl @Inject constructor(
                 googleLoginDataSource.login().getOrNull()?.also {
                     userPreferencesDataStore.saveTempOAuthToken(it, "GOOGLE")
                 }
-            } else userPreferencesDataStore.tempOauthToken.firstOrNull()
+            } else {
+                userPreferencesDataStore.tempOauthToken.firstOrNull()
+            }
 
         if (idToken == null) {
-            return@flow
+            throw UsersException.Unknown(code = 402, errorMessage = "Unknown OauthToken")
         }
 
         apiLoginDataSource.login(idToken)
             .onSuccess { codeResult ->
-                val login = codeResult.response.body()?.toDomain(statusCode = codeResult.code)
+                val login =
+                    codeResult.response.body()?.toDomain(statusCode = codeResult.code)
 
                 login?.let {
                     userPreferencesDataStore.saveUserRole(it.role)
                     emit(it)
+                }?: run {
+                    throw UsersException.BadRequest(errorMessage = "Login response body is null")
                 }
             }
-            .onFailure {
-                throw it
-            }
+            .onFailure { throw it }
     }
 
     override fun completeOnboardingAndLogin(): Flow<Login> = flow {
