@@ -41,7 +41,10 @@ internal fun Project.configureBuildTypes(
                             configureDebugBuildType(projectVersionName)
                         }
                         release {
-                            configureReleaseBuildType(commonExtension, projectVersionName)
+                            // 라이브러리 모듈에서는 minify 비활성화 (app 모듈에서만 적용)
+                            isMinifyEnabled = false
+                            buildConfigField("String", "APP_VERSION", "\"$projectVersionName\"")
+                            consumerProguardFiles("consumer-rules.pro")
                         }
                     }
                 }
@@ -82,8 +85,7 @@ private fun BuildType.configureReleaseBuildType(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
     projectVersionName: String
 ){
-    /*isMinifyEnabled = true*/ // 코드 난독화
-    isMinifyEnabled = false
+    isMinifyEnabled = true
     buildConfigField("String", "APP_VERSION", "\"$projectVersionName\"")
     proguardFiles(
         commonExtension.getDefaultProguardFile("proguard-android-optimize.txt"),

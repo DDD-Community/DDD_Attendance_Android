@@ -19,16 +19,6 @@ internal fun Project.configureKotlinAndroid() {
             targetCompatibility = JavaVersion.VERSION_21
         }
 
-        buildTypes {
-            getByName("release") {
-                isMinifyEnabled = false
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-                )
-            }
-        }
-
         testOptions {
             unitTests.isIncludeAndroidResources = true
         }

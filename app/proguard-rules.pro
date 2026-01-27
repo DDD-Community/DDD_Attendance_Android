@@ -14,11 +14,92 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Please add these rules to your existing keep rules in order to suppress warnings.
-# This is generated automatically by the Android Gradle plugin.
+# ==================== Project Classes ====================
+# Keep all project classes
+-keep class com.ddd.attendance.** { *; }
+-keepclassmembers class com.ddd.attendance.** { *; }
+
+# ==================== Hilt/Dagger ====================
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.lifecycle.HiltViewModel { *; }
+-keepclasseswithmembers class * {
+    @dagger.hilt.* <methods>;
+}
+-keepclasseswithmembers class * {
+    @javax.inject.* <fields>;
+}
+-keepclasseswithmembers class * {
+    @javax.inject.* <init>(...);
+}
+
+# ==================== Retrofit/OkHttp ====================
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
+
+# ==================== Kotlin Serialization ====================
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt
+
+-keepclassmembers class kotlinx.serialization.json.** {
+    *** Companion;
+}
+-keepclasseswithmembers class kotlinx.serialization.json.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+-keep,includedescriptorclasses class com.ddd.attendance.**$$serializer { *; }
+-keepclassmembers class com.ddd.attendance.** {
+    *** Companion;
+}
+-keepclasseswithmembers class com.ddd.attendance.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# ==================== Kotlin Coroutines ====================
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembers class kotlinx.coroutines.** {
+    volatile <fields>;
+}
+
+# ==================== Jetpack Compose ====================
+-keep class androidx.compose.** { *; }
+-dontwarn androidx.compose.**
+
+# ==================== Google Credentials ====================
+-keep class androidx.credentials.** { *; }
+-keep class com.google.android.libraries.identity.googleid.** { *; }
+-dontwarn androidx.credentials.**
+-dontwarn com.google.android.libraries.identity.googleid.**
+
+# ==================== DataStore ====================
+-keep class androidx.datastore.** { *; }
+-keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+
+# ==================== Hilt Aggregated Deps ====================
+-keep class hilt_aggregated_deps.** { *; }
+-keep class dagger.hilt.internal.aggregatedroot.** { *; }
+-keep class dagger.hilt.android.internal.** { *; }
+
+# ==================== Missing Classes Warnings ====================
+-dontwarn java.lang.invoke.StringConcatFactory
+-dontwarn hilt_aggregated_deps.**
+
+# Ignore missing classes from other modules during R8
+-ignorewarnings
