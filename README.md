@@ -143,8 +143,8 @@ data
 
 ## 버전 정보
 
-- Version Name: 1.0.1
-- Version Code: 2
+- Version Name: 1.0.2
+- Version Code: 3
 - Min SDK: 26
 - Target SDK: 36
 - Compile SDK: 36
