@@ -2,7 +2,6 @@ package com.ddd.attendance.feature.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.NavigationDestination
 import com.ddd.attendance.domain.usecase.GetUserNavigationDestinationUseCase
 import com.ddd.attendance.domain.usecase.LoginUseCase
@@ -23,8 +22,8 @@ class LoginViewModel @Inject constructor(
     private val _navigationDestination = MutableSharedFlow<NavigationDestination>()
     val navigationDestination: SharedFlow<NavigationDestination> = _navigationDestination.asSharedFlow()
 
-    fun login(loginType: LoginType) {
-        loginUseCase(loginType = loginType, isAutoLogin = false)
+    fun loginWithToken(idToken: String) {
+        loginUseCase(idToken = idToken, isAutoLogin = false)
             .onEach {
                 checkAndNavigateToMember(it.statusCode)
             }

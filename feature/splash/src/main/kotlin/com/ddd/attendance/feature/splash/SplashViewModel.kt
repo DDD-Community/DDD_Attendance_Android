@@ -3,7 +3,6 @@ package com.ddd.attendance.feature.splash
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.NavigationDestination
 import com.ddd.attendance.domain.model.UsersException
 import com.ddd.attendance.domain.repository.UserRepository
@@ -38,7 +37,7 @@ class SplashViewModel @Inject constructor(
             delay(2000) // 2초 후 적절한 화면으로 이동
 
             loginUseCase(
-                loginType = LoginType.GOOGLE,
+                idToken = "",
                 isAutoLogin = true
             ).onEach {
                 val destination = getUserNavigationDestinationUseCase(code = it.statusCode)

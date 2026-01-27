@@ -1,6 +1,5 @@
 package com.ddd.attendance.feature.admin.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule

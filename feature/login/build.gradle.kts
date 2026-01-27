@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.attendance.android.library)
     alias(libs.plugins.attendance.android.hilt)
     alias(libs.plugins.attendance.android.compose)
+    id("attendance.android.googlelogin")
 }
 
 setNamespace("feature.login")

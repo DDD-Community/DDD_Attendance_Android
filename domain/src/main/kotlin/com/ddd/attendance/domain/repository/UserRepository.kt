@@ -27,7 +27,7 @@ interface UserRepository {
         invitationCode: String
     ): Flow<UsersMe>
 
-    fun login(isAutoLogin: Boolean): Flow<Login>
+    fun login(idToken: String, isAutoLogin: Boolean): Flow<Login>
     fun completeOnboardingAndLogin(): Flow<Login>
     fun logout(): Flow<Unit>
     fun deleteUsersMe(): Flow<Unit>

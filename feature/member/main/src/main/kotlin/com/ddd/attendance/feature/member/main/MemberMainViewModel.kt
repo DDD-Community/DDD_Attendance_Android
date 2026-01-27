@@ -53,14 +53,14 @@ class MemberMainViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(
         MemberMainUiState(
-            memberName = "김디디",
-            activityPeriod = "2025.03.12 - 2025.08.12",
+            memberName = "",
+            activityPeriod = "",
             attendanceStats = AttendanceStats(
-                attendance = 8,
-                late = 2,
-                absent = 1
+                attendance = 0,
+                late = 0,
+                absent = 0
             ),
-            generationNumber = 12,
+            generationNumber = 0,
             scheduleItems = emptyList(),
         )
     )

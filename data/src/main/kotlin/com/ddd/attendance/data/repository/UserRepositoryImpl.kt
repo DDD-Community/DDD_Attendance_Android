@@ -78,21 +78,16 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun login(isAutoLogin: Boolean): Flow<Login> = flow {
-        val idToken =
-            if (!isAutoLogin) {
-                googleLoginDataSource.login().getOrNull()?.also {
-                    userPreferencesDataStore.saveTempOAuthToken(it, "GOOGLE")
-                }
-            } else {
-                userPreferencesDataStore.tempOauthToken.firstOrNull()
-            }
-
-        if (idToken == null) {
-            throw UsersException.Unknown(code = 402, errorMessage = "Unknown OauthToken")
+    override fun login(idToken: String, isAutoLogin: Boolean): Flow<Login> = flow {
+        val token = if (!isAutoLogin) {
+            userPreferencesDataStore.saveTempOAuthToken(idToken, "GOOGLE")
+            idToken
+        } else {
+            userPreferencesDataStore.tempOauthToken.firstOrNull()
+                ?: throw UsersException.Unknown(code = 402, errorMessage = "Unknown OauthToken")
         }
 
-        apiLoginDataSource.login(idToken)
+        apiLoginDataSource.login(token)
             .onSuccess { codeResult ->
                 val login =
                     codeResult.response.body()?.toDomain(statusCode = codeResult.code)
@@ -100,7 +95,7 @@ class UserRepositoryImpl @Inject constructor(
                 login?.let {
                     userPreferencesDataStore.saveUserRole(it.role)
                     emit(it)
-                }?: run {
+                } ?: run {
                     throw UsersException.BadRequest(errorMessage = "Login response body is null")
                 }
             }

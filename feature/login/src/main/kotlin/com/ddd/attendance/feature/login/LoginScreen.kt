@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,14 +30,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.ddd.attendance.domain.model.LoginType
 import com.ddd.attendance.domain.model.NavigationDestination
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val googleLoginHelper = rememberGoogleLoginHelper()
+    val scope = rememberCoroutineScope()
     val navigationDestination = viewModel.navigationDestination.collectAsStateWithLifecycle(null)
     
     LaunchedEffect(navigationDestination.value) {
@@ -77,7 +80,12 @@ fun LoginScreen(
         )
         
         Button(
-            onClick = { viewModel.login(LoginType.GOOGLE) },
+            onClick = {
+                scope.launch {
+                    googleLoginHelper.signIn()
+                        .onSuccess { idToken -> viewModel.loginWithToken(idToken) }
+                }
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(24.dp)
