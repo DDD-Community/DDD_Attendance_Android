@@ -64,12 +64,7 @@ fun ProfileCard(
             // 상단 태그들
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = onClick
-                    ),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 ProfileTag(
@@ -78,13 +73,21 @@ fun ProfileCard(
                     textColor = Color(0xFF0D82F9),
                     borderColor = Color(0xFF0D82F9),
                 )
-                
-                ProfileTag(
-                    text = stringResource(R.string.edit_generation),
-                    backgroundColor = Color(0xB20D82F9),
-                    textColor = Color.White,
-                    iconDrawableRes = R.drawable.ic_edit,
-                )
+
+                Box(
+                    modifier = Modifier
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = onClick
+                        )) {
+                    ProfileTag(
+                        text = stringResource(R.string.edit_generation),
+                        backgroundColor = Color(0xB20D82F9),
+                        textColor = Color.White,
+                        iconDrawableRes = R.drawable.ic_edit,
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.height(6.dp))
