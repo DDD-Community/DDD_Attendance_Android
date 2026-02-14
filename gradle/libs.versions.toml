@@ -1,9 +1,9 @@
 [versions]
-projectVersionName = "1.0.2"
+projectVersionName = "1.0.3"
 projectMinSdk = "26"
 projectTargetSdk = "36"
 projectCompileSdk = "36"
-projectVersionCode = "3"
+projectVersionCode = "4"
 projectApplicationId = "com.ddd.attendance"
 
 agp = "8.13.1"
