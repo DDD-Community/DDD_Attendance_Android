@@ -136,15 +136,19 @@ data
 - `attendance.android.library` - Android 라이브러리 설정
 - `attendance.android.compose` - Jetpack Compose 설정
 - `attendance.android.hilt` - Hilt DI 설정
+- `attendance.android.coil` - Coil 이미지 로딩 설정
 - `attendance.android.retrofit` - Retrofit 설정
 - `attendance.android.qrcode` - QR 코드 기능 설정
 - `attendance.android.datastore` - DataStore 설정
 - `attendance.android.googlelogin` - Google 로그인 설정
+- `attendance.jvm.library` - JVM 라이브러리 설정
+- `attendance.kotlin.library.parcelize.serialization` - Parcelize & Serialization 설정
+- `attendance.coroutine` - Coroutine 설정
 
 ## 버전 정보
 
-- Version Name: 1.0.2
-- Version Code: 3
+- Version Name: 1.0.3
+- Version Code: 4
 - Min SDK: 26
 - Target SDK: 36
 - Compile SDK: 36
