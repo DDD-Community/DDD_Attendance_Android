@@ -9,6 +9,7 @@ plugins {
 setNamespace("app")
 
 dependencies {
+    implementation(libs.material)
     implementation(projects.data)
     implementation(projects.data.api)
     implementation(projects.data.google)

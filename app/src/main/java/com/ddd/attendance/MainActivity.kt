@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.view.WindowCompat
 import com.ddd.attendance.ui.theme.DddAttendanceAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,9 +24,7 @@ class MainActivity : ComponentActivity() {
                 Color.Black.toArgb()
             )
         )
-        
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        
+
         setContent {
             DddAttendanceAndroidTheme(darkTheme = true) {
                 MainScreen(
