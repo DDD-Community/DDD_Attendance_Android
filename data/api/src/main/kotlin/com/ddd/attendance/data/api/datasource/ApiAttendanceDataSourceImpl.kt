@@ -20,10 +20,11 @@ class ApiAttendanceDataSourceImpl @Inject constructor(
         userId: Long
     ): Result<Unit> {
         return try {
+            val id = if (attendanceId == 0L) null else attendanceId
             val response =
                 attendanceApi.attendancesChange(
                     request = AttendanceChangeRequest(
-                        attendanceId = attendanceId,
+                        attendanceId = id,
                         scheduleId = scheduleId,
                         status = status,
                         userId = userId
