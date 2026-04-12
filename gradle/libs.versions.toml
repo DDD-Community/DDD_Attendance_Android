@@ -1,5 +1,5 @@
 [versions]
-projectVersionName = "1.0.5"
+projectVersionName = "1.0.6"
 projectMinSdk = "26"
 projectTargetSdk = "36"
 projectCompileSdk = "36"
