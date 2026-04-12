@@ -70,7 +70,7 @@ object ApiModule {
         json: Json
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.dddstudy.site/")
+            .baseUrl("https://api.dddstudy.kr/")
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
