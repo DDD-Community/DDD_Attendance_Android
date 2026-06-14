@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.Schedule
 import com.ddd.attendance.domain.repository.UserRepository
 import com.ddd.attendance.domain.usecase.DeleteDataStoreWithdrawAccountUseCase
+import com.ddd.attendance.domain.usecase.GetActiveVoteUseCase
 import com.ddd.attendance.domain.usecase.GetScheduleUseCase
 import com.ddd.attendance.domain.usecase.GetUserInfoUseCase
 import com.ddd.attendance.domain.usecase.LogoutUseCase
@@ -14,10 +15,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,7 +42,8 @@ data class MemberMainUiState(
     val activityPeriod: String,
     val attendanceStats: AttendanceStats,
     val scheduleItems: List<ScheduleItem>,
-    val generationNumber: Int
+    val generationNumber: Int,
+    val showVoteNew: Boolean = false
 )
 
 @HiltViewModel
@@ -47,6 +51,7 @@ class MemberMainViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val getScheduleUseCase: GetScheduleUseCase,
+    private val getActiveVoteUseCase: GetActiveVoteUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val deleteDataStoreWithdrawAccountUseCase: DeleteDataStoreWithdrawAccountUseCase,
 ) : ViewModel() {
@@ -72,6 +77,19 @@ class MemberMainViewModel @Inject constructor(
 
     init {
         loadUserData()
+        observeActiveVote()
+    }
+
+    private fun observeActiveVote() {
+        viewModelScope.launch {
+            getActiveVoteUseCase()
+                .onEach { active ->
+                    val showNew = active != null && !active.alreadyResponded
+                    _uiState.update { it.copy(showVoteNew = showNew) }
+                }
+                .catch { /* 투표 조회 실패는 홈 표시에 영향 주지 않음 */ }
+                .collect()
+        }
     }
 
     private fun loadUserData() {
