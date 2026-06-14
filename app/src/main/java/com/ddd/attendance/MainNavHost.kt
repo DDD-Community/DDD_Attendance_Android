@@ -20,6 +20,7 @@ import com.ddd.attendance.feature.member.main.MemberMainScreen
 import com.ddd.attendance.feature.member.profile.MemberProfileScreen
 import com.ddd.attendance.feature.onboarding.OnBoardingScreen
 import com.ddd.attendance.feature.splash.SplashScreen
+import com.ddd.attendance.feature.member.vote.VoteScreen
 import com.ddd.attendance.ui.theme.DddBackgroundDark
 
 @Composable
@@ -93,6 +94,9 @@ internal fun MainNavHost(
                     onNavigateToAttendance = {
                         navigator.navController.navigate(ScreenName.MEMBER_ATTENDANCE.name)
                     },
+                    onNavigateToVote = {
+                        navigator.navController.navigate(ScreenName.VOTE.name)
+                    },
                     onLogout = {
                         navigator.navController.navigate("LOGIN") {
                             popUpTo(navigator.navController.graph.id) {
@@ -110,6 +114,13 @@ internal fun MainNavHost(
 
             composable(route = ScreenName.MEMBER_ATTENDANCE.name) {
                 MemberAttendanceScreen(navController = navigator.navController)
+            }
+
+            composable(route = ScreenName.VOTE.name) {
+                VoteScreen(
+                    navController = navigator.navController,
+                    onApiErrorMessage = { onShowErrorSnackBar(it) }
+                )
             }
         }
     }
