@@ -8,6 +8,7 @@ import com.ddd.attendance.data.api.MeApi
 import com.ddd.attendance.data.api.OnboardingApi
 import com.ddd.attendance.data.api.SchedulesApi
 import com.ddd.attendance.data.api.UsersApi
+import com.ddd.attendance.data.api.VoteApi
 import com.ddd.attendance.data.api.datasource.ApiAdminMyPageDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiAttendanceDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiLoginDataSourceImpl
@@ -15,6 +16,7 @@ import com.ddd.attendance.data.api.datasource.ApiMeDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiOnboardingDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiSchedulesDataSourceImpl
 import com.ddd.attendance.data.api.datasource.ApiUsersDataSourceImpl
+import com.ddd.attendance.data.api.datasource.ApiVoteDataSourceImpl
 import com.ddd.attendance.data.api.interceptor.AuthInterceptor
 import com.ddd.attendance.data.datasource.ApiAdminMyPageDataSource
 import com.ddd.attendance.data.datasource.ApiAttendanceDataSource
@@ -23,6 +25,7 @@ import com.ddd.attendance.data.datasource.ApiMeDataSource
 import com.ddd.attendance.data.datasource.ApiOnboardingDataSource
 import com.ddd.attendance.data.datasource.ApiSchedulesDataSource
 import com.ddd.attendance.data.datasource.ApiUsersDataSource
+import com.ddd.attendance.data.datasource.ApiVoteDataSource
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -120,6 +123,12 @@ object ApiModule {
 
     @Provides
     @Singleton
+    fun provideVoteService(retrofit: Retrofit): VoteApi {
+        return retrofit.create(VoteApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideApiLoginDataSource(impl: ApiLoginDataSourceImpl): ApiLoginDataSource = impl
 
     @Provides
@@ -145,5 +154,9 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideApiAttendanceDataSource(impl: ApiAttendanceDataSourceImpl): ApiAttendanceDataSource = impl
+
+    @Provides
+    @Singleton
+    fun provideApiVoteDataSource(impl: ApiVoteDataSourceImpl): ApiVoteDataSource = impl
 
 }
