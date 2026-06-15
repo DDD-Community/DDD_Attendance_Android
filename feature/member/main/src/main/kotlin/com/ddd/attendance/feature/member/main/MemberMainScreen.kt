@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +49,7 @@ fun MemberMainScreen(
     onLogout:() -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToAttendance: () -> Unit,
+    onNavigateToVote: () -> Unit,
     viewModel: MemberMainViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -72,6 +75,8 @@ fun MemberMainScreen(
             MemberMainHeader(
                 onNavigateToProfile = onNavigateToProfile,
                 onNavigateToAttendance = onNavigateToAttendance,
+                onNavigateToVote = onNavigateToVote,
+                showVoteNew = uiState.showVoteNew,
                 showQrTooltip = hasUnattendedSchedule
             )
 
@@ -421,6 +426,8 @@ fun ScheduleDateBox(
 private fun MemberMainHeader(
     onNavigateToProfile: () -> Unit,
     onNavigateToAttendance: () -> Unit,
+    onNavigateToVote: () -> Unit = {},
+    showVoteNew: Boolean = false,
     showQrTooltip: Boolean = false
 ) {
     Column {
@@ -432,13 +439,9 @@ private fun MemberMainHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = com.ddd.attendance.feature.core.R.drawable.ic_logo),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .size(44.dp)
-                    .padding(start = 10.dp, end = 9.dp, top = 8.dp, bottom = 8.dp),
-                tint = Color.White
+            HomeSectionSwitcher(
+                showVoteNew = showVoteNew,
+                onNavigateToVote = onNavigateToVote
             )
 
             Row {
@@ -495,5 +498,71 @@ private fun MemberMainHeader(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun HomeSectionSwitcher(
+    showVoteNew: Boolean,
+    onNavigateToVote: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Row(
+            modifier = Modifier
+                .clickable { expanded = true }
+                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "출석현황", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Image(
+                painter = painterResource(com.ddd.attendance.feature.core.R.drawable.ic_chevron_down),
+                contentDescription = "",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text(text = "출석현황", color = Color.White) },
+                onClick = { expanded = false }
+            )
+            DropdownMenuItem(
+                text = { Text(text = "일정", color = Color.White) },
+                onClick = { expanded = false }
+            )
+            if (showVoteNew) {
+                DropdownMenuItem(
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "투표", color = Color.White)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            NewBadge()
+                        }
+                    },
+                    onClick = {
+                        expanded = false
+                        onNavigateToVote()
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NewBadge() {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(Color(0xFF0D82F9))
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    ) {
+        Text(text = "NEW", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
     }
 }

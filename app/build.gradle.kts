@@ -27,4 +27,5 @@ dependencies {
     implementation(projects.feature.member.attendance)
     implementation(projects.feature.member.main)
     implementation(projects.feature.member.profile)
+    implementation(projects.feature.member.vote)
 }

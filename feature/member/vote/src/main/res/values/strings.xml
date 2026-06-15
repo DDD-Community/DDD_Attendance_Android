@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vote">투표</string>
+    <string name="vote_next">다음</string>
+    <string name="vote_submit">제출하기</string>
+    <string name="vote_complete_title">투표 완료!</string>
+    <string name="vote_exit_title">정말 뒤로 가시겠어요?</string>
+    <string name="vote_exit_content">지금 나가면 작성 중인 내용이 저장되지 않아요.</string>
+    <string name="vote_exit_keep">계속 작성</string>
+    <string name="vote_exit_leave">나가기</string>
+</resources>
