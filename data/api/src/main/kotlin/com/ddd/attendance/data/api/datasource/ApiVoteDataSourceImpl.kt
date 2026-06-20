@@ -4,10 +4,16 @@ import com.ddd.attendance.data.api.VoteApi
 import com.ddd.attendance.data.datasource.ApiVoteDataSource
 import com.ddd.attendance.data.mapper.toDomainException
 import com.ddd.attendance.data.model.vote.ActiveVoteResponse
+import com.ddd.attendance.data.model.vote.FeedbackResultsResponse
 import com.ddd.attendance.data.model.vote.FeedbackTemplateResponse
 import com.ddd.attendance.data.model.vote.MyVoteStatusResponse
+import com.ddd.attendance.data.model.vote.TeamVoteResultsResponse
 import com.ddd.attendance.data.model.vote.TeamVoteTemplateResponse
+import com.ddd.attendance.data.model.vote.VoteDetailResponse
+import com.ddd.attendance.data.model.vote.VoteNonRespondersResponse
+import com.ddd.attendance.data.model.vote.VoteParticipationResponse
 import com.ddd.attendance.data.model.vote.VoteSubmitRequest
+import com.ddd.attendance.data.model.vote.VoteSummaryResponse
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -63,6 +69,90 @@ class ApiVoteDataSourceImpl @Inject constructor(
             val response = voteApi.submitVote(voteId, request)
             if (!response.isSuccessful) throw HttpException(response)
             Result.success(Unit)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getVotes(): Result<List<VoteSummaryResponse>> {
+        return try {
+            Result.success(voteApi.getVotes())
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun openVote(voteId: Int): Result<Unit> {
+        return try {
+            val response = voteApi.openVote(voteId)
+            if (!response.isSuccessful) throw HttpException(response)
+            Result.success(Unit)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun closeVote(voteId: Int): Result<Unit> {
+        return try {
+            val response = voteApi.closeVote(voteId)
+            if (!response.isSuccessful) throw HttpException(response)
+            Result.success(Unit)
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getVoteParticipation(voteId: Int): Result<VoteParticipationResponse> {
+        return try {
+            Result.success(voteApi.getVoteParticipation(voteId))
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getNonResponders(voteId: Int): Result<VoteNonRespondersResponse> {
+        return try {
+            Result.success(voteApi.getNonResponders(voteId))
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getVoteDetail(voteId: Int): Result<VoteDetailResponse> {
+        return try {
+            Result.success(voteApi.getVoteDetail(voteId))
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getTeamVoteResults(voteId: Int): Result<TeamVoteResultsResponse> {
+        return try {
+            Result.success(voteApi.getTeamVoteResults(voteId))
+        } catch (e: HttpException) {
+            Result.failure(e.toDomainException(TAG))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getFeedbackResults(voteId: Int): Result<FeedbackResultsResponse> {
+        return try {
+            Result.success(voteApi.getFeedbackResults(voteId))
         } catch (e: HttpException) {
             Result.failure(e.toDomainException(TAG))
         } catch (e: Exception) {
