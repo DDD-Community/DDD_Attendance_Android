@@ -160,6 +160,30 @@ internal fun ScreenChangeDropDown(
                         style = Typography.titleSmallB
                     )
                 }
+
+                Spacer(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                        .background(BackgroundSecondaryDark)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .clickable {
+                            onUiTypeChanged(AdminType.Vote)
+                            onScreenChangeDropDownDismiss()
+                        }
+                        .padding(16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    DddText(
+                        text = stringResource(R.string.vote),
+                        style = Typography.titleSmallB
+                    )
+                }
             }
         }
     }
