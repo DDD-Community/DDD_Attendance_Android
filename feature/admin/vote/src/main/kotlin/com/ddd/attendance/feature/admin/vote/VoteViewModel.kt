@@ -1,5 +1,6 @@
 package com.ddd.attendance.feature.admin.vote
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ddd.attendance.domain.model.vote.FeedbackQuestionType
@@ -163,9 +164,11 @@ class VoteViewModel @Inject constructor(
             }
             return
         }
+        Log.d(TAG, "confirmStartVote 진입 → openVote($voteId) 요청 시작")
         viewModelScope.launch {
             openVoteUseCase(voteId)
                 .onEach {
+                    Log.d(TAG, "openVote($voteId) 성공")
                     _uiState.update {
                         it.copy(
                             isShowStartConfirmDialog = false,
@@ -175,6 +178,7 @@ class VoteViewModel @Inject constructor(
                     fetchParticipation(voteId)
                 }
                 .catch {
+                    Log.e(TAG, "openVote($voteId) 실패", it)
                     _uiState.update { state -> state.copy(isShowStartConfirmDialog = false) }
                     emitError(it)
                 }
@@ -455,6 +459,7 @@ class VoteViewModel @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "VoteViewModel"
         private const val NO_VOTE_MESSAGE = "아직 만들어진 투표가 없어요. 먼저 투표를 생성해주세요."
     }
 }
