@@ -11,6 +11,7 @@ import com.ddd.attendance.domain.usecase.GetAdminScheduleAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminScheduleTeamAttendanceUseCase
 import com.ddd.attendance.domain.usecase.GetAdminTeamUseCase
 import com.ddd.attendance.domain.usecase.GetScheduleUseCase
+import com.ddd.attendance.domain.usecase.GetVotesUseCase
 import com.ddd.attendance.domain.usecase.LogoutUseCase
 import com.ddd.attendance.domain.model.admin.AdminTeam
 import com.ddd.attendance.domain.model.attendance.AttendanceStatus
@@ -54,7 +55,8 @@ class AdminViewModel @Inject constructor(
     private val attendancesUseCase: AttendancesUseCase,
     private val attendancesChangeUseCase: AttendancesChangeUseCase,
     private val attendanceStatusUseCase: AttendanceStatusUseCase,
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val getVotesUseCase: GetVotesUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(AdminUiState())
     val uiState: StateFlow<AdminUiState> = _uiState.asStateFlow()
@@ -66,6 +68,20 @@ class AdminViewModel @Inject constructor(
         observeScheduleTeamAttendances()
         observeScheduleAttendances()
         observeAllData()
+        observeVoteAvailability()
+    }
+
+    private fun observeVoteAvailability() {
+        viewModelScope.launch {
+            getVotesUseCase()
+                .onEach { votes ->
+                    _uiState.update {
+                        it.copy(isVoteMenuVisible = votes.isNotEmpty() || DEV_ALWAYS_SHOW_VOTE_MENU)
+                    }
+                }
+                .catch { /* Flow 종료 방지 */ }
+                .collect()
+        }
     }
 
     private fun observeAllData() {
@@ -398,4 +414,9 @@ class AdminViewModel @Inject constructor(
         val scheduleData: ScheduleData,
         val teams: ImmutableList<AdminTeam>
     )
+
+    companion object {
+        // TODO: 임시 개발용 - 테스트 동안 getVotes()가 비어도 '투표' 메뉴 강제 노출. 정식 배포 시 false로.
+        private const val DEV_ALWAYS_SHOW_VOTE_MENU = true
+    }
 }

@@ -113,6 +113,7 @@ fun AdminScreen(
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
+        isVoteMenuVisible = uiState.isVoteMenuVisible,
         isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
         isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
         isShowQrScanner = uiState.isShowQrScanner,
@@ -186,6 +187,7 @@ internal fun Content(
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
     isShowScreenChangeDropDownVisible: Boolean,
+    isVoteMenuVisible: Boolean,
     isShowScheduleBottomSheet: Boolean,
     isShowAbsentNotificationPopup: Boolean,
     isShowQrScanner: Boolean,
@@ -283,6 +285,7 @@ internal fun Content(
 
         ScreenChangeDropDown(
             isShow = isShowScreenChangeDropDownVisible,
+            isVoteVisible = isVoteMenuVisible,
             onScreenChangeDropDownDismiss = onScreenChangeDropDownDismiss,
             onUiTypeChanged = { onUiTypeChanged(it) }
         )
