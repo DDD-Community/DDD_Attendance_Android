@@ -520,11 +520,23 @@ private fun NotParticipatedDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn(
-                    modifier = Modifier.heightIn(max = 420.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.heightIn(max = 420.dp)
                 ) {
                     items(members) { member ->
-                        NotParticipatedMemberRow(member = member)
+                        Column {
+                            NotParticipatedMemberRow(member = member)
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(BorderDisabled)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
 
