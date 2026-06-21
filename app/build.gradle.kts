@@ -8,6 +8,16 @@ plugins {
 
 setNamespace("app")
 
+android {
+    buildTypes {
+        release {
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.material)
     implementation(projects.data)
