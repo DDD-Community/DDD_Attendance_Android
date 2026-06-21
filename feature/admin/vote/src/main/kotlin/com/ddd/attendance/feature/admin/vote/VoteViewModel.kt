@@ -164,11 +164,13 @@ class VoteViewModel @Inject constructor(
             }
             return
         }
+
         Log.d(TAG, "confirmStartVote 진입 → openVote($voteId) 요청 시작")
         viewModelScope.launch {
             openVoteUseCase(voteId)
                 .onEach {
                     Log.d(TAG, "openVote($voteId) 성공")
+
                     _uiState.update {
                         it.copy(
                             isShowStartConfirmDialog = false,
@@ -178,7 +180,9 @@ class VoteViewModel @Inject constructor(
                     fetchParticipation(voteId)
                 }
                 .catch {
+
                     Log.e(TAG, "openVote($voteId) 실패", it)
+
                     _uiState.update { state -> state.copy(isShowStartConfirmDialog = false) }
                     emitError(it)
                 }
@@ -351,9 +355,9 @@ class VoteViewModel @Inject constructor(
     )
 
     private fun DomainVoteStatus.toLabel(): String = when (this) {
-        DomainVoteStatus.DRAFT -> "작성중"
-        DomainVoteStatus.OPEN -> "진행중"
-        DomainVoteStatus.CLOSED -> "종료"
+        DomainVoteStatus.DRAFT -> "투표 전"
+        DomainVoteStatus.OPEN -> "진행 중"
+        DomainVoteStatus.CLOSED -> "투표 종료"
         DomainVoteStatus.UNKNOWN -> "알 수 없음"
     }
 

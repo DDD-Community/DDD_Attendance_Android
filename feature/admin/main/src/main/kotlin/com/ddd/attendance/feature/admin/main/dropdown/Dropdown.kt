@@ -161,7 +161,7 @@ internal fun ScreenChangeDropDown(
                         style = Typography.titleSmallB
                     )
                 }
-
+                
                 if (isVoteVisible) {
                     Spacer(
                         modifier = Modifier

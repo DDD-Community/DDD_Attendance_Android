@@ -19,13 +19,10 @@ class AuthInterceptor @Inject constructor(
             return chain.proceed(originalRequest)
         }
 
-        // TODO: 운영진/투표 기능 테스트용 하드코딩 토큰. 테스트 후 제거할 것.
-        val accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNzgiLCJyb2xlIjoiTUFOQUdFUiIsImV4cCI6NDEwMjQ0NDgwMH0.k7iylOR-v0Sy0B004wn_iD-q4-r1-ccFcx4udPzccTk"
-
         // AccessToken 가져오기
-        // val accessToken = runBlocking {
-        //     userPreferencesDataStore.accessToken.firstOrNull()
-        // }
+        val accessToken = runBlocking {
+            userPreferencesDataStore.accessToken.firstOrNull()
+        }
 
         // Authorization 헤더 추가
         val newRequest = if (!accessToken.isNullOrEmpty()) {
