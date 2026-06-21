@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vote_admin_title">투표 관리</string>
+    <string name="vote_admin_description">운영진 전용 화면이에요. 투표 진행을 관리할 수 있어요.</string>
+
+    <string name="vote_status_label">투표 상태</string>
+    <string name="vote_participation_label">참여 현황</string>
+
+    <string name="vote_status_before">투표 전</string>
+    <string name="vote_status_in_progress">진행 중</string>
+    <string name="vote_status_closed">투표 종료</string>
+
+    <string name="vote_participation_empty">투표 시작 전이에요</string>
+    <string name="vote_participation_in_progress">%1$d명 중 %2$d명 참여 (%3$d%%)</string>
+    <string name="vote_participation_closed">최종 %1$d명 참여 (%2$d%%)</string>
+
+    <string name="vote_check_not_participated">미참여 인원 확인하기</string>
+
+    <string name="vote_start_button">투표 시작하기</string>
+    <string name="vote_end_button">투표 종료하기</string>
+    <string name="vote_ended_button">투표가 종료되었어요</string>
+
+    <string name="vote_start_confirm_title">투표를 시작할까요?</string>
+    <string name="vote_start_confirm_content">시작하면 멤버 메뉴에 \'투표\'가\n노출되고 참여를 받기 시작해요.</string>
+
+    <string name="vote_end_confirm_title">투표를 종료할까요?</string>
+    <string name="vote_end_confirm_content">종료 후에는 투표를 다시\n시작할 수 없어요.\n결과는 최종 발표에서 공개돼요.</string>
+
+    <string name="vote_confirm_cancel">취소</string>
+    <string name="vote_confirm_start">시작하기</string>
+    <string name="vote_confirm_end">종료하기</string>
+
+    <string name="vote_not_participated_title">투표 미참여 멤버</string>
+    <string name="vote_not_participated_subtitle">총 %1$d명이 아직 투표하지 않았어요.</string>
+    <string name="vote_not_participated_close">닫기</string>
+
+    <string name="vote_attendance_attended">출석</string>
+    <string name="vote_attendance_late">지각</string>
+    <string name="vote_attendance_absent">결석</string>
+    <string name="vote_attendance_none">미체크</string>
+
+    <string name="vote_open_list">전체 투표 보기</string>
+    <string name="vote_open_results">투표 결과 보기</string>
+
+    <string name="vote_list_title">전체 투표</string>
+    <string name="vote_list_empty">아직 만들어진 투표가 없어요.</string>
+    <string name="vote_list_back">닫기</string>
+
+    <string name="vote_detail_title">투표 상세</string>
+    <string name="vote_detail_section_team_vote">팀 투표</string>
+    <string name="vote_detail_section_feedback">참여 경험 피드백</string>
+    <string name="vote_detail_section_empty">설정된 항목이 없어요.</string>
+    <string name="vote_detail_category_meta">최대 %1$d팀 선택</string>
+    <string name="vote_detail_reason_required">사유 필수</string>
+    <string name="vote_detail_reason_optional">사유 선택</string>
+    <string name="vote_detail_required">필수</string>
+    <string name="vote_detail_optional">선택</string>
+    <string name="vote_detail_open_results">이 투표 결과 보기</string>
+
+    <string name="vote_results_title">투표 결과</string>
+    <string name="vote_results_total">총 %1$d명 응답</string>
+    <string name="vote_results_tab_team">팀 투표</string>
+    <string name="vote_results_tab_feedback">피드백</string>
+    <string name="vote_results_empty">아직 집계된 결과가 없어요.</string>
+    <string name="vote_results_reasons_title">작성 사유</string>
+    <string name="vote_results_reasons_empty">아직 작성된 사유가 없어요.</string>
+    <string name="vote_results_rank">%1$d위</string>
+    <string name="vote_results_votes">%1$d표</string>
+    <string name="vote_results_boolean_yes">예 %1$d명</string>
+    <string name="vote_results_boolean_no">아니오 %1$d명</string>
+    <string name="vote_results_long_text_empty">아직 작성된 답변이 없어요.</string>
+</resources>

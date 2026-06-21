@@ -19,6 +19,7 @@ data class AdminUiState(
     val isShowAbsentNotificationPopup: Boolean = false,
     val isShowQrScanner: Boolean = false,
     val isAttendanceSuccess: Boolean = false,
+    val isVoteMenuVisible: Boolean = false,
 
     val selectedEditText: String = "",
 

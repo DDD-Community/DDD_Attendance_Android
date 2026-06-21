@@ -51,6 +51,7 @@ import com.ddd.attendance.feature.admin.main.dropdown.EditPopupDropdown
 import com.ddd.attendance.feature.admin.main.dropdown.ScreenChangeDropDown
 import com.ddd.attendance.feature.admin.schedule.ScheduleScreen
 import com.ddd.attendance.feature.admin.schedule.model.ScheduleUiModel
+import com.ddd.attendance.feature.admin.vote.VoteScreen
 import com.ddd.attendance.feature.core.header.UserHeader
 import com.ddd.attendance.feature.core.model.UserType
 import com.ddd.attendance.feature.core.popup.OneButtonTitleContentPopup
@@ -112,6 +113,7 @@ fun AdminScreen(
         selectedTeamIndex = uiState.selectedTeamIndex,
         isEditDialogVisible = uiState.isShowEditPopup,
         isShowScreenChangeDropDownVisible = uiState.isShowScreenChangeDropDown,
+        isVoteMenuVisible = uiState.isVoteMenuVisible,
         isShowScheduleBottomSheet = uiState.isShowScheduleBottomSheet,
         isShowAbsentNotificationPopup = uiState.isShowAbsentNotificationPopup,
         isShowQrScanner = uiState.isShowQrScanner,
@@ -165,7 +167,8 @@ fun AdminScreen(
         },
         onQrDetected = { qrCode ->
             viewModel.onIntent(AdminIntent.QrDetected(qrCode))
-        }
+        },
+        onApiErrorMessage = onQrApiErrorMessage
     )
 }
 
@@ -184,6 +187,7 @@ internal fun Content(
     selectedTeamIndex: Int,
     isEditDialogVisible: Boolean,
     isShowScreenChangeDropDownVisible: Boolean,
+    isVoteMenuVisible: Boolean,
     isShowScheduleBottomSheet: Boolean,
     isShowAbsentNotificationPopup: Boolean,
     isShowQrScanner: Boolean,
@@ -204,12 +208,14 @@ internal fun Content(
     onAbsentNotificationClick: () -> Unit,
     onAbsentNotificationDismiss: () -> Unit,
     onQrScannerBottomSheetDismiss: () -> Unit,
-    onQrDetected: (qrCode: String) -> Unit
+    onQrDetected: (qrCode: String) -> Unit,
+    onApiErrorMessage: (throwable: Throwable) -> Unit
 ) {
-    val headerText =
-        if (uiType == AdminType.Attendance) {
-            stringResource(R.string.attendance)
-        } else stringResource(R.string.schedule)
+    val headerText = when (uiType) {
+        AdminType.Attendance -> stringResource(R.string.attendance)
+        AdminType.Schedule -> stringResource(R.string.schedule)
+        AdminType.Vote -> stringResource(R.string.vote)
+    }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -257,6 +263,11 @@ internal fun Content(
                             scheduleList = scheduleList
                         )
                     }
+                    AdminType.Vote -> {
+                        VoteScreen(
+                            onApiErrorMessage = onApiErrorMessage
+                        )
+                    }
                 }
             }
         }
@@ -274,6 +285,7 @@ internal fun Content(
 
         ScreenChangeDropDown(
             isShow = isShowScreenChangeDropDownVisible,
+            isVoteVisible = isVoteMenuVisible,
             onScreenChangeDropDownDismiss = onScreenChangeDropDownDismiss,
             onUiTypeChanged = { onUiTypeChanged(it) }
         )

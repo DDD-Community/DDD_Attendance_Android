@@ -6,14 +6,10 @@ plugins {
     alias(libs.plugins.attendance.android.compose)
 }
 
-setNamespace("feature.admin.main")
+setNamespace("feature.admin.vote")
 
 dependencies {
-    implementation(projects.feature.admin.attendance)
-    implementation(projects.feature.admin.schedule)
-    implementation(projects.feature.admin.profile)
-    implementation(projects.feature.admin.vote)
     implementation(projects.feature.designsystem)
     implementation(projects.domain)
-    implementation(libs.androidx.compose.foundation.layout)
+    api(projects.feature.core)
 }
